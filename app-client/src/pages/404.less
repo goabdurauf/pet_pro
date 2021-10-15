@@ -1,0 +1,50 @@
+:global {
+
+  @phone: ~"only screen and (min-width: 240px) and (max-width: 720px)";
+
+  .page-404 {
+    min-height: 100vh;
+    background-image: url("/public/images/background/fon.png");
+    background-repeat: no-repeat;
+    background-position: left top;
+    background-size: 100%;
+    font-family: 'SFProDisplay Regular', sans-serif;
+    h1 {
+      font-size: 250px;
+      text-shadow: 10px 10px 0 rgba(0, 0, 0, 0.1);
+      animation: effectH 1s linear infinite;
+    }
+    h4 {
+      a {
+        color: #093845;
+        font-weight: normal;
+      }
+    }
+  }
+  @keyframes effectH {
+    0%, 100% {
+      text-shadow: 10px 10px 0 rgba(0, 0, 0, 0.1);
+    }
+    25% {
+      text-shadow: -10px 10px 0 rgba(0, 0, 0, 0.1);
+    }
+    50% {
+      text-shadow: -10px -10px 0 rgba(0, 0, 0, 0.1);
+    }
+    75% {
+      text-shadow: 10px -10px 0 rgba(0, 0, 0, 0.1);
+    }
+  }
+
+  @media @phone {
+
+    .page-404 {
+      background-image: unset;
+    }
+
+    .page-404 h1 {
+      font-size: 150px;
+    }
+
+  }
+}

@@ -1,0 +1,83 @@
+plugins {
+    id 'org.springframework.boot' version '2.4.11'
+    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+    id 'java'
+}
+
+group = 'uz.smart'
+version = '1.0'
+sourceCompatibility = '14'
+
+//configurations {
+//    compileOnly {
+//        extendsFrom annotationProcessor
+//    }
+//}
+
+repositories {
+    mavenCentral()
+    flatDir {
+        dirs 'src/libs'
+    }
+}
+
+dependencies {
+    compile fileTree(include: ['*.jar'], dir: 'src/libs')
+
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-data-rest'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+
+    // Security
+    implementation 'io.jsonwebtoken:jjwt:0.9.0'
+
+    // Microsoft office
+    implementation 'org.apache.poi:poi:4.0.1'
+    implementation 'org.apache.poi:poi-ooxml:4.0.1'
+
+    // Utils
+    implementation 'commons-io:commons-io:2.8.0'
+
+    // Telegram bot
+    implementation 'com.github.xabgesagtx:telegram-spring-boot-starter:0.24'
+
+    // Lombok
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    // DB
+    runtimeOnly 'org.postgresql:postgresql'
+
+    // MapStruct
+    compileOnly 'org.mapstruct:mapstruct:1.4.1.Final'
+    annotationProcessor 'org.mapstruct:mapstruct-processor:1.4.1.Final'
+
+    /*
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.security:spring-security-test'
+    */
+}
+
+task jarWithDeps(dependsOn: 'jar', type: Copy) {
+    def conf = configurations.runtimeClasspath
+    from conf.allDependencies.collect { conf.files(it) }
+    into "${project.projectDir}/lib"
+}
+
+jar {
+    enabled = true
+    archivesBaseName = "app"
+    manifest {
+        attributes(
+                'Main-Class': 'uz.smart.Application',
+                "Class-Path": 'lib/ ' + configurations.findByName('runtimeClasspath').getFiles().collect { 'lib/' + it.getName() }.join(' ')
+        )
+    }
+}
+
+/*test {
+    useJUnitPlatform()
+}*/
