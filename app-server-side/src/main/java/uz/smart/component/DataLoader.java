@@ -34,6 +34,7 @@ public class DataLoader implements CommandLineRunner {
                     passwordEncoder.encode("Logistika"),
                     new HashSet<>(roleRepository.findAllById(Arrays.asList(10)))
             ));
+
         }
     }
 }

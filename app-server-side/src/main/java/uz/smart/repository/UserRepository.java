@@ -2,7 +2,6 @@ package uz.smart.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import uz.smart.entity.Role;
 import uz.smart.entity.User;
@@ -22,4 +21,6 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     List<CustomUser> getAllUsers();
 
     Optional<CustomUser> getById(UUID id);
+
+    List<CustomUser> getAllByRolesIsIn(List<Role> roles);
 }

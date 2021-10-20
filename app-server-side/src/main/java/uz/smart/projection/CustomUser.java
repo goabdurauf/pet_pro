@@ -14,5 +14,10 @@ public interface CustomUser {
     String getFullName();
     String getLogin();
     String getPhone();
-    Set<Role> getRoles();
+
+    @Value("#{@valueHelper.getUserRoleId(target)}")
+    int getRole();
+
+    @Value("#{@valueHelper.getUserRoleName(target)}")
+    String getRoleName();
 }

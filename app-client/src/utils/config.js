@@ -6,6 +6,8 @@ module.exports = {
     '/',
     '/login',
     '/user',
+    '/measure',
+    '/product',
   ],
 
 };

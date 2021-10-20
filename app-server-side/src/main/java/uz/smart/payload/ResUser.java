@@ -14,5 +14,6 @@ public class ResUser {
     private String fullName;
     private String login;
     private String phone;
-    private Set<Role> roles;
+    private int roleId;
+    private String roleName;
 }

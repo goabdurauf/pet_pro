@@ -28,12 +28,8 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody SignInDto signInDto) {
-        System.out.println(signInDto.toString());
-
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(signInDto.getLogin(), signInDto.getPassword()));
-
         SecurityContextHolder.getContext().setAuthentication(authentication);
-
         String jwt = tokenProvider.generateToken(authentication);
 
         return ResponseEntity.ok(new JwtAuthenticationResponse(jwt));

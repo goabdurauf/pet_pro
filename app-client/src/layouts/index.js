@@ -3,7 +3,8 @@ import 'bootstrap/dist/js/bootstrap.min';
 import {Link} from "react-router-dom";
 import React, {Component} from 'react';
 import {connect} from "react-redux";
-import {Menu, Dropdown, Row} from 'antd';
+import {Menu, Dropdown} from 'antd';
+import router from "umi/router";
 
 @connect(({app}) => ({app}))
 class Index extends Component {
@@ -61,7 +62,15 @@ class Index extends Component {
   };
 
   handleSettingsClick = e => {
-    console.log(e);
+    if (e.key === '1')
+      router.push('/user');
+    else if (e.key === '2')
+      router.push('/measure');
+    else if (e.key === '3')
+      router.push('/product');
+
+
+
   };
 
   render() {
@@ -118,14 +127,11 @@ class Index extends Component {
         }
     */
 
-    const clear = () =>{
-      window.localStorage.clear();
-    };
-
     const settingsMenu = (
       <Menu onClick={this.handleSettingsClick}>
         <Menu.Item key="1">Пользователи</Menu.Item>
         <Menu.Item key="2">Ед. измерение</Menu.Item>
+        <Menu.Item key="3">Продукты</Menu.Item>
       </Menu>
     );
     const userMenu = (
@@ -139,49 +145,49 @@ class Index extends Component {
         {isSigned ? <div className="navbar">
           <div className="row w-100">
             <div className="col-md-2">
-              <img src="../images/logo_1.svg" className="logo"/>
+              <img alt='' src="../images/logo_1.svg" className="logo"/>
             </div>
             <div className="col-md-8">
               <ul className="navbar-nav">
                 <Link to="/users">
                   <li className="nav-item">
-                      <span><img src="../icons/diagram.svg" /></span>
+                      <span><img alt='' src="../icons/diagram.svg" /></span>
                       <p className="text-center">Показатели</p>
                   </li>
                 </Link>
                 <Link to="/user">
                   <li className="nav-item current">
-                  <span><img src="../icons/order.svg" /></span>
+                  <span><img alt='' src="../icons/order.svg" /></span>
                   <p className="text-center">Заказы</p>
                 </li>
                 </Link>
                 <Link to="/user">
                   <li className="nav-item">
-                    <span><img src="../icons/money.svg" /></span>
+                    <span><img alt='' src="../icons/money.svg" /></span>
                     <p className="text-center">Финансы</p>
                   </li>
                 </Link>
                 <Link to="/user">
                   <li className="nav-item">
-                    <span><img src="../icons/customer.svg" /></span>
+                    <span><img alt='' src="../icons/customer.svg" /></span>
                     <p className="text-center">Клиенты</p>
                   </li>
                 </Link>
                 <Link to="/user">
                   <li className="nav-item">
-                    <span><img src="../icons/report.svg" /></span>
+                    <span><img alt='' src="../icons/report.svg" /></span>
                     <p className="text-center">Отчёты</p>
                   </li>
                 </Link>
                 <Link to="/user">
                   <li className="nav-item">
-                    <span><img src="../icons/calendar.svg" /></span>
+                    <span><img alt='' src="../icons/calendar.svg" /></span>
                     <p className="text-center">Календарь</p>
                   </li>
                 </Link>
                 <Dropdown overlay={settingsMenu}>
                   <li className="nav-item">
-                    <span><img src="../icons/settings.svg" /></span>
+                    <span><img alt='' src="../icons/settings.svg" /></span>
                     <p className="text-center">Справочники</p>
                   </li>
                 </Dropdown>
@@ -190,8 +196,11 @@ class Index extends Component {
             <div className="col-md-2">
               <Dropdown overlay={userMenu}>
                 <div>
-                  <div className="user-info">{currentActiveUser && currentActiveUser.fullName ? currentActiveUser.fullName : ''}</div>
-                  <div className="user-role">Менеджер</div>
+                  <img alt='' src="../icons/user.png" className="user-img" />
+                  <div>
+                    <div className="user-info">{currentActiveUser && currentActiveUser.fullName ? currentActiveUser.fullName : ''}</div>
+                    <div className="user-role">{currentActiveUser && currentActiveUser.roleName ? currentActiveUser.roleName : ''}</div>
+                  </div>
                 </div>
               </Dropdown>
              {/* <div className="dropdown">

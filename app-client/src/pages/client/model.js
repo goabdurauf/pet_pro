@@ -1,14 +1,16 @@
-import {saveUser, getRoleList, getUserById, getUserList, deleteUserById} from '@/services/service'
+import {saveClient, deleteClientById, getClientById, getClientList, getManagers, getListItems} from '@/services/service'
 import {notification} from 'antd'
 
 export default ({
-  namespace: 'users',
+  namespace: 'client',
   state: {
+    model: 'client',
     isModalOpen: false,
-    userList: [],
+    itemList: [],
     currentItem: null,
-    roleList: [],
     modalType: 'create',
+    countryList: [],
+    managerList: [],
     visibleColumns : [
       {
         title: '№',
@@ -18,35 +20,51 @@ export default ({
         render: (value, item, index) => index+1
       },
       {
-        title: 'Пользователь',
-        dataIndex: 'fullName',
-        key: 'fullName',
-        // render: (text, record) => <a>{text}</a>,
+        title: 'Название',
+        dataIndex: 'name',
+        key: 'name',
       },
       {
-        title: 'Логин',
-        dataIndex: 'login',
-        key: 'login',
+        title: 'Контактное лицо',
+        dataIndex: 'contactPerson',
+        key: 'contactPerson',
       },
       {
-        title: 'Тел. номер',
+        title: 'Телефон контактного лица',
         dataIndex: 'phone',
         key: 'phone',
       },
       {
-        title: 'Роль',
-        dataIndex: 'role',
-        key: 'role',
-        render: (text, record) => record.roleName,
+        title: 'Страна',
+        dataIndex: 'countryName',
+        key: 'countryName',
+      },
+      {
+        title: 'Город',
+        dataIndex: 'city',
+        key: 'city',
+      },
+      {
+        title: 'Менеджер',
+        dataIndex: 'managerName',
+        key: 'managerName',
+      },
+      {
+        title: 'Откуда узнал о нас',
+        dataIndex: 'sourceFrom',
+        key: 'sourceFrom',
       }
     ]
   },
   subscriptions: {
     setup({dispatch, history}) {
       history.listen((location) => {
-        if (location.pathname === '/user') {
+        if (location.pathname === '/client') {
           dispatch({
             type: 'query',
+          });
+          dispatch({
+            type: 'getAdditionals',
           });
         }
       });
@@ -54,15 +72,13 @@ export default ({
   },
   effects: {
     * query({payload}, {call, put, select}) {
-      let users = yield call(getUserList);
-      const roles = yield call(getRoleList);
+      let data = yield call(getClientList);
 
-      if (users.success && roles.success) {
+      if (data.success) {
         yield put({
           type: 'updateState',
           payload: {
-            userList: users.list,
-            roleList: roles.list,
+            itemList: data.list,
             currentItem: null,
             isModalOpen: false,
             modalType: 'create'
@@ -70,8 +86,22 @@ export default ({
         })
       }
     },
+    * getAdditionals({payload}, {call, put, select}) {
+      let manager = yield call(getManagers);
+      let county = yield call(getListItems, 2);
+
+      if (manager.success && county.success) {
+        yield put({
+          type: 'updateState',
+          payload: {
+            managerList: manager.list,
+            countryList: county.list
+          }
+        })
+      }
+    },
     * save({payload}, {call, put, select}) {
-      const result = yield call(saveUser, payload);
+      const result = yield call(saveClient, payload);
       if (result.success) {
         yield put({
           type: 'query'
@@ -92,7 +122,7 @@ export default ({
       }
     },
     * getById({payload}, {call, put, select}) {
-      const result = yield call(getUserById, payload.id);
+      const result = yield call(getClientById, payload.id);
       if (result.success) {
         yield put({
           type: 'updateState',
@@ -111,8 +141,8 @@ export default ({
         });
       }
     },
-    * deleteUser({payload}, {call, put, select}) {
-      const result = yield call(deleteUserById, payload.id);
+    * deleteById({payload}, {call, put, select}) {
+      const result = yield call(deleteClientById, payload.id);
       if (result.success) {
         yield put({
           type: 'query'

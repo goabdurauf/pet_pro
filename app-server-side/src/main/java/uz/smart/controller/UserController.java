@@ -5,9 +5,9 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import uz.smart.dto.UserDto;
 import uz.smart.entity.Role;
 import uz.smart.entity.User;
-import uz.smart.dto.UserDto;
 import uz.smart.exception.UserNotFoundException;
 import uz.smart.payload.ApiResponse;
 import uz.smart.payload.ResUser;
@@ -17,6 +17,8 @@ import uz.smart.repository.UserRepository;
 import uz.smart.security.CurrentUser;
 import uz.smart.service.UserService;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -25,23 +27,20 @@ import java.util.UUID;
 public class UserController {
 
     @Autowired
-    UserService userService;
+    UserService service;
 
     @Autowired
-    UserRepository userRepository;
+    UserRepository repository;
 
     @Autowired
     RoleRepository roleRepository;
 
     @GetMapping("/me")
-    public ResponseEntity<?> getCurrentUser(@CurrentUser User currentUser) {
-        return ResponseEntity.ok(new ResUser(
-                currentUser.getId(),
-                currentUser.getFullName(),
-                currentUser.getLogin(),
-                currentUser.getPhone(),
-                currentUser.getRoles()
-        ));
+    public ResponseEntity<?> getCurrentUser(@CurrentUser User user) {
+        ArrayList<Role> roles = new ArrayList<>(user.getRoles());
+        return ResponseEntity.ok(
+                new ResUser(user.getId(), user.getFullName(), user.getLogin(),
+                            user.getPhone(), roles.get(0).getId(), roles.get(0).getDescription()));
     }
 
     @GetMapping("/role")
@@ -52,26 +51,31 @@ public class UserController {
 //    @PreAuthorize(value = "hasAnyRole('ROLE_DIRECTOR','ROLE_MAIN_KASSIR', 'ROLE_KASSIR')")
     @PostMapping("/save")
     public HttpEntity<?> addNewUser(@RequestBody UserDto req) {
-        return userService.saveUser(req);
+        return service.saveUser(req);
     }
 
 //    @PreAuthorize(value = "hasAnyRole('ROLE_DIRECTOR','ROLE_MAIN_KASSIR', 'ROLE_KASSIR')")
     @GetMapping("/list")
     public List<CustomUser> getUsersList() {
-        return userRepository.getAllUsers();
+        return repository.getAllUsers();
     }
 
 //    @PreAuthorize(value = "hasAnyRole('ROLE_DIRECTOR','ROLE_MAIN_KASSIR', 'ROLE_KASSIR')")
     @GetMapping("/{id}")
     public CustomUser getById(@PathVariable UUID id) {
-        return userRepository.getById(id).orElseThrow(() ->
+        return repository.getById(id).orElseThrow(() ->
                 new UserNotFoundException("User with this id not found: " + id));
     }
 
     @DeleteMapping("/delete/{id}")
     public HttpEntity<?> deleteById(@PathVariable UUID id) {
-        userRepository.deleteById(id);
+        repository.deleteById(id);
         return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse("Пользователь успешно удален", true));
+    }
+
+    @GetMapping("/manager")
+    public List<CustomUser> getManagers() {
+        return repository.getAllByRolesIsIn(new ArrayList<>(Arrays.asList(roleRepository.getOne(20))));
     }
 /*
     @PostMapping("/admin")

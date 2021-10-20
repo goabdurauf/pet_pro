@@ -1,5 +1,6 @@
 import React from 'react';
 import {Button, Form, FormGroup, Input, Label} from 'reactstrap';
+import {Typography} from 'antd'
 import {connect} from 'dva'
 
 @connect(({app}) => ({app}))
@@ -24,7 +25,8 @@ class Login extends React.PureComponent {
         <div className="col-md-6 login_l">
           <div className="card">
             <div className="card-body">
-              <h5 className="login-title">Вход в систему</h5>
+              <Typography.Title level={4} className="login-title">Вход в систему</Typography.Title>
+              {/*<h5 className="login-title">Вход в систему</h5>*/}
               <Form>
                 <FormGroup>
                   <Label>Логин</Label>

@@ -1,4 +1,4 @@
-import {userMe, signIn, getRoleList} from '@/services/api';
+import {userMe, signIn, getRoleList} from '@/services/service';
 import {routerRedux} from "dva/router";
 import {TOKEN_NAME} from '@/constants';
 import router from "umi/router";
@@ -164,7 +164,7 @@ export default ({
     },
 
     * logout({payload}, {call, put, select}) {
-      localStorage.removeItem(TOKEN_NAME);
+      localStorage.clear();
       yield put(routerRedux.push('/login'));
       yield put({
         type: "updateState",
@@ -175,6 +175,7 @@ export default ({
       return true
     },
 
+    // eslint-disable-next-line require-yield
     * query({payload}, {put, call, select}) {
 
       const location = window.location;

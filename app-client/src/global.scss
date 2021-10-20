@@ -21,11 +21,11 @@ body {
     height: 100%;
     margin: 0;
     background-color: #fafcff;
-  //}
-  //
-  //.login-block {
-  //  position: absolute;
-  //  transform: translate(-50%, -50%);
+    //}
+    //
+    //.login-block {
+    //  position: absolute;
+    //  transform: translate(-50%, -50%);
 
     .card {
       border-radius: 4px;
@@ -41,11 +41,11 @@ body {
       }
 
       .login-title {
-      //  text-align: center;
-      //  font-weight: 600;
-      //  font-size: 24px;
-      //  line-height: 12px;
-        margin-bottom: 25px;
+        //  text-align: center;
+        //  font-weight: 600;
+        //  font-size: 24px;
+        //  line-height: 12px;
+        margin-bottom: 20px;
       }
 
       //.input-tel {
@@ -95,8 +95,10 @@ body {
       width: 130px;
       margin: 13px 0 0 10px;
     }
+
     .navbar-nav {
       flex-direction: inherit;
+
       a:hover {
         text-decoration: none;
       }
@@ -125,12 +127,18 @@ body {
       }
     }
 
-    .user-info{
+    .user-img {
+      width: 42px;
+      float: left;
+      margin: 9px 5px 0 0;
+    }
+
+    .user-info {
       font-size: 14px;
       padding-top: 10px;
     }
 
-    .user-role{
+    .user-role {
       font-size: 12px;
     }
   }
@@ -140,6 +148,7 @@ body {
       h4 {
         padding-bottom: 5px;
       }
+
       .btn-outline-primary {
         svg {
           margin-bottom: 3px;
@@ -148,11 +157,27 @@ body {
     }
   }
 
-  .ant-modal-root{
-    .ant-modal-body{
-      padding: 24px 12px;
-      .ant-col-12{
+  .ant-modal-root {
+    .ant-modal-body {
+      padding: 20px 12px 0 12px;
+
+      .ant-col-12, .ant-col-24 {
         padding: 0 12px;
+
+        label {
+          margin-bottom: 0.2rem;
+        }
+
+        .ant-form-item {
+          margin-bottom: 20px;
+
+          .ant-input {
+            border-radius: 4px;
+          }
+          .ant-select-selector {
+            border-radius: 4px;
+          }
+        }
       }
     }
   }
@@ -356,6 +381,7 @@ body {
 
     .container {
       max-width: 100%;
+
       .row {
         .col-md-12 {
           h3 {
@@ -465,6 +491,7 @@ body {
               border-right: 1px solid #dee2e6;
               border-left: 1px solid #dee2e6;
             }
+
             td {
               border-bottom: 0;
               border-top: 0;
@@ -472,6 +499,7 @@ body {
               border-left: 1px solid #dee2e6;
             }
           }
+
           overflow: auto;
           max-height: 800px;
 
@@ -519,6 +547,7 @@ body {
           }
         }
       }
+
       .action-btn {
         width: 28px;
         height: 28px;
@@ -628,7 +657,6 @@ body {
 
         }
       }
-
 
 
     }

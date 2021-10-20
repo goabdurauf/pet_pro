@@ -5,7 +5,8 @@ import java.util.stream.Stream;
 
 public enum ListType
 {
-    Measure           (1);
+    Measure           (1),
+    Country           (2);
 
     private final int code;
 

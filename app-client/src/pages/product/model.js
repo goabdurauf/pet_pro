@@ -1,14 +1,15 @@
-import {saveUser, getRoleList, getUserById, getUserList, deleteUserById} from '@/services/service'
+import {saveProduct, getProductList, getProductById, deleteProductById, getListItems} from '@/services/service'
 import {notification} from 'antd'
 
 export default ({
-  namespace: 'users',
+  namespace: 'product',
   state: {
+    model: 'product',
     isModalOpen: false,
-    userList: [],
+    itemList: [],
     currentItem: null,
-    roleList: [],
     modalType: 'create',
+    measureList: [],
     visibleColumns : [
       {
         title: '№',
@@ -18,33 +19,26 @@ export default ({
         render: (value, item, index) => index+1
       },
       {
-        title: 'Пользователь',
-        dataIndex: 'fullName',
-        key: 'fullName',
-        // render: (text, record) => <a>{text}</a>,
+        title: 'Название',
+        dataIndex: 'name',
+        key: 'name',
       },
       {
-        title: 'Логин',
-        dataIndex: 'login',
-        key: 'login',
+        title: 'Таможенный код',
+        dataIndex: 'code',
+        key: 'code',
       },
       {
-        title: 'Тел. номер',
-        dataIndex: 'phone',
-        key: 'phone',
-      },
-      {
-        title: 'Роль',
-        dataIndex: 'role',
-        key: 'role',
-        render: (text, record) => record.roleName,
+        title: 'Единица измерение',
+        dataIndex: 'measureName',
+        key: 'measureName',
       }
     ]
   },
   subscriptions: {
     setup({dispatch, history}) {
       history.listen((location) => {
-        if (location.pathname === '/user') {
+        if (location.pathname === '/product') {
           dispatch({
             type: 'query',
           });
@@ -54,24 +48,24 @@ export default ({
   },
   effects: {
     * query({payload}, {call, put, select}) {
-      let users = yield call(getUserList);
-      const roles = yield call(getRoleList);
+      let data = yield call(getProductList);
+      let measure = yield call(getListItems, 1);
 
-      if (users.success && roles.success) {
+      if (data.success) {
         yield put({
           type: 'updateState',
           payload: {
-            userList: users.list,
-            roleList: roles.list,
+            itemList: data.list,
             currentItem: null,
             isModalOpen: false,
-            modalType: 'create'
+            modalType: 'create',
+            measureList: measure.list
           }
         })
       }
     },
     * save({payload}, {call, put, select}) {
-      const result = yield call(saveUser, payload);
+      const result = yield call(saveProduct, payload);
       if (result.success) {
         yield put({
           type: 'query'
@@ -92,7 +86,7 @@ export default ({
       }
     },
     * getById({payload}, {call, put, select}) {
-      const result = yield call(getUserById, payload.id);
+      const result = yield call(getProductById, payload.id);
       if (result.success) {
         yield put({
           type: 'updateState',
@@ -111,8 +105,8 @@ export default ({
         });
       }
     },
-    * deleteUser({payload}, {call, put, select}) {
-      const result = yield call(deleteUserById, payload.id);
+    * deleteById({payload}, {call, put, select}) {
+      const result = yield call(deleteProductById, payload.id);
       if (result.success) {
         yield put({
           type: 'query'

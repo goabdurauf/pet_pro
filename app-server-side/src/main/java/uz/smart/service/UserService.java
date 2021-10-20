@@ -41,7 +41,7 @@ public class UserService {
         if (req.getId() == null || StringUtils.hasText(req.getPassword())){
             user.setPassword(passwordEncoder.encode(req.getPassword()));
         }
-        user.setRoles(new HashSet<>(Arrays.asList(roleRepository.findById(20)    // req.getRole()
+        user.setRoles(new HashSet<>(Arrays.asList(roleRepository.findById(req.getRole())
                 .orElseThrow(() -> new ResourceNotFoundException("User", "role", req.getRole())))));
 
         repository.saveAndFlush(user);

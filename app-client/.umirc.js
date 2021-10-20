@@ -21,6 +21,14 @@ export default {
           component: './user',
         },
         {
+          path: '/measure',
+          component: './measure',
+        },
+        {
+          path: '/product',
+          component: './product',
+        },
+        {
           path: '/404',
           component: './404',
         },

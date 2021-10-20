@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import uz.smart.entity.ListEntity;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ListRepository extends JpaRepository<ListEntity, Long> {
 
@@ -14,6 +15,9 @@ public interface ListRepository extends JpaRepository<ListEntity, Long> {
     @Modifying
     @Query("update list set state=0 where id = :id")
     void updateById(long id);
+
+    @Query("select l from list l where l.state > 0 and l.id = :id")
+    Optional<ListEntity> getListItemWithId(Long id);
 
     @Query("select t from list t where t.typeId = :type and t.state > 0 order by t.id")
     List<ListEntity> getListByType(long type);
