@@ -17,6 +17,26 @@ export default {
           component: './login',
         },
         {
+          path: '/dashboard',
+          component: './dashboard',
+        },
+        {
+          path: '/order',
+          component: './order',
+        },
+        {
+          path: '/finance',
+          component: './finance',
+        },
+        {
+          path: '/report',
+          component: './report',
+        },
+        {
+          path: '/calendar',
+          component: './calendar',
+        },
+        {
           path: '/user',
           component: './user',
         },
@@ -27,6 +47,18 @@ export default {
         {
           path: '/product',
           component: './product',
+        },
+        {
+          path: '/client',
+          component: './client',
+        },
+        {
+          path: '/supplier',
+          component: './supplier',
+        },
+        {
+          path: '/catalog',
+          component: './catalog',
         },
         {
           path: '/404',

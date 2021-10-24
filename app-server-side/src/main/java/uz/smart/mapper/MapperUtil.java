@@ -53,9 +53,11 @@ public abstract class MapperUtil {
     public abstract ClientDto toClientDto(ClientEntity entity);
     @AfterMapping
     void toClientDto(@MappingTarget ClientDto dto, ClientEntity entity) {
-        User manager = userRepository.findById(entity.getManagerId())
-                .orElseThrow(() -> new ResourceNotFoundException("User", "role", entity.getManagerId()));
-        dto.setManagerName(manager.getFullName());
+        if (entity.getManagerId() != null) {
+            User manager = userRepository.findById(entity.getManagerId())
+                    .orElseThrow(() -> new ResourceNotFoundException("User", "role", entity.getManagerId()));
+            dto.setManagerName(manager.getFullName());
+        }
     }
 
     // suppliers
@@ -66,9 +68,11 @@ public abstract class MapperUtil {
     public abstract SupplierDto toSupplierDto(SupplierEntity entity);
     @AfterMapping
     void toSupplierDto(@MappingTarget SupplierDto dto, SupplierEntity entity) {
-        User manager = userRepository.findById(entity.getManagerId())
-                .orElseThrow(() -> new ResourceNotFoundException("User", "role", entity.getManagerId()));
-        dto.setManagerName(manager.getFullName());
+        if (entity.getManagerId() != null) {
+            User manager = userRepository.findById(entity.getManagerId())
+                    .orElseThrow(() -> new ResourceNotFoundException("User", "role", entity.getManagerId()));
+            dto.setManagerName(manager.getFullName());
+        }
     }
 
 }

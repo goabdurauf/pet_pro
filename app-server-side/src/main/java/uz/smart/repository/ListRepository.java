@@ -19,6 +19,6 @@ public interface ListRepository extends JpaRepository<ListEntity, Long> {
     @Query("select l from list l where l.state > 0 and l.id = :id")
     Optional<ListEntity> getListItemWithId(Long id);
 
-    @Query("select t from list t where t.typeId = :type and t.state > 0 order by t.id")
+    @Query("select t from list t where t.typeId = :type and t.state > 0 order by t.nameRu")
     List<ListEntity> getListByType(long type);
 }

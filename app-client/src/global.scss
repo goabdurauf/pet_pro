@@ -157,6 +157,16 @@ body {
     }
   }
 
+  .catalog-page {
+    .ant-tabs {
+      .ant-tabs-tab{
+        padding: 8px 24px 8px 0;
+        text-align: left;
+        margin: 0 !important;
+      }
+    }
+  }
+
   .ant-modal-root {
     .ant-modal-body {
       padding: 20px 12px 0 12px;
@@ -181,6 +191,10 @@ body {
       }
     }
   }
+
+
+
+
 
   .admin-page {
     padding: 0;

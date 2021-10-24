@@ -4,73 +4,60 @@ import {Link} from "react-router-dom";
 import React, {Component} from 'react';
 import {connect} from "react-redux";
 import {Menu, Dropdown} from 'antd';
-import router from "umi/router";
 
 @connect(({app}) => ({app}))
 class Index extends Component {
-/*
+  /*
 
-  constructor(props) {
-    super(props);
-    this.state = {
-      monthName: '',
-      day: '',
-      year: '',
-      months: [
-        'Yanvar',
-        'Fevral',
-        'Mart',
-        'Aprel',
-        'May',
-        'Iyun',
-        'Iyul',
-        'Avgust',
-        'Sentyabr',
-        'Oktyabr',
-        'Noyabr',
-        'Dekabr'
-      ],
-    };
-  }
+    constructor(props) {
+      super(props);
+      this.state = {
+        monthName: '',
+        day: '',
+        year: '',
+        months: [
+          'Yanvar',
+          'Fevral',
+          'Mart',
+          'Aprel',
+          'May',
+          'Iyun',
+          'Iyul',
+          'Avgust',
+          'Sentyabr',
+          'Oktyabr',
+          'Noyabr',
+          'Dekabr'
+        ],
+      };
+    }
 
-  componentDidMount() {
+    componentDidMount() {
 
-    const {dispatch} = this.props;
+      const {dispatch} = this.props;
 
-    dispatch({
-      type: 'app/userMe',
-    });
+      dispatch({
+        type: 'app/userMe',
+      });
 
-    const d = new Date();
-    const monthIndex = d.getMonth();
-    const day = d.getDate();
-    const year = d.getFullYear();
-    const monthName = this.state.months.length ? this.state.months[monthIndex] : '';
-    this.setState({
-      monthName: monthName,
-      day: day,
-      year: year,
-    });
+      const d = new Date();
+      const monthIndex = d.getMonth();
+      const day = d.getDate();
+      const year = d.getFullYear();
+      const monthName = this.state.months.length ? this.state.months[monthIndex] : '';
+      this.setState({
+        monthName: monthName,
+        day: day,
+        year: year,
+      });
 
-  }
-*/
+    }
+  */
 
   logout = () => {
     this.props.dispatch({
       type: "app/logout"
     })
-  };
-
-  handleSettingsClick = e => {
-    if (e.key === '1')
-      router.push('/user');
-    else if (e.key === '2')
-      router.push('/measure');
-    else if (e.key === '3')
-      router.push('/product');
-
-
-
   };
 
   render() {
@@ -80,18 +67,18 @@ class Index extends Component {
     //
     const pathname = this.props.location.pathname;
 
-   /* const toggle = () => {
-      this.setState({
-        open: !this.state.open,
-      });
-      this.props.app.openModal = !this.props.app.openModal;
-    };*/
+    /* const toggle = () => {
+       this.setState({
+         open: !this.state.open,
+       });
+       this.props.app.openModal = !this.props.app.openModal;
+     };*/
 
     let isSigned = true;
-
     if (pathname === "/login" || pathname === "/") {
       isSigned = false;
     }
+
     /*
         let showCourse = false;
         let showCash = false;
@@ -127,13 +114,6 @@ class Index extends Component {
         }
     */
 
-    const settingsMenu = (
-      <Menu onClick={this.handleSettingsClick}>
-        <Menu.Item key="1">Пользователи</Menu.Item>
-        <Menu.Item key="2">Ед. измерение</Menu.Item>
-        <Menu.Item key="3">Продукты</Menu.Item>
-      </Menu>
-    );
     const userMenu = (
       <Menu onClick={this.logout}>
         <Menu.Item key="1">Выход</Menu.Item>
@@ -145,65 +125,73 @@ class Index extends Component {
         {isSigned ? <div className="navbar">
           <div className="row w-100">
             <div className="col-md-2">
-              <img alt='' src="../images/logo_1.svg" className="logo"/>
+              <img alt='' src="../images/logo.svg" className="logo"/>
             </div>
             <div className="col-md-8">
               <ul className="navbar-nav">
-                <Link to="/users">
-                  <li className="nav-item">
-                      <span><img alt='' src="../icons/diagram.svg" /></span>
-                      <p className="text-center">Показатели</p>
+                <Link to="/dashboard">
+                  <li className={"nav-item " + (pathname === '/dashboard' ? "current" : "")}>
+                    <span><img alt='' src="../icons/diagram.svg"/></span>
+                    <p className="text-center">Показатели</p>
                   </li>
                 </Link>
-                <Link to="/user">
-                  <li className="nav-item current">
-                  <span><img alt='' src="../icons/order.svg" /></span>
-                  <p className="text-center">Заказы</p>
-                </li>
+                <Link to="/order">
+                  <li className={"nav-item " + (pathname === '/order' ? "current" : "")}>
+                    <span><img alt='' src="../icons/order.svg"/></span>
+                    <p className="text-center">Заказы</p>
+                  </li>
                 </Link>
-                <Link to="/user">
-                  <li className="nav-item">
-                    <span><img alt='' src="../icons/money.svg" /></span>
+                <Link to="/finance">
+                  <li className={"nav-item " + (pathname === '/finance' ? "current" : "")}>
+                    <span><img alt='' src="../icons/money.svg"/></span>
                     <p className="text-center">Финансы</p>
                   </li>
                 </Link>
-                <Link to="/user">
-                  <li className="nav-item">
-                    <span><img alt='' src="../icons/customer.svg" /></span>
+                <Link to="/client">
+                  <li className={"nav-item " + (pathname === '/client' ? "current" : "")}>
+                    <span><img alt='' src="../icons/customer.svg"/></span>
                     <p className="text-center">Клиенты</p>
                   </li>
                 </Link>
-                <Link to="/user">
-                  <li className="nav-item">
-                    <span><img alt='' src="../icons/report.svg" /></span>
+                <Link to="/supplier">
+                  <li className={"nav-item " + (pathname === '/supplier' ? "current" : "")}>
+                    <span><img alt='' src="../icons/customer.svg"/></span>
+                    <p className="text-center">Поставщики</p>
+                  </li>
+                </Link>
+                <Link to="/report">
+                  <li className={"nav-item " + (pathname === '/report' ? "current" : "")}>
+                    <span><img alt='' src="../icons/report.svg"/></span>
                     <p className="text-center">Отчёты</p>
                   </li>
                 </Link>
-                <Link to="/user">
-                  <li className="nav-item">
-                    <span><img alt='' src="../icons/calendar.svg" /></span>
+                <Link to="/calendar">
+                  <li className={"nav-item " + (pathname === '/calendar' ? "current" : "")}>
+                    <span><img alt='' src="../icons/calendar.svg"/></span>
                     <p className="text-center">Календарь</p>
                   </li>
                 </Link>
-                <Dropdown overlay={settingsMenu}>
-                  <li className="nav-item">
-                    <span><img alt='' src="../icons/settings.svg" /></span>
+                <Link to="/catalog">
+                  <li className={"nav-item " + (pathname === '/catalog' ? "current" : "")}>
+                    <span><img alt='' src="../icons/settings.svg"/></span>
                     <p className="text-center">Справочники</p>
                   </li>
-                </Dropdown>
+                </Link>
               </ul>
             </div>
             <div className="col-md-2">
               <Dropdown overlay={userMenu}>
                 <div>
-                  <img alt='' src="../icons/user.png" className="user-img" />
+                  <img alt='' src="../icons/user.png" className="user-img"/>
                   <div>
-                    <div className="user-info">{currentActiveUser && currentActiveUser.fullName ? currentActiveUser.fullName : ''}</div>
-                    <div className="user-role">{currentActiveUser && currentActiveUser.roleName ? currentActiveUser.roleName : ''}</div>
+                    <div
+                      className="user-info">{currentActiveUser && currentActiveUser.fullName ? currentActiveUser.fullName : ''}</div>
+                    <div
+                      className="user-role">{currentActiveUser && currentActiveUser.roleName ? currentActiveUser.roleName : ''}</div>
                   </div>
                 </div>
               </Dropdown>
-             {/* <div className="dropdown">
+              {/* <div className="dropdown">
                 <button className="btn py-1 px-2 btn-outline-dark bg-transparent dropdown-toggle" type="button"
                         id="dropdownMenuButton"
                         data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">

@@ -5,9 +5,17 @@ module.exports = {
   openPages: [
     '/',
     '/login',
+    '/dashboard',
+    '/order',
+    '/finance',
+    '/report',
+    '/calendar',
     '/user',
     '/measure',
     '/product',
+    '/client',
+    '/supplier',
+    '/catalog',
   ],
 
 };

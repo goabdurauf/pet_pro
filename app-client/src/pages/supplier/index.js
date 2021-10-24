@@ -6,11 +6,11 @@ import {FormOutlined, DeleteOutlined, PlusOutlined} from '@ant-design/icons'
 
 const FormItem = Form.Item;
 
-@connect(({product, app}) => ({product, app}))
-class Product extends Component {
+@connect(({supplier, app}) => ({supplier, app}))
+class Supplier extends Component {
   render() {
-    const {product, dispatch} = this.props;
-    const {model, isModalOpen, itemList, currentItem, modalType, measureList, visibleColumns} = product;
+    const {supplier, dispatch} = this.props;
+    const {model, isModalOpen, itemList, currentItem, modalType, countryList, managerList, visibleColumns} = supplier;
 
     const handleSubmit = (name, {values, forms}) => {
       if (currentItem !== null)
@@ -60,26 +60,54 @@ class Product extends Component {
         rules: [{required: true, message: 'Этот поля не должно быть пустое',},],
         obj: <Input placeholder='Название'/>
       },{
-        label: 'Таможенный код',
-        name: 'code',
+        label: 'Контактное лицо',
+        name: 'contactPerson',
         width: 12,
         rules: [{required: false, message: 'Этот поля не должно быть пустое',},],
-        obj: <Input placeholder='Таможенный код'/>
+        obj: <Input placeholder='Контактное лицо'/>
       },{
-        label: 'Единица измерение',
-        name: 'measureId',
+        label: 'Телефон контактного лица',
+        name: 'phone',
+        width: 12,
+        rules: [{required: false, message: 'Этот поля не должно быть пустое',},],
+        obj: <Input placeholder='Телефон контактного лица'/>
+      },{
+        label: 'Страна',
+        name: 'countryId',
         width: 12,
         rules: [{required: true, message: 'Этот поля не должно быть пустое',},],
-        obj: <Select placeholder='единица измерение' showSearch
+        obj: <Select placeholder='Страна' showSearch
                      filterOption={(input, option) =>
                        option.children.toLocaleLowerCase().indexOf(input.toLocaleLowerCase()) >= 0 }>
-          {measureList.map(measure => <Select.Option key={measure.id} value={measure.id}>{measure.nameRu}</Select.Option>)}
+          {countryList.map(country => <Select.Option key={country.id} value={country.id}>{country.nameRu}</Select.Option>)}
         </Select>
+      },{
+        label: 'Город',
+        name: 'city',
+        width: 12,
+        rules: [{required: false, message: 'Этот поля не должно быть пустое',},],
+        obj: <Input placeholder='Город'/>
+      },{
+        label: 'Менеджер',
+        name: 'managerId',
+        width: 12,
+        // rules: [{required: true, message: 'Этот поля не должно быть пустое',},],
+        obj: <Select placeholder='Менеджер' showSearch
+                     filterOption={(input, option) =>
+                       option.children.toLocaleLowerCase().indexOf(input.toLocaleLowerCase()) >= 0 }>
+          {managerList.map(manager => <Select.Option key={manager.id} value={manager.id}>{manager.fullName}</Select.Option>)}
+        </Select>
+      },{
+        label: 'Откуда узнал о нас',
+        name: 'sourceFrom',
+        width: 12,
+        rules: [{required: true, message: 'Этот поля не должно быть пустое',},],
+        obj: <Input placeholder='реклама, от друзей ...' />
       }
     ]
     const modalProps = {
       visible: isModalOpen,
-      title: modalType === 'create' ? 'Создать продукт' : 'Редактировать продукт',
+      title: modalType === 'create' ? 'Создать поставщика' : 'Редактировать поставщика',
       onCancel() {
         dispatch({
           type: model + '/updateState',
@@ -125,7 +153,7 @@ class Product extends Component {
       <div className="users-page">
         <Card style={{width: '100%'}} bordered={false}>
           <Row>
-            <Col span={4}><Typography.Title level={4}>Продукты</Typography.Title></Col>
+            <Col span={4}><Typography.Title level={4}>Поставщики</Typography.Title></Col>
             <Col span={4} offset={16}>
               <Button className="float-right" outline color="primary" size="sm"
                       onClick={openModal}><PlusOutlined/> Добавить</Button>
@@ -144,4 +172,4 @@ class Product extends Component {
   }
 }
 
-export default Product;
+export default Supplier;
