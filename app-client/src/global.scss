@@ -157,6 +157,16 @@ body {
     }
   }
 
+  .order-page {
+    .btn-outline-primary {
+      margin-bottom: 10px;
+
+      svg {
+        margin-bottom: 3px;
+      }
+    }
+  }
+
   .catalog-page {
     .ant-tabs {
       .ant-tabs-tab{
@@ -186,6 +196,10 @@ body {
           }
           .ant-select-selector {
             border-radius: 4px;
+          }
+          .ant-picker {
+            border-radius: 4px;
+            width: 100%;
           }
         }
       }

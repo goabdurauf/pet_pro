@@ -2,14 +2,9 @@ package uz.smart.mapper;
 
 import org.mapstruct.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import uz.smart.dto.ClientDto;
-import uz.smart.dto.ListDto;
-import uz.smart.dto.ProductDto;
-import uz.smart.dto.SupplierDto;
+import uz.smart.dto.*;
 import uz.smart.entity.*;
 import uz.smart.exception.ResourceNotFoundException;
-import uz.smart.repository.ListRepository;
-import uz.smart.repository.RoleRepository;
 import uz.smart.repository.UserRepository;
 
 import java.util.List;
@@ -19,11 +14,7 @@ import java.util.List;
 public abstract class MapperUtil {
 
     @Autowired
-    private ListRepository listRepository;
-    @Autowired
     private UserRepository userRepository;
-    @Autowired
-    private RoleRepository roleRepository;
 
     // list items
     public abstract ListEntity toListEntity(ListDto dto);
@@ -74,5 +65,12 @@ public abstract class MapperUtil {
             dto.setManagerName(manager.getFullName());
         }
     }
+
+    // carrier
+    public abstract CarrierEntity toCarrierEntity(CarrierDto dto);
+    public abstract CarrierEntity updateCarrierEntity(CarrierDto dto, @MappingTarget CarrierEntity entity);
+    @InheritInverseConfiguration
+    public abstract List<CarrierDto> toCarrierDto(List<CarrierEntity> entities);
+    public abstract CarrierDto toCarrierDto(CarrierEntity entity);
 
 }

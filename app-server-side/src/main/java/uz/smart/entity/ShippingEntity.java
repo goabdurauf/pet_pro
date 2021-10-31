@@ -21,13 +21,14 @@ import java.util.UUID;
 public class ShippingEntity extends BaseEntity {
     private String num;
     private UUID managerId;
-    private String managerName;
     private UUID carrierId;
-    private BigDecimal price;
     private long currencyId;
+    private String currencyName;
+    private BigDecimal price;
     private BigDecimal rate;
     private BigDecimal finalPrice;
     private long shippingTypeId;
+    private String shippingTypeName;
     private String shippingNum;
 
     @OneToMany(fetch = FetchType.LAZY)

@@ -21,5 +21,6 @@ public class ClientDto {
     private String city;
     private UUID managerId;
     private String managerName;
-    private String sourceFrom;
+    private Long aboutId;
+    private String aboutName;
 }

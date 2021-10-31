@@ -23,6 +23,7 @@ public class SupplierEntity extends BaseEntity {
     private String countryName;
     private String city;
     private UUID managerId;
-    private String sourceFrom;
+    private Long aboutId;
+    private String aboutName;
 
 }

@@ -11,6 +11,8 @@ export default ({
     modalType: 'create',
     countryList: [],
     managerList: [],
+    aboutList: [],
+    isBtnDisabled: false,
     visibleColumns : [
       {
         title: '№',
@@ -51,8 +53,8 @@ export default ({
       },
       {
         title: 'Откуда узнал о нас',
-        dataIndex: 'sourceFrom',
-        key: 'sourceFrom',
+        dataIndex: 'aboutName',
+        key: 'aboutName',
       }
     ]
   },
@@ -81,6 +83,7 @@ export default ({
             itemList: data.list,
             currentItem: null,
             isModalOpen: false,
+            isBtnDisabled: false,
             modalType: 'create'
           }
         })
@@ -89,13 +92,15 @@ export default ({
     * getAdditionals({payload}, {call, put, select}) {
       let manager = yield call(getManagers);
       let county = yield call(getListItems, 2);
+      let about = yield call(getListItems, 3);
 
       if (manager.success && county.success) {
         yield put({
           type: 'updateState',
           payload: {
             managerList: manager.list,
-            countryList: county.list
+            countryList: county.list,
+            aboutList: about.list
           }
         })
       }
@@ -113,6 +118,10 @@ export default ({
           style: {backgroundColor: '#d8ffe9'}
         });
       } else {
+        yield put({
+          type: 'updateState',
+          payload: {isBtnDisabled: false,}
+        })
         notification.error({
           description: result.message,
           placement: 'topRight',

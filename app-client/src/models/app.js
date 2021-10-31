@@ -63,7 +63,7 @@ export default ({
             currentActiveUser: user
           }
         });
-        yield put(routerRedux.push('/user'))
+        yield put(routerRedux.push('/order'))
 
         // if (user.roles.filter(role => role.id === 10).length > 0) {
         //   yield put(routerRedux.push('/user'))

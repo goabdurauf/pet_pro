@@ -33,9 +33,13 @@ public class SupplierService {
                 : mapperUtil.updateSupplierEntity(dto, repository.findById(dto.getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Supplier", "Id", dto.getId())));
 
-        ListEntity listEntity = listRepository.findById(dto.getCountryId())
+        ListEntity country = listRepository.findById(dto.getCountryId())
                 .orElseThrow(() -> new ResourceNotFoundException("List", "countryId", dto.getCountryId()));
-        entity.setCountryName(listEntity.getNameRu());
+        entity.setCountryName(country.getNameRu());
+
+        ListEntity about = listRepository.findById(dto.getAboutId())
+                .orElseThrow(() -> new ResourceNotFoundException("List", "aboutId", dto.getAboutId()));
+        entity.setAboutName(about.getNameRu());
 
         repository.save(entity);
         return ResponseEntity.ok().body(new ApiResponse("Сохранено успешно", true));

@@ -1,46 +1,63 @@
-import {saveProduct, getProductList, getProductById, deleteProductById, getListItems} from '@/services/service'
+import {saveOrder, getOrderList, getOrderById, deleteOrderById, getClientList, getManagers, getListItems} from '@/services/service'
 import {notification} from 'antd'
+import moment from "moment";
 
 export default ({
-  namespace: 'product',
+  namespace: 'order',
   state: {
-    model: 'product',
+    // model: 'order',
     isModalOpen: false,
     itemList: [],
     currentItem: null,
     modalType: 'create',
-    measureList: [],
+    managerList: [],
+    clientList: [],
+    orderStatusList: [],
+    isBtnDisabled: false,
     visibleColumns : [
       {
         title: '№',
-        dataIndex: 'num',
-        key: 'num',
+        dataIndex: 'nomer',
+        key: 'nomer',
         align: 'center',
         render: (value, item, index) => index+1
       },
       {
-        title: 'Название',
-        dataIndex: 'name',
-        key: 'name',
+        title: 'Номер заказа',
+        dataIndex: 'num',
+        key: 'num',
       },
       {
-        title: 'Таможенный код',
-        dataIndex: 'code',
-        key: 'code',
+        title: 'Дата заказа',
+        dataIndex: 'date',
+        key: 'date',
       },
       {
-        title: 'Единица измерение',
-        dataIndex: 'measureName',
-        key: 'measureName',
+        title: 'Статус заказа',
+        dataIndex: 'statusName',
+        key: 'statusName',
+      },
+      {
+        title: 'Клиент',
+        dataIndex: 'clientName',
+        key: 'clientName',
+      },
+      {
+        title: 'Менеджер',
+        dataIndex: 'managerName',
+        key: 'managerName',
       }
     ]
   },
   subscriptions: {
     setup({dispatch, history}) {
       history.listen((location) => {
-        if (location.pathname === '/product') {
+        if (location.pathname === '/order') {
           dispatch({
             type: 'query',
+          });
+          dispatch({
+            type: 'getAdditionals',
           });
         }
       });
@@ -48,8 +65,7 @@ export default ({
   },
   effects: {
     * query({payload}, {call, put, select}) {
-      let data = yield call(getProductList);
-      let measure = yield call(getListItems, 1);
+      let data = yield call(getOrderList);
 
       if (data.success) {
         yield put({
@@ -58,14 +74,30 @@ export default ({
             itemList: data.list,
             currentItem: null,
             isModalOpen: false,
-            modalType: 'create',
-            measureList: measure.list
+            isBtnDisabled: false,
+            modalType: 'create'
+          }
+        })
+      }
+    },
+    * getAdditionals({payload}, {call, put, select}) {
+      let manager = yield call(getManagers);
+      let client = yield call(getClientList);
+      let status = yield call(getListItems, 6);
+
+      if (manager.success && client.success) {
+        yield put({
+          type: 'updateState',
+          payload: {
+            managerList: manager.list,
+            clientList: client.list,
+            orderStatusList: status.list
           }
         })
       }
     },
     * save({payload}, {call, put, select}) {
-      const result = yield call(saveProduct, payload);
+      const result = yield call(saveOrder, payload);
       if (result.success) {
         yield put({
           type: 'query'
@@ -77,6 +109,10 @@ export default ({
           style: {backgroundColor: '#d8ffe9'}
         });
       } else {
+        yield put({
+          type: 'updateState',
+          payload: {isBtnDisabled: false,}
+        })
         notification.error({
           description: result.message,
           placement: 'topRight',
@@ -86,8 +122,9 @@ export default ({
       }
     },
     * getById({payload}, {call, put, select}) {
-      const result = yield call(getProductById, payload.id);
+      const result = yield call(getOrderById, payload.id);
       if (result.success) {
+        result.date = moment(result.date, 'DD.MM.YYYY HH:mm:ss');//zone("+05:00")
         yield put({
           type: 'updateState',
           payload: {
@@ -106,7 +143,7 @@ export default ({
       }
     },
     * deleteById({payload}, {call, put, select}) {
-      const result = yield call(deleteProductById, payload.id);
+      const result = yield call(deleteOrderById, payload.id);
       if (result.success) {
         yield put({
           type: 'query'

@@ -1,17 +1,5 @@
-import {
-  saveListItem,
-  deleteListItemById,
-  getListItems,
-  getListItemById,
-  getUserList,
-  getRoleList,
-  saveUser,
-  getUserById,
-  deleteUserById,
-  getProductList,
-  saveProduct,
-  getProductById,
-  deleteProductById
+import {saveListItem, deleteListItemById, getListItems, getListItemById, getUserList, getRoleList, saveUser, getUserById, deleteUserById, getProductList, saveProduct,
+  getProductById, deleteProductById, getCarrierList, saveCarrier, getCarrierById, deleteCarrierById
 } from '@/services/service'
 import {notification} from 'antd'
 
@@ -27,7 +15,9 @@ export default ({
     roleList: [],
     currentItem: null,
     modalType: 'create',
+    isBtnDisabled: false,
     measureList: [],
+    countryList: [],
     visibleColumns: []
   },
   subscriptions: {
@@ -59,6 +49,7 @@ export default ({
             roleList: roles.list,
             currentItem: null,
             modalType: 'create',
+            isBtnDisabled: false,
             visibleColumns: [
               {
                 title: '№',
@@ -107,6 +98,10 @@ export default ({
           style: {backgroundColor: '#d8ffe9'}
         });
       } else {
+        yield put({
+          type: 'updateState',
+          payload: {isBtnDisabled: false}
+        })
         notification.error({
           description: result.message,
           placement: 'topRight',
@@ -171,6 +166,7 @@ export default ({
             itemList: data.list,
             currentItem: null,
             modalType: 'create',
+            isBtnDisabled: false,
             visibleColumns: [
               {
                 title: '№',
@@ -202,6 +198,10 @@ export default ({
           style: {backgroundColor: '#d8ffe9'}
         });
       } else {
+        yield put({
+          type: 'updateState',
+          payload: {isBtnDisabled: false}
+        })
         notification.error({
           description: result.message,
           placement: 'topRight',
@@ -268,13 +268,14 @@ export default ({
             currentItem: null,
             modalType: 'create',
             measureList: measure.list,
-            visibleColumns : [
+            isBtnDisabled: false,
+            visibleColumns: [
               {
                 title: '№',
                 dataIndex: 'num',
                 key: 'num',
                 align: 'center',
-                render: (value, item, index) => index+1
+                render: (value, item, index) => index + 1
               },
               {
                 title: 'Название',
@@ -309,6 +310,10 @@ export default ({
           style: {backgroundColor: '#d8ffe9'}
         });
       } else {
+        yield put({
+          type: 'updateState',
+          payload: {isBtnDisabled: false}
+        })
         notification.error({
           description: result.message,
           placement: 'topRight',
@@ -357,7 +362,527 @@ export default ({
           style: {backgroundColor: '#ffd9d9'}
         });
       }
-    }
+    },
+    * queryAbout({payload}, {call, put, select}) {
+      let data = yield call(getListItems, 3);
+
+      if (data.success) {
+        yield put({
+          type: 'updateState',
+          payload: {
+            model: 'About',
+            title: 'Откуда узнал о нас',
+            createTitle: 'Создать откуда узнал о нас',
+            editTitle: 'Редактировать откуда узнал о нас',
+            isModalOpen: false,
+            itemList: data.list,
+            currentItem: null,
+            modalType: 'create',
+            isBtnDisabled: false,
+            visibleColumns: [
+              {
+                title: '№',
+                dataIndex: 'num',
+                key: 'num',
+                align: 'center',
+                render: (value, item, index) => index + 1
+              },
+              {
+                title: 'Название',
+                dataIndex: 'nameRu',
+                key: 'nameRu',
+              }
+            ]
+          }
+        })
+      }
+    },
+    * saveAbout({payload}, {call, put, select}) {
+      const result = yield call(saveListItem, {...payload, typeId: 3});
+      if (result.success) {
+        yield put({
+          type: 'queryAbout'
+        })
+        notification.info({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#d8ffe9'}
+        });
+      } else {
+        yield put({
+          type: 'updateState',
+          payload: {isBtnDisabled: false}
+        })
+        notification.error({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#ffd9d9'}
+        });
+      }
+    },
+    * getAboutById({payload}, {call, put, select}) {
+      const result = yield call(getListItemById, payload.id);
+      if (result.success) {
+        yield put({
+          type: 'updateState',
+          payload: {
+            currentItem: result,
+            isModalOpen: true,
+            modalType: 'update'
+          }
+        })
+      } else {
+        notification.error({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#ffd9d9'}
+        });
+      }
+    },
+    * deleteAbout({payload}, {call, put, select}) {
+      const result = yield call(deleteListItemById, payload.id);
+      if (result.success) {
+        yield put({
+          type: 'queryAbout'
+        })
+        notification.info({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#d8ffe9'}
+        });
+      } else {
+        notification.error({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#ffd9d9'}
+        });
+      }
+    },
+    * queryCurrency({payload}, {call, put, select}) {
+      let data = yield call(getListItems, 4);
+
+      if (data.success) {
+        yield put({
+          type: 'updateState',
+          payload: {
+            model: 'Currency',
+            title: 'Валюта',
+            createTitle: 'Создать валюту',
+            editTitle: 'Редактировать валюту',
+            isModalOpen: false,
+            itemList: data.list,
+            currentItem: null,
+            modalType: 'create',
+            isBtnDisabled: false,
+            visibleColumns: [
+              {
+                title: '№',
+                dataIndex: 'num',
+                key: 'num',
+                align: 'center',
+                render: (value, item, index) => index + 1
+              },
+              {
+                title: 'Название',
+                dataIndex: 'nameRu',
+                key: 'nameRu',
+              }
+            ]
+          }
+        })
+      }
+    },
+    * saveCurrency({payload}, {call, put, select}) {
+      const result = yield call(saveListItem, {...payload, typeId: 4});
+      if (result.success) {
+        yield put({
+          type: 'queryCurrency'
+        })
+        notification.info({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#d8ffe9'}
+        });
+      } else {
+        yield put({
+          type: 'updateState',
+          payload: {isBtnDisabled: false}
+        })
+        notification.error({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#ffd9d9'}
+        });
+      }
+    },
+    * getCurrencyById({payload}, {call, put, select}) {
+      const result = yield call(getListItemById, payload.id);
+      if (result.success) {
+        yield put({
+          type: 'updateState',
+          payload: {
+            currentItem: result,
+            isModalOpen: true,
+            modalType: 'update'
+          }
+        })
+      } else {
+        notification.error({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#ffd9d9'}
+        });
+      }
+    },
+    * deleteCurrency({payload}, {call, put, select}) {
+      const result = yield call(deleteListItemById, payload.id);
+      if (result.success) {
+        yield put({
+          type: 'queryCurrency'
+        })
+        notification.info({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#d8ffe9'}
+        });
+      } else {
+        notification.error({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#ffd9d9'}
+        });
+      }
+    },
+    * queryShippingType({payload}, {call, put, select}) {
+      let data = yield call(getListItems, 5);
+
+      if (data.success) {
+        yield put({
+          type: 'updateState',
+          payload: {
+            model: 'ShippingType',
+            title: 'Тип транспорта',
+            createTitle: 'Создать тип транспорта',
+            editTitle: 'Редактировать тип транспорта',
+            isModalOpen: false,
+            itemList: data.list,
+            currentItem: null,
+            modalType: 'create',
+            isBtnDisabled: false,
+            visibleColumns: [
+              {
+                title: '№',
+                dataIndex: 'num',
+                key: 'num',
+                align: 'center',
+                render: (value, item, index) => index + 1
+              },
+              {
+                title: 'Название',
+                dataIndex: 'nameRu',
+                key: 'nameRu',
+              }
+            ]
+          }
+        })
+      }
+    },
+    * saveShippingType({payload}, {call, put, select}) {
+      const result = yield call(saveListItem, {...payload, typeId: 5});
+      if (result.success) {
+        yield put({
+          type: 'queryShippingType'
+        })
+        notification.info({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#d8ffe9'}
+        });
+      } else {
+        yield put({
+          type: 'updateState',
+          payload: {isBtnDisabled: false}
+        })
+        notification.error({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#ffd9d9'}
+        });
+      }
+    },
+    * getShippingTypeById({payload}, {call, put, select}) {
+      const result = yield call(getListItemById, payload.id);
+      if (result.success) {
+        yield put({
+          type: 'updateState',
+          payload: {
+            currentItem: result,
+            isModalOpen: true,
+            modalType: 'update'
+          }
+        })
+      } else {
+        notification.error({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#ffd9d9'}
+        });
+      }
+    },
+    * deleteShippingType({payload}, {call, put, select}) {
+      const result = yield call(deleteListItemById, payload.id);
+      if (result.success) {
+        yield put({
+          type: 'queryShippingType'
+        })
+        notification.info({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#d8ffe9'}
+        });
+      } else {
+        notification.error({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#ffd9d9'}
+        });
+      }
+    },
+    * queryOrderStatus({payload}, {call, put, select}) {
+      let data = yield call(getListItems, 6);
+
+      if (data.success) {
+        yield put({
+          type: 'updateState',
+          payload: {
+            model: 'OrderStatus',
+            title: 'Статус заказа',
+            createTitle: 'Создать статус заказа',
+            editTitle: 'Редактировать статус заказа',
+            isModalOpen: false,
+            itemList: data.list,
+            currentItem: null,
+            modalType: 'create',
+            isBtnDisabled: false,
+            visibleColumns: [
+              {
+                title: '№',
+                dataIndex: 'num',
+                key: 'num',
+                align: 'center',
+                render: (value, item, index) => index + 1
+              },
+              {
+                title: 'Название',
+                dataIndex: 'nameRu',
+                key: 'nameRu',
+              }
+            ]
+          }
+        })
+      }
+    },
+    * saveOrderStatus({payload}, {call, put, select}) {
+      const result = yield call(saveListItem, {...payload, typeId: 6});
+      if (result.success) {
+        yield put({
+          type: 'queryOrderStatus'
+        })
+        notification.info({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#d8ffe9'}
+        });
+      } else {
+        yield put({
+          type: 'updateState',
+          payload: {isBtnDisabled: false}
+        })
+        notification.error({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#ffd9d9'}
+        });
+      }
+    },
+    * getOrderStatusById({payload}, {call, put, select}) {
+      const result = yield call(getListItemById, payload.id);
+      if (result.success) {
+        yield put({
+          type: 'updateState',
+          payload: {
+            currentItem: result,
+            isModalOpen: true,
+            modalType: 'update'
+          }
+        })
+      } else {
+        notification.error({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#ffd9d9'}
+        });
+      }
+    },
+    * deleteOrderStatus({payload}, {call, put, select}) {
+      const result = yield call(deleteListItemById, payload.id);
+      if (result.success) {
+        yield put({
+          type: 'queryOrderStatus'
+        })
+        notification.info({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#d8ffe9'}
+        });
+      } else {
+        notification.error({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#ffd9d9'}
+        });
+      }
+    },
+    * queryCarrier({payload}, {call, put, select}) {
+      let data = yield call(getCarrierList);
+      let country = yield call(getListItems, 2);
+
+      if (data.success) {
+        yield put({
+          type: 'updateState',
+          payload: {
+            model: 'Carrier',
+            title: 'Перевозчики',
+            createTitle: 'Создать перевозчик',
+            editTitle: 'Редактировать перевозчик',
+            isModalOpen: false,
+            itemList: data.list,
+            currentItem: null,
+            modalType: 'create',
+            countryList: country.list,
+            isBtnDisabled: false,
+            visibleColumns: [
+              {
+                title: '№',
+                dataIndex: 'num',
+                key: 'num',
+                align: 'center',
+                render: (value, item, index) => index + 1
+              },
+              {
+                title: 'Название',
+                dataIndex: 'name',
+                key: 'name',
+              },
+              {
+                title: 'Телефон',
+                dataIndex: 'phone',
+                key: 'phone',
+              },
+              {
+                title: 'Страна',
+                dataIndex: 'countryName',
+                key: 'countryName',
+              },
+              {
+                title: 'Город',
+                dataIndex: 'city',
+                key: 'city',
+              }
+            ]
+          }
+        })
+      }
+    },
+    * saveCarrier({payload}, {call, put, select}) {
+      const result = yield call(saveCarrier, payload);
+      if (result.success) {
+        yield put({
+          type: 'queryCarrier'
+        })
+        notification.info({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#d8ffe9'}
+        });
+      } else {
+        yield put({
+          type: 'updateState',
+          payload: {isBtnDisabled: false}
+        })
+        notification.error({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#ffd9d9'}
+        });
+      }
+    },
+    * getCarrierById({payload}, {call, put, select}) {
+      const result = yield call(getCarrierById, payload.id);
+      if (result.success) {
+        yield put({
+          type: 'updateState',
+          payload: {
+            currentItem: result,
+            isModalOpen: true,
+            modalType: 'update'
+          }
+        })
+      } else {
+        notification.error({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#ffd9d9'}
+        });
+      }
+    },
+    * deleteCarrier({payload}, {call, put, select}) {
+      const result = yield call(deleteCarrierById, payload.id);
+      if (result.success) {
+        yield put({
+          type: 'queryCarrier'
+        })
+        notification.info({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#d8ffe9'}
+        });
+      } else {
+        notification.error({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#ffd9d9'}
+        });
+      }
+    },
+
+
+
   },
   reducers: {
     updateState(state, {payload}) {

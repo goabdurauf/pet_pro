@@ -10,9 +10,13 @@ const FormItem = Form.Item;
 class Client extends Component {
   render() {
     const {client, dispatch} = this.props;
-    const {model, isModalOpen, itemList, currentItem, modalType, countryList, managerList, visibleColumns} = client;
+    const {model, isModalOpen, itemList, currentItem, modalType, countryList, managerList, aboutList, visibleColumns} = client;
 
     const handleSubmit = (name, {values, forms}) => {
+      dispatch({
+        type: model + '/updateState',
+        payload: {isBtnDisabled: true}
+      })
       if (currentItem !== null)
         values = {...values, id: currentItem.id}
 
@@ -99,10 +103,14 @@ class Client extends Component {
         </Select>
       },{
         label: 'Откуда узнал о нас',
-        name: 'sourceFrom',
+        name: 'aboutId',
         width: 12,
         rules: [{required: true, message: 'Этот поля не должно быть пустое',},],
-        obj: <Input placeholder='реклама, от друзей ...' />
+        obj: <Select placeholder='Откуда узнал о нас' showSearch
+                     filterOption={(input, option) =>
+                       option.children.toLocaleLowerCase().indexOf(input.toLocaleLowerCase()) >= 0 }>
+          {aboutList.map(about => <Select.Option key={about.id} value={about.id}>{about.nameRu}</Select.Option>)}
+        </Select>
       }
     ]
     const modalProps = {

@@ -30,5 +30,20 @@ export function getSupplierList() {return request({url: '/api/supplier/list', me
 export function getSupplierById(id) {return request({url: '/api/supplier/' + id, method: 'get',})}
 export function deleteSupplierById(id) {return request({url: '/api/supplier/' + id, method: 'delete',})}
 
+export function saveCarrier(data) {return request({url: '/api/carrier/save', method: 'post', data})}
+export function getCarrierList() {return request({url: '/api/carrier/list', method: 'get',})}
+export function getCarrierById(id) {return request({url: '/api/carrier/' + id, method: 'get',})}
+export function deleteCarrierById(id) {return request({url: '/api/carrier/' + id, method: 'delete',})}
+
+export function saveShipping(data) {return request({url: '/api/shipping/save', method: 'post', data})}
+export function getShippingList() {return request({url: '/api/shipping/list', method: 'get',})}
+export function getShippingById(id) {return request({url: '/api/shipping/' + id, method: 'get',})}
+export function deleteShippingById(id) {return request({url: '/api/shipping/' + id, method: 'delete',})}
+
+export function saveOrder(data) {return request({url: '/api/order/save', method: 'post', data})}
+export function getOrderList() {return request({url: '/api/order/list', method: 'get',})}
+export function getOrderById(id) {return request({url: '/api/order/' + id, method: 'get',})}
+export function deleteOrderById(id) {return request({url: '/api/order/' + id, method: 'delete',})}
+
 
 

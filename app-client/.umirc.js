@@ -29,32 +29,20 @@ export default {
           component: './finance',
         },
         {
-          path: '/report',
-          component: './report',
-        },
-        {
-          path: '/calendar',
-          component: './calendar',
-        },
-        {
-          path: '/user',
-          component: './user',
-        },
-        {
-          path: '/measure',
-          component: './measure',
-        },
-        {
-          path: '/product',
-          component: './product',
-        },
-        {
           path: '/client',
           component: './client',
         },
         {
           path: '/supplier',
           component: './supplier',
+        },
+        {
+          path: '/report',
+          component: './report',
+        },
+        {
+          path: '/calendar',
+          component: './calendar',
         },
         {
           path: '/catalog',
