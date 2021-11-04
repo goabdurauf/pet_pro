@@ -23,4 +23,5 @@ public class ShippingDto {
     private BigDecimal finalPrice;
     private long shippingTypeId;
     private String shippingNum;
+    private UUID orderId;
 }

@@ -15,7 +15,7 @@ class Supplier extends Component {
     const handleSubmit = (name, {values, forms}) => {
       dispatch({
         type: model + '/updateState',
-        payload: {isBtnDisabled: true}
+        payload: {isModalOpen: false}
       })
       if (currentItem !== null)
         values = {...values, id: currentItem.id}

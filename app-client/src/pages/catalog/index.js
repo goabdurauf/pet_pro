@@ -11,7 +11,7 @@ class Catalog extends Component {
   render() {
     const {catalog, dispatch} = this.props;
     const {model, title, createTitle, editTitle, isModalOpen, itemList, currentItem, modalType, roleList, measureList, countryList,
-      isBtnDisabled, visibleColumns} = catalog;
+      visibleColumns} = catalog;
 
     const getFormItems = () => {
       switch (model) {
@@ -169,7 +169,7 @@ class Catalog extends Component {
     const handleSubmit = (name, {values, forms}) => {
       dispatch({
         type: 'catalog/updateState',
-        payload: {isBtnDisabled: true}
+        payload: {isModalOpen: false}
       })
       if (currentItem !== null)
         values = {...values, id: currentItem.id}
@@ -240,7 +240,7 @@ class Catalog extends Component {
         form.submit();
       };
       return (
-        <Modal {...modalProps} onOk={onOk} okText={"Добавить"} cancelText={"Отмена"} okButtonProps={{disabled: isBtnDisabled}}>
+        <Modal {...modalProps} onOk={onOk} okText={"Добавить"} cancelText={"Отмена"}>
           <Form form={form} name="userForm" initialValues={currentItem !== null ? currentItem : ''}>
             <Row> {getFormItems().map((item) =>
               <Col span={item.width} key={item.name}>

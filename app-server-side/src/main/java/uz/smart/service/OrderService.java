@@ -5,7 +5,9 @@ package uz.smart.service;
 */
 
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import uz.smart.dto.OrderDto;
@@ -14,10 +16,14 @@ import uz.smart.entity.OrderEntity;
 import uz.smart.exception.ResourceNotFoundException;
 import uz.smart.mapper.OrderMapper;
 import uz.smart.payload.ApiResponse;
+import uz.smart.payload.ReqSearch;
 import uz.smart.payload.ResOrder;
+import uz.smart.payload.ResPageable;
 import uz.smart.repository.ListRepository;
 import uz.smart.repository.OrderRepository;
+import uz.smart.utils.CommonUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -52,5 +58,21 @@ public class OrderService {
                 .orElseThrow(() -> new ResourceNotFoundException("Order", "id", id)));
     }
 
-    public List<ResOrder> getOrderList() {return mapper.toResOrder(repository.getAllOrders());}
+    public HttpEntity<?> getOrderList(ReqSearch req) {
+        Page<OrderEntity> page = repository.getAllOrders(CommonUtils.getPageable(req.getPage(), req.getSize()));
+        return ResponseEntity.status(HttpStatus.OK).body(new ResPageable(mapper.toResOrder(page.getContent()), page.getTotalElements(), req.getPage()));
+    }
+
+    public HttpEntity<?> getOrdersForSelect() {
+        Page<OrderEntity> page = repository.getAllOrders(CommonUtils.getPageable(0, 15));
+        return ResponseEntity.status(HttpStatus.OK).body(new ResPageable(getResOrder(page.getContent()), 0, 0));
+    }
+
+    private List<ResOrder> getResOrder(List<OrderEntity> entities) {
+        List<ResOrder> resList = new ArrayList<>();
+        for (OrderEntity entity : entities) {
+            resList.add(new ResOrder(entity.getId(), entity.getNum()));
+        }
+        return resList;
+    }
 }

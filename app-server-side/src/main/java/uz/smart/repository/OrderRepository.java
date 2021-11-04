@@ -4,6 +4,8 @@ package uz.smart.repository;
     Created by Ilhom Ahmadjonov on 31.10.2021. 
 */
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -24,6 +26,9 @@ public interface OrderRepository extends JpaRepository<OrderEntity, UUID> {
     @Query("select o from orders o where o.state > 0 and o.id = :id")
     Optional<OrderEntity> getOrderById(UUID id);
 
-    @Query("select o from orders o where o.state > 0 order by o.createdAt")
-    List<OrderEntity> getAllOrders();
+    @Query("select o from orders o where o.state > 0 order by o.createdAt desc ")
+    Page<OrderEntity> getAllOrders(Pageable pageable);
+
+    @Query("select o from orders o where o.state > 0 and o.num like '%'||:num||'%'")
+    List<OrderEntity> searchByNum(String num);
 }

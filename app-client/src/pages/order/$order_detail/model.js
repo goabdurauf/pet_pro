@@ -1,80 +1,72 @@
-import {saveSupplier, deleteSupplierById, getSupplierById, getSupplierList, getManagers, getListItems} from '@/services/service'
+import {saveOrder, getOrderList, getOrderById, deleteOrderById, getClientList, getManagers, getListItems} from '@/services/service'
 import {notification} from 'antd'
+import moment from "moment";
 
 export default ({
-  namespace: 'supplier',
+  namespace: 'orderDetail',
   state: {
-    model: 'supplier',
+    // model: 'order',
     isModalOpen: false,
     itemList: [],
     currentItem: null,
     modalType: 'create',
-    countryList: [],
     managerList: [],
-    aboutList: [],
-    // isBtnDisabled: false,
+    clientList: [],
+    orderStatusList: [],
+    isBtnDisabled: false,
     visibleColumns : [
       {
         title: '№',
-        dataIndex: 'num',
-        key: 'num',
+        dataIndex: 'nomer',
+        key: 'nomer',
         align: 'center',
         render: (value, item, index) => index+1
       },
       {
-        title: 'Название',
-        dataIndex: 'name',
-        key: 'name',
+        title: 'Номер заказа',
+        dataIndex: 'num',
+        key: 'num',
       },
       {
-        title: 'Контактное лицо',
-        dataIndex: 'contactPerson',
-        key: 'contactPerson',
+        title: 'Дата заказа',
+        dataIndex: 'date',
+        key: 'date',
       },
       {
-        title: 'Телефон контактного лица',
-        dataIndex: 'phone',
-        key: 'phone',
+        title: 'Статус заказа',
+        dataIndex: 'statusName',
+        key: 'statusName',
       },
       {
-        title: 'Страна',
-        dataIndex: 'countryName',
-        key: 'countryName',
-      },
-      {
-        title: 'Город',
-        dataIndex: 'city',
-        key: 'city',
+        title: 'Клиент',
+        dataIndex: 'clientName',
+        key: 'clientName',
       },
       {
         title: 'Менеджер',
         dataIndex: 'managerName',
         key: 'managerName',
-      },
-      {
-        title: 'Откуда узнал о нас',
-        dataIndex: 'aboutName',
-        key: 'aboutName',
       }
     ]
   },
   subscriptions: {
     setup({dispatch, history}) {
       history.listen((location) => {
-        if (location.pathname === '/supplier') {
+        if (location.pathname.startsWith('/order/detail')) {
           dispatch({
-            type: 'query',
-          });
-          dispatch({
-            type: 'getAdditionals',
+            type: 'getDetail',
+            payload:{id: location.pathname.split('/')[3]}
           });
         }
       });
     },
   },
   effects: {
+    * getDetail({payload}, {call, put, select}) {
+      console.log(payload.id);
+    },
     * query({payload}, {call, put, select}) {
-      let data = yield call(getSupplierList);
+      let data = yield call(getOrderList);
 
       if (data.success) {
         yield put({
@@ -83,7 +75,7 @@ export default ({
             itemList: data.list,
             currentItem: null,
             isModalOpen: false,
-            // isBtnDisabled: false,
+            isBtnDisabled: false,
             modalType: 'create'
           }
         })
@@ -91,22 +83,22 @@ export default ({
     },
     * getAdditionals({payload}, {call, put, select}) {
       let manager = yield call(getManagers);
-      let county = yield call(getListItems, 2);
-      let about = yield call(getListItems, 3);
+      let client = yield call(getClientList);
+      let status = yield call(getListItems, 6);
 
-      if (manager.success && county.success) {
+      if (manager.success && client.success) {
         yield put({
           type: 'updateState',
           payload: {
             managerList: manager.list,
-            countryList: county.list,
-            aboutList: about.list
+            clientList: client.list,
+            orderStatusList: status.list
           }
         })
       }
     },
     * save({payload}, {call, put, select}) {
-      const result = yield call(saveSupplier, payload);
+      const result = yield call(saveOrder, payload);
       if (result.success) {
         yield put({
           type: 'query'
@@ -118,10 +110,10 @@ export default ({
           style: {backgroundColor: '#d8ffe9'}
         });
       } else {
-        // yield put({
-        //   type: 'updateState',
-        //   payload: {isBtnDisabled: false,}
-        // })
+        yield put({
+          type: 'updateState',
+          payload: {isBtnDisabled: false,}
+        })
         notification.error({
           description: result.message,
           placement: 'topRight',
@@ -131,8 +123,9 @@ export default ({
       }
     },
     * getById({payload}, {call, put, select}) {
-      const result = yield call(getSupplierById, payload.id);
+      const result = yield call(getOrderById, payload.id);
       if (result.success) {
+        result.date = moment(result.date, 'DD.MM.YYYY HH:mm:ss');//zone("+05:00")
         yield put({
           type: 'updateState',
           payload: {
@@ -151,7 +144,7 @@ export default ({
       }
     },
     * deleteById({payload}, {call, put, select}) {
-      const result = yield call(deleteSupplierById, payload.id);
+      const result = yield call(deleteOrderById, payload.id);
       if (result.success) {
         yield put({
           type: 'query'

@@ -25,6 +25,10 @@ export default {
           component: './order',
         },
         {
+          path: '/order/detail/:order_detail',
+          component: './order/$order_detail',
+        },
+        {
           path: '/finance',
           component: './finance',
         },

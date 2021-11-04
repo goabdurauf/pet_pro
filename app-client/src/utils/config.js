@@ -7,6 +7,7 @@ module.exports = {
     '/login',
     '/dashboard',
     '/order',
+    '/order/detail/:order_detail',
     '/finance',
     '/client',
     '/supplier',

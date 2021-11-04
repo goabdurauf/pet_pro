@@ -125,55 +125,55 @@ class Index extends Component {
         {isSigned ? <div className="navbar">
           <div className="row w-100">
             <div className="col-md-2">
-              <img alt='' src="../images/logo.svg" className="logo"/>
+              <img alt='' src="/images/logo.svg" className="logo"/>
             </div>
             <div className="col-md-8">
               <ul className="navbar-nav">
                 <Link to="/dashboard">
                   <li className={"nav-item " + (pathname === '/dashboard' ? "current" : "")}>
-                    <span><img alt='' src="../icons/diagram.svg"/></span>
+                    <span><img alt='' src="/icons/diagram.svg"/></span>
                     <p className="text-center">Показатели</p>
                   </li>
                 </Link>
                 <Link to="/order">
                   <li className={"nav-item " + (pathname === '/order' ? "current" : "")}>
-                    <span><img alt='' src="../icons/order.svg"/></span>
+                    <span><img alt='' src="/icons/order.svg"/></span>
                     <p className="text-center">Заказы</p>
                   </li>
                 </Link>
                 <Link to="/finance">
                   <li className={"nav-item " + (pathname === '/finance' ? "current" : "")}>
-                    <span><img alt='' src="../icons/money.svg"/></span>
+                    <span><img alt='' src="/icons/money.svg"/></span>
                     <p className="text-center">Финансы</p>
                   </li>
                 </Link>
                 <Link to="/client">
                   <li className={"nav-item " + (pathname === '/client' ? "current" : "")}>
-                    <span><img alt='' src="../icons/customer.svg"/></span>
+                    <span><img alt='' src="/icons/customer.svg"/></span>
                     <p className="text-center">Клиенты</p>
                   </li>
                 </Link>
                 <Link to="/supplier">
                   <li className={"nav-item " + (pathname === '/supplier' ? "current" : "")}>
-                    <span><img alt='' src="../icons/customer.svg"/></span>
+                    <span><img alt='' src="/icons/customer.svg"/></span>
                     <p className="text-center">Поставщики</p>
                   </li>
                 </Link>
                 <Link to="/report">
                   <li className={"nav-item " + (pathname === '/report' ? "current" : "")}>
-                    <span><img alt='' src="../icons/report.svg"/></span>
+                    <span><img alt='' src="/icons/report.svg"/></span>
                     <p className="text-center">Отчёты</p>
                   </li>
                 </Link>
                 <Link to="/calendar">
                   <li className={"nav-item " + (pathname === '/calendar' ? "current" : "")}>
-                    <span><img alt='' src="../icons/calendar.svg"/></span>
+                    <span><img alt='' src="/icons/calendar.svg"/></span>
                     <p className="text-center">Календарь</p>
                   </li>
                 </Link>
                 <Link to="/catalog">
                   <li className={"nav-item " + (pathname === '/catalog' ? "current" : "")}>
-                    <span><img alt='' src="../icons/settings.svg"/></span>
+                    <span><img alt='' src="/icons/settings.svg"/></span>
                     <p className="text-center">Справочники</p>
                   </li>
                 </Link>
@@ -182,7 +182,7 @@ class Index extends Component {
             <div className="col-md-2">
               <Dropdown overlay={userMenu}>
                 <div>
-                  <img alt='' src="../icons/user.png" className="user-img"/>
+                  <img alt='' src="/icons/user.png" className="user-img"/>
                   <div>
                     <div
                       className="user-info">{currentActiveUser && currentActiveUser.fullName ? currentActiveUser.fullName : ''}</div>

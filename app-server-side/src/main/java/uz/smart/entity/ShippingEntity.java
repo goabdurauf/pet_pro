@@ -30,6 +30,7 @@ public class ShippingEntity extends BaseEntity {
     private long shippingTypeId;
     private String shippingTypeName;
     private String shippingNum;
+    private UUID orderId;
 
     @OneToMany(fetch = FetchType.LAZY)
     private List<Attachment> attachments;

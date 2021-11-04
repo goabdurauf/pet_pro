@@ -24,4 +24,9 @@ public class ResOrder {
     private String managerName;
     private Long statusId;
     private String statusName;
+
+    public ResOrder(UUID id, String num) {
+        this.id = id;
+        this.num = num;
+    }
 }

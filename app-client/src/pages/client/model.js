@@ -12,7 +12,7 @@ export default ({
     countryList: [],
     managerList: [],
     aboutList: [],
-    isBtnDisabled: false,
+    // isBtnDisabled: false,
     visibleColumns : [
       {
         title: '№',
@@ -83,7 +83,7 @@ export default ({
             itemList: data.list,
             currentItem: null,
             isModalOpen: false,
-            isBtnDisabled: false,
+            // isBtnDisabled: false,
             modalType: 'create'
           }
         })
@@ -118,10 +118,10 @@ export default ({
           style: {backgroundColor: '#d8ffe9'}
         });
       } else {
-        yield put({
-          type: 'updateState',
-          payload: {isBtnDisabled: false,}
-        })
+        // yield put({
+        //   type: 'updateState',
+        //   payload: {isBtnDisabled: false}
+        // })
         notification.error({
           description: result.message,
           placement: 'topRight',

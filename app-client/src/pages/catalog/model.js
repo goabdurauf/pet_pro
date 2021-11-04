@@ -98,10 +98,10 @@ export default ({
           style: {backgroundColor: '#d8ffe9'}
         });
       } else {
-        yield put({
-          type: 'updateState',
-          payload: {isBtnDisabled: false}
-        })
+        // yield put({
+        //   type: 'updateState',
+        //   payload: {isBtnDisabled: false}
+        // })
         notification.error({
           description: result.message,
           placement: 'topRight',
@@ -198,10 +198,10 @@ export default ({
           style: {backgroundColor: '#d8ffe9'}
         });
       } else {
-        yield put({
-          type: 'updateState',
-          payload: {isBtnDisabled: false}
-        })
+        // yield put({
+        //   type: 'updateState',
+        //   payload: {isBtnDisabled: false}
+        // })
         notification.error({
           description: result.message,
           placement: 'topRight',
@@ -310,10 +310,10 @@ export default ({
           style: {backgroundColor: '#d8ffe9'}
         });
       } else {
-        yield put({
-          type: 'updateState',
-          payload: {isBtnDisabled: false}
-        })
+        // yield put({
+        //   type: 'updateState',
+        //   payload: {isBtnDisabled: false}
+        // })
         notification.error({
           description: result.message,
           placement: 'topRight',
@@ -410,10 +410,10 @@ export default ({
           style: {backgroundColor: '#d8ffe9'}
         });
       } else {
-        yield put({
-          type: 'updateState',
-          payload: {isBtnDisabled: false}
-        })
+        // yield put({
+        //   type: 'updateState',
+        //   payload: {isBtnDisabled: false}
+        // })
         notification.error({
           description: result.message,
           placement: 'topRight',
@@ -510,10 +510,10 @@ export default ({
           style: {backgroundColor: '#d8ffe9'}
         });
       } else {
-        yield put({
-          type: 'updateState',
-          payload: {isBtnDisabled: false}
-        })
+        // yield put({
+        //   type: 'updateState',
+        //   payload: {isBtnDisabled: false}
+        // })
         notification.error({
           description: result.message,
           placement: 'topRight',
@@ -610,10 +610,10 @@ export default ({
           style: {backgroundColor: '#d8ffe9'}
         });
       } else {
-        yield put({
-          type: 'updateState',
-          payload: {isBtnDisabled: false}
-        })
+        // yield put({
+        //   type: 'updateState',
+        //   payload: {isBtnDisabled: false}
+        // })
         notification.error({
           description: result.message,
           placement: 'topRight',
@@ -710,10 +710,10 @@ export default ({
           style: {backgroundColor: '#d8ffe9'}
         });
       } else {
-        yield put({
-          type: 'updateState',
-          payload: {isBtnDisabled: false}
-        })
+        // yield put({
+        //   type: 'updateState',
+        //   payload: {isBtnDisabled: false}
+        // })
         notification.error({
           description: result.message,
           placement: 'topRight',
@@ -827,10 +827,10 @@ export default ({
           style: {backgroundColor: '#d8ffe9'}
         });
       } else {
-        yield put({
-          type: 'updateState',
-          payload: {isBtnDisabled: false}
-        })
+        // yield put({
+        //   type: 'updateState',
+        //   payload: {isBtnDisabled: false}
+        // })
         notification.error({
           description: result.message,
           placement: 'topRight',

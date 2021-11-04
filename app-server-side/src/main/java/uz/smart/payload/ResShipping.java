@@ -23,4 +23,5 @@ public class ResShipping {
     private BigDecimal finalPrice;
     private String shippingTypeName;
     private String shippingNum;
+    private String orderNum;
 }
