@@ -10,7 +10,8 @@ public enum ListType
     About           (3),
     Currency        (4),
     ShippingType    (5),
-    OrderStatus     (6)
+    OrderStatus     (6),
+    PackageType     (7)
     ;
 
     private final int code;

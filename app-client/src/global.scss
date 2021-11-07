@@ -167,7 +167,35 @@ body {
     }
   }
 
-  .catalog-page {
+  .order-detail-page {
+    .ant-col-5 {
+      border: 15px solid #f6f7fb;
+      border-right: 0;
+
+      .ant-card-body {
+        padding: 15px;
+
+        table {
+          width: 100%;
+          text-align: left;
+          margin-top: 5px;
+
+          td {
+            padding: 7px;
+          }
+        }
+      }
+    }
+    .ant-col-19 {
+      border: 15px solid #f6f7fb;
+
+      .ant-card-body {
+        padding: 15px;
+      }
+    }
+  }
+
+    .catalog-page {
     .ant-tabs {
       .ant-tabs-tab{
         padding: 8px 24px 8px 0;
@@ -181,7 +209,7 @@ body {
     .ant-modal-body {
       padding: 20px 12px 0 12px;
 
-      .ant-col-6, .ant-col-8, .ant-col-12, .ant-col-24 {
+      .ant-col-4, .ant-col-5, .ant-col-6, .ant-col-8, .ant-col-12, .ant-col-24 {
         padding: 0 12px;
 
         label {
@@ -201,6 +229,42 @@ body {
             border-radius: 4px;
             width: 100%;
           }
+        }
+
+        .uploads {
+          margin: 20px 50px;
+        }
+      }
+
+      .cargoDetails {
+        margin-bottom: 10px;
+
+        .ant-col-5 {
+          padding: 0 24px 0 0;
+
+          .ant-form-item {
+            margin-bottom: 10px;
+          }
+        }
+
+        .ant-col-4 {
+          svg {
+            margin: 0 10px;
+          }
+        }
+      }
+
+      .sides {
+        border-right: 1px dashed #cdcdcd;
+        margin-bottom: 10px;
+
+        .ant-form-item {
+          margin-bottom: 10px !important;
+        }
+      }
+      .sides-l {
+        .ant-form-item {
+          margin-bottom: 10px !important;
         }
       }
     }

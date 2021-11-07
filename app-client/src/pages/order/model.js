@@ -2,6 +2,7 @@ import {saveOrder, getOrderList, getSelectOrders, getOrderById, deleteOrderById,
         saveShipping, getShippingList, getShippingById, deleteShippingById, getCarrierList} from '@/services/service'
 import {notification} from 'antd'
 import moment from "moment";
+import {Link} from "umi";
 
 export default ({
   namespace: 'order',
@@ -92,6 +93,7 @@ export default ({
                 title: 'Номер заказа',
                 dataIndex: 'num',
                 key: 'num',
+                render: (text, record) => <Link to={'/order/detail/' + record.id}>{text}</Link>
               },
               {
                 title: 'Дата заказа',

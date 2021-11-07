@@ -1,6 +1,8 @@
 package uz.smart.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -10,6 +12,7 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import uz.smart.entity.Attachment;
 import uz.smart.entity.AttachmentContent;
+import uz.smart.payload.ApiResponse;
 import uz.smart.payload.ResUploadFile;
 import uz.smart.repository.AttachmentContentRepository;
 import uz.smart.repository.AttachmentRepository;
@@ -68,5 +71,11 @@ public class AttachmentService {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public HttpEntity<?> deleteFile(String id) {
+        attachmentContentRepository.deleteByAttachment_Id(UUID.fromString(id));
+        attachmentRepository.deleteById(UUID.fromString(id));
+        return ResponseEntity.ok().body(new ApiResponse("Удалено успешно", true));
     }
 }

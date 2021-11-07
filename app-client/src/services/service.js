@@ -46,5 +46,7 @@ export function getSelectOrders() {return request({url: '/api/order/select', met
 export function getOrderById(id) {return request({url: '/api/order/' + id, method: 'get',})}
 export function deleteOrderById(id) {return request({url: '/api/order/' + id, method: 'delete',})}
 
+export function uploadFile(data) {return request({url: '/api/file', method: 'post', data})}
+export function deleteFile(id) {return request({url: '/api/file/' + id, method: 'delete'})}
 
 

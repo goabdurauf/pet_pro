@@ -136,7 +136,7 @@ class Index extends Component {
                   </li>
                 </Link>
                 <Link to="/order">
-                  <li className={"nav-item " + (pathname === '/order' ? "current" : "")}>
+                  <li className={"nav-item " + (pathname.startsWith('/order') ? "current" : "")}>
                     <span><img alt='' src="/icons/order.svg"/></span>
                     <p className="text-center">Заказы</p>
                   </li>

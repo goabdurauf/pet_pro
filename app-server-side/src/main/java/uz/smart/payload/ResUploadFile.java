@@ -8,9 +8,9 @@ import java.util.UUID;
 
 @Data @NoArgsConstructor @AllArgsConstructor
 public class ResUploadFile {
-    private UUID fileId;
-    private String fileName;
-    private String fileDownloadUri;
-    private String fileType;
+    private UUID id;
+    private String name;
+    private String url;
+    private String type;
     private long size;
 }
