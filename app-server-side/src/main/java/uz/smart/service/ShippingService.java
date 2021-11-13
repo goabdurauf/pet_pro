@@ -9,23 +9,26 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import uz.smart.dto.ShippingDto;
-import uz.smart.entity.ListEntity;
-import uz.smart.entity.ShippingEntity;
+import uz.smart.entity.*;
 import uz.smart.exception.ResourceNotFoundException;
 import uz.smart.mapper.ShippingMapper;
 import uz.smart.payload.ApiResponse;
 import uz.smart.payload.ResShipping;
-import uz.smart.repository.ListRepository;
-import uz.smart.repository.ShippingRepository;
+import uz.smart.repository.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 @Service @AllArgsConstructor
 public class ShippingService {
 
-    private ShippingRepository repository;
+    private final UserRepository userRepository;
+    private final CarrierRepository carrierRepository;
+    private final OrderRepository orderRepository;
+    private final ShippingRepository repository;
     private final ListRepository listRepository;
+    private final ClientRepository clientRepository;
     private final ShippingMapper mapper;
 
     public HttpEntity<?> saveAndUpdateShipping(ShippingDto dto){
@@ -56,5 +59,41 @@ public class ShippingService {
                 .orElseThrow(() -> new ResourceNotFoundException("Shipping", "id", id)));
     }
 
-    public List<ResShipping> getShippingList() {return mapper.toResShipping(repository.getAllShipping());}
+    public List<ResShipping> getShippingListByOrderId(UUID id) {
+        return getShippingList(repository.getAllByOrderIdAndStateGreaterThan(id, 0));
+    }
+
+    public List<ResShipping> getShippingList() {
+        List<ShippingEntity> entityList = repository.getAllShipping();
+        return getShippingList(entityList);
+    }
+
+    private List<ResShipping> getShippingList(List<ShippingEntity> entityList) {
+        List<ResShipping> list = new ArrayList<>();
+        for (ShippingEntity entity : entityList) {
+            list.add(getResShipping(entity));
+        }
+        return list;
+    }
+
+    private ResShipping getResShipping(ShippingEntity entity) {
+        ResShipping res = mapper.toResShipping(entity);
+        User manager = userRepository.findById(entity.getManagerId())
+                .orElseThrow(() -> new ResourceNotFoundException("User", "managerId", entity.getManagerId()));
+        res.setManagerName(manager.getFullName());
+
+        CarrierEntity carrier = carrierRepository.findById(entity.getCarrierId())
+                .orElseThrow(() -> new ResourceNotFoundException("Carrier", "carrierId", entity.getCarrierId()));
+        res.setCarrierName(carrier.getName());
+
+        OrderEntity order = orderRepository.findById(entity.getOrderId())
+                .orElseThrow(() -> new ResourceNotFoundException("Order", "orderId", entity.getOrderId()));
+        res.setOrderNum(order.getNum());
+
+        ClientEntity client = clientRepository.findById(order.getClientId())
+                .orElseThrow(() -> new ResourceNotFoundException("Order", "clientId", order.getClientId()));
+        res.setClientName(client.getName());
+
+        return res;
+    }
 }

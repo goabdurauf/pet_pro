@@ -26,4 +26,6 @@ public interface ShippingRepository extends JpaRepository<ShippingEntity, UUID> 
 
     @Query("select s from shipping s where s.state > 0 order by s.createdAt")
     List<ShippingEntity> getAllShipping();
+
+    List<ShippingEntity> getAllByOrderIdAndStateGreaterThan(UUID orderId, int state);
 }

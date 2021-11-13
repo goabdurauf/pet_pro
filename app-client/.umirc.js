@@ -25,6 +25,14 @@ export default {
           component: './order',
         },
         {
+          path: '/order/cargo',
+          component: './order/cargo',
+        },
+        {
+          path: '/order/shipping',
+          component: './order/shipping',
+        },
+        {
           path: '/order/detail/:order_detail',
           component: './order/$order_detail',
         },

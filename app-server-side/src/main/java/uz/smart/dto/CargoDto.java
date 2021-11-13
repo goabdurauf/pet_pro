@@ -20,6 +20,7 @@ public class CargoDto {
     private String name;
     private String code;
     private String comment;
+    private UUID orderId;
 
     @JsonDeserialize(using = DateTimeDeserializer.class)
     private Timestamp loadDate;
@@ -31,26 +32,30 @@ public class CargoDto {
 
     private String senderName;
     private Long senderCountryId;
+    private String senderCountryName;
     private String senderCity;
     private String senderOthers;
 
     private String receiverName;
     private Long receiverCountryId;
+    private String receiverCountryName;
     private String receiverCity;
     private String receiverOthers;
 
     private String customFromName;
     private Long customFromCountryId;
+    private String customFromCountryName;
     private String customFromCity;
     private String customFromOthers;
 
     private String customToName;
     private Long customToCountryId;
+    private String customToCountryName;
     private String customToCity;
     private String customToOthers;
 
-    private List<UUID> senderAttachments;
-    private List<UUID> receiverAttachments;
-    private List<UUID> customFromAttachments;
-    private List<UUID> customToAttachments;
+    private List<AttachmentDto> senderAttachments;
+    private List<AttachmentDto> receiverAttachments;
+    private List<AttachmentDto> customFromAttachments;
+    private List<AttachmentDto> customToAttachments;
 }

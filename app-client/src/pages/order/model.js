@@ -3,6 +3,7 @@ import {saveOrder, getOrderList, getSelectOrders, getOrderById, deleteOrderById,
 import {notification} from 'antd'
 import moment from "moment";
 import {Link} from "umi";
+import {routerRedux} from "dva/router";
 
 export default ({
   namespace: 'order',
@@ -323,6 +324,9 @@ export default ({
           style: {backgroundColor: '#ffd9d9'}
         });
       }
+    },
+    * pushToPage({payload}, {call, put, select}) {
+      yield put(routerRedux.push(payload.key));
     }
 
   },

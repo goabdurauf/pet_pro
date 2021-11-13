@@ -8,6 +8,8 @@ module.exports = {
     '/dashboard',
     '/order',
     '/order/detail/:order_detail',
+    '/order/cargo',
+    '/order/shipping',
     '/finance',
     '/client',
     '/supplier',

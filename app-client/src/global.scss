@@ -195,7 +195,7 @@ body {
     }
   }
 
-    .catalog-page {
+  .catalog-page {
     .ant-tabs {
       .ant-tabs-tab{
         padding: 8px 24px 8px 0;
@@ -225,7 +225,7 @@ body {
           .ant-select-selector {
             border-radius: 4px;
           }
-          .ant-picker {
+          .ant-picker, .ant-input-number {
             border-radius: 4px;
             width: 100%;
           }

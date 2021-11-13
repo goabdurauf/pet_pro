@@ -37,7 +37,9 @@ public class ShippingController {
     }
 
     @GetMapping("/list")
-    public List<ResShipping> getList() {
-        return service.getShippingList();
-    }
+    public List<ResShipping> getList() {return service.getShippingList();}
+
+    @GetMapping("/order/{id}")
+    public List<ResShipping> getListByOrderId(@PathVariable UUID id) {return service.getShippingListByOrderId(id);}
+
 }

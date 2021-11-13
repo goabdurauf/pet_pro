@@ -18,4 +18,5 @@ public class CargoDetailDto {
     private BigDecimal capacity;
     private BigDecimal packageAmount;
     private Long packageTypeId;
+    private String packageTypeName;
 }

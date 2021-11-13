@@ -30,7 +30,7 @@ import java.util.UUID;
 @Service @AllArgsConstructor
 public class OrderService {
 
-    private OrderRepository repository;
+    private final OrderRepository repository;
     private final ListRepository listRepository;
     private final OrderMapper mapper;
 

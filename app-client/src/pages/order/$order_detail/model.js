@@ -1,13 +1,17 @@
-import {saveOrder, getOrderList, getOrderById, deleteOrderById, getClientList, getManagers, getListItems, uploadFile, deleteFile} from '@/services/service'
+import {saveCargo, getCargoListByOrderId, getCargoById, deleteCargoById, getClientList, getManagers, getListItems, uploadFile, deleteFile,
+  getShippingListByOrderId, getSelectOrders, saveShipping, getShippingById, deleteShippingById, getCarrierList
+} from '@/services/service'
 import {Input, Select, Form, notification} from 'antd'
 import moment from "moment";
 import React from "react";
 import {routerRedux} from "dva/router";
+import {Link} from "umi";
 
 export default ({
   namespace: 'orderDetail',
   state: {
     model: '',
+    orderId: '',
     isModalOpen: false,
     itemList: [],
     currentItem: null,
@@ -15,50 +19,19 @@ export default ({
     modalWidth: 100,
     managerList: [],
     clientList: [],
+    carrierList: [],
     orderStatusList: [],
     countryList: [],
     cargoDetails: [],
+    currencyList: [],
+    shipTypeList: [],
     packageTypeList: [],
     senderAttachments: [],
     receiverAttachments: [],
     customFromAttachments: [],
     customToAttachments: [],
     isBtnDisabled: false,
-    isLoading: '',
-    visibleColumns : [
-      {
-        title: '№',
-        dataIndex: 'nomer',
-        key: 'nomer',
-        align: 'center',
-        render: (value, item, index) => index+1
-      },
-      {
-        title: 'Номер заказа',
-        dataIndex: 'num',
-        key: 'num',
-      },
-      {
-        title: 'Дата заказа',
-        dataIndex: 'date',
-        key: 'date',
-      },
-      {
-        title: 'Статус заказа',
-        dataIndex: 'statusName',
-        key: 'statusName',
-      },
-      {
-        title: 'Клиент',
-        dataIndex: 'clientName',
-        key: 'clientName',
-      },
-      {
-        title: 'Менеджер',
-        dataIndex: 'managerName',
-        key: 'managerName',
-      }
-    ]
+    visibleColumns : []
   },
   subscriptions: {
     setup({dispatch, history}) {
@@ -69,7 +42,8 @@ export default ({
             payload:{id: location.pathname.split('/')[3]}
           });
           dispatch({
-            type: 'query'
+            type: 'queryCargo',
+            payload:{id: location.pathname.split('/')[3]}
           });
           dispatch({
             type: 'getAdditionals'
@@ -80,18 +54,24 @@ export default ({
   },
   effects: {
     * getDetail({payload}, {call, put, select}) {
-      console.log(payload.id);
+      yield put({
+        type: 'updateState',
+        payload: {
+          orderId: payload.id
+        }
+      })
     },
-    * query({payload}, {call, put, select}) {
-      // let data = yield call(getOrderList);
-      let packageType = yield call(getListItems, 7);
+    * queryCargo({payload}, {call, put, select}) {
+      let data = yield call(getCargoListByOrderId, payload.id);
+      // let packageType = yield call(getListItems, 7);
 
       // if (data.success) {
         yield put({
           type: 'updateState',
           payload: {
             model: 'Cargo',
-            // itemList: data.list,
+            itemList: data.list,
+            /*
             cargoDetails: [
               {
                 weight: <Form.Item key={'weight'} name={'weight'}><Input name={'weight'} placeholder='Вес'/></Form.Item>,
@@ -133,13 +113,62 @@ export default ({
                 packageAmount: <input type="number" className="form-control text-center" name="packageAmount" placeholder="Количество упаковки"/>,
               },
             ],
+            */
             modalWidth: 1200,
             currentItem: {cargoDetails:[{weight:'', capacity:'', packageTypeId:'', packageAmount:''}]},
             isModalOpen: false,
             isBtnDisabled: false,
             modalType: 'create',
             createTitle: 'Создать груз',
-            editTitle: 'Редактировать груза'
+            editTitle: 'Редактировать груза',
+            visibleColumns : [
+              {
+                title: 'Номер груза',
+                dataIndex: 'code',
+                key: 'code'
+              },
+              {
+                title: 'Название груза',
+                dataIndex: 'name',
+                key: 'name',
+              },
+              {
+                title: 'Параметры груза',
+                dataIndex: 'cargoDetails',
+                key: 'cargoDetails',
+                render: (text, record) => {
+                  if (record.cargoDetails && record.cargoDetails.length > 0) {
+                    return 'Вес: ' + record.cargoDetails[0].weight;
+                  } else
+                    return '';
+                }
+              },
+              {
+                title: 'Погрузка',
+                dataIndex: 'senderCountryName',
+                key: 'senderCountryName',
+              },
+              {
+                title: 'Дата погрузки',
+                dataIndex: 'loadDate',
+                key: 'loadDate',
+              },
+              {
+                title: 'Разгрузка',
+                dataIndex: 'receiverCountryName',
+                key: 'receiverCountryName',
+              },
+              {
+                title: 'Дата разгрузки',
+                dataIndex: 'unloadDate',
+                key: 'unloadDate',
+              },
+              {
+                title: 'Рейсы',
+                dataIndex: 'shippingNum',
+                key: 'shippingNum',
+              }
+            ]
           }
         })
       // }
@@ -147,6 +176,9 @@ export default ({
     * getAdditionals({payload}, {call, put, select}) {
       let manager = yield call(getManagers);
       let client = yield call(getClientList);
+      let carrier = yield call(getCarrierList);
+      let currency = yield call(getListItems, 4);
+      let shipType = yield call(getListItems, 5);
       let status = yield call(getListItems, 6);
       let country = yield call(getListItems, 2);
       let packageType = yield call(getListItems, 7);
@@ -157,6 +189,9 @@ export default ({
           payload: {
             managerList: manager.list,
             clientList: client.list,
+            carrierList: carrier.list,
+            currencyList: currency.list,
+            shipTypeList: shipType.list,
             orderStatusList: status.list,
             countryList: country.list,
             packageTypeList: packageType.list
@@ -164,12 +199,13 @@ export default ({
         })
       }
     },
-    * save({payload}, {call, put, select}) {
-      // data.map(item => {return item.id})
-      const result = yield call(saveOrder, payload);
+    * saveCargo({payload}, {call, put, select}) {
+      const {orderId} = yield select(_ => _.orderDetail);
+      const result = yield call(saveCargo, payload);
       if (result.success) {
         yield put({
-          type: 'query'
+          type: 'queryCargo',
+          payload:{id: orderId}
         })
         notification.info({
           description: result.message,
@@ -190,10 +226,11 @@ export default ({
         });
       }
     },
-    * getById({payload}, {call, put, select}) {
-      const result = yield call(getOrderById, payload.id);
+    * getCargoById({payload}, {call, put, select}) {
+      const result = yield call(getCargoById, payload.id);
       if (result.success) {
-        result.date = moment(result.date, 'DD.MM.YYYY HH:mm:ss');//zone("+05:00")
+        result.loadDate = moment(result.loadDate, 'DD.MM.YYYY HH:mm:ss');//zone("+05:00")
+        result.unloadDate = moment(result.unloadDate, 'DD.MM.YYYY HH:mm:ss');//zone("+05:00")
         yield put({
           type: 'updateState',
           payload: {
@@ -211,11 +248,154 @@ export default ({
         });
       }
     },
-    * deleteById({payload}, {call, put, select}) {
-      const result = yield call(deleteOrderById, payload.id);
+    * deleteCargoById({payload}, {call, put, select}) {
+      const {orderId} = yield select(_ => _.orderDetail);
+      const result = yield call(deleteCargoById, payload.id);
       if (result.success) {
         yield put({
-          type: 'query'
+          type: 'queryCargo',
+          payload:{id: orderId}
+        })
+        notification.info({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#d8ffe9'}
+        });
+      } else {
+        notification.error({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#ffd9d9'}
+        });
+      }
+    },
+    * queryShipping({payload}, {call, put, select}) {
+      let data = yield call(getShippingListByOrderId, payload.id);
+      let orders = yield call(getSelectOrders);
+
+      if (data.success) {
+        yield put({
+          type: 'updateState',
+          payload: {
+            model: 'Shipping',
+            itemList: data.list,
+            currentItem: {num: '', managerId: '', price: '', rate: 1, final: 0},
+            isModalOpen: false,
+            isBtnDisabled: false,
+            selectOrderList: orders.object,
+            modalType: 'create',
+            modalWidth: 700,
+            createTitle: 'Создать рейс',
+            editTitle: 'Редактировать рейса',
+            visibleColumns : [
+              {
+                title: '№',
+                dataIndex: 'nomer',
+                key: 'nomer',
+                align: 'center',
+                render: (value, item, index) => index+1
+              },
+              {
+                title: 'Номер рейса',
+                dataIndex: 'num',
+                key: 'num',
+              },
+              {
+                title: 'Номер заказа',
+                dataIndex: 'orderNum',
+                key: 'orderNum',
+              },
+              {
+                title: 'Менеджер',
+                dataIndex: 'managerName',
+                key: 'managerName',
+              },
+              {
+                title: 'Перевозчик',
+                dataIndex: 'carrierName',
+                key: 'carrierName',
+              },
+              {
+                title: 'Валюта',
+                dataIndex: 'currencyName',
+                key: 'currencyName',
+              },
+              {
+                title: 'Цена',
+                dataIndex: 'finalPrice',
+                key: 'finalPrice',
+              },
+              {
+                title: 'Тип транспорта',
+                dataIndex: 'shippingTypeName',
+                key: 'shippingTypeName',
+              },
+              {
+                title: 'Номер транспорта',
+                dataIndex: 'shippingNum',
+                key: 'shippingNum',
+              },
+            ]
+          }
+        })
+      }
+    },
+    * saveShipping({payload}, {call, put, select}) {
+      const {orderId} = yield select(_ => _.orderDetail);
+      const result = yield call(saveShipping, payload);
+      if (result.success) {
+        yield put({
+          type: 'queryShipping',
+          payload:{id: orderId}
+        })
+        notification.info({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#d8ffe9'}
+        });
+      } else {
+        yield put({
+          type: 'updateState',
+          payload: {isBtnDisabled: false,}
+        })
+        notification.error({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#ffd9d9'}
+        });
+      }
+    },
+    * getShippingById({payload}, {call, put, select}) {
+      const result = yield call(getShippingById, payload.id);
+      if (result.success) {
+        yield put({
+          type: 'updateState',
+          payload: {
+            currentItem: result,
+            isModalOpen: true,
+            modalType: 'update'
+          }
+        })
+      } else {
+        notification.error({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#ffd9d9'}
+        });
+      }
+    },
+    * deleteShippingById({payload}, {call, put, select}) {
+      const {orderId} = yield select(_ => _.orderDetail);
+      const result = yield call(deleteShippingById, payload.id);
+      if (result.success) {
+        yield put({
+          type: 'queryShipping',
+          payload:{id: orderId}
         })
         notification.info({
           description: result.message,
@@ -234,8 +414,8 @@ export default ({
     },
     * uploadAttachment({payload}, {call, put, select}) {
       const {senderAttachments, receiverAttachments, customFromAttachments, customToAttachments} = yield select(_ => _.orderDetail);
-      yield put({type: 'updateState', payload: {isLoading: payload.owner}})
       const result = yield call(uploadFile, payload);
+      console.log(result)
       if (result.success) {
         switch (payload.owner) {
           case 'sender':
@@ -255,12 +435,6 @@ export default ({
       } else {
         // notification
       }
-      yield put({
-        type: 'updateState',
-        payload: {
-          isLoading: ''
-        }
-      })
     },
     * deleteAttachment({payload}, {call, put, select}) {
       const {senderAttachments, receiverAttachments, customFromAttachments, customToAttachments} = yield select(_ => _.orderDetail);
@@ -285,8 +459,8 @@ export default ({
         // notification
       }
     },
-    * backToOrders({payload}, {call, put, select}) {
-      yield put(routerRedux.push('/order'));
+    * pushToPage({payload}, {call, put, select}) {
+      yield put(routerRedux.push(payload.key));
     }
   },
   reducers: {

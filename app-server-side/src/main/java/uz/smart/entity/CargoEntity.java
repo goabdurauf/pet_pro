@@ -11,14 +11,17 @@ import uz.smart.entity.template.BaseEntity;
 
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
 import java.sql.Timestamp;
 import java.util.List;
 
 @Data @NoArgsConstructor @AllArgsConstructor
 @Entity(name = "cargo")
 public class CargoEntity extends BaseEntity {
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    private OrderEntity order;
 
     private String name;
     private String code;
@@ -35,8 +38,8 @@ public class CargoEntity extends BaseEntity {
     private String senderCity;
     private String senderOthers;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    private Attachment senderAttachment;
+    @OneToMany(fetch = FetchType.LAZY)
+    private List<Attachment> senderAttachments;
 
     private String receiverName;
     private Long receiverCountryId;
@@ -44,8 +47,8 @@ public class CargoEntity extends BaseEntity {
     private String receiverCity;
     private String receiverOthers;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    private Attachment receiverAttachment;
+    @OneToMany(fetch = FetchType.LAZY)
+    private List<Attachment> receiverAttachments;
 
     private String customFromName;
     private Long customFromCountryId;
@@ -53,8 +56,8 @@ public class CargoEntity extends BaseEntity {
     private String customFromCity;
     private String customFromOthers;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    private Attachment customFromAttachment;
+    @OneToMany(fetch = FetchType.LAZY)
+    private List<Attachment> customFromAttachments;
 
     private String customToName;
     private Long customToCountryId;
@@ -62,7 +65,7 @@ public class CargoEntity extends BaseEntity {
     private String customToCity;
     private String customToOthers;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    private Attachment customToAttachment;
+    @OneToMany(fetch = FetchType.LAZY)
+    private List<Attachment> customToAttachments;
 
 }

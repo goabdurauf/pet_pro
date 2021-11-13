@@ -1,0 +1,3 @@
+ - open order detail after order creating
+ - reyslarni ichini ham ochish
+

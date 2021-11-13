@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Card, Row, Col, Tabs, Form, Input, Select, Space, Popconfirm, Table, DatePicker, Modal} from 'antd';
+import {Card, Row, Col, Tabs, Form, Input, Select, Space, Popconfirm, Table, InputNumber, Modal} from 'antd';
 import {connect} from "react-redux";
 import {DeleteOutlined, FormOutlined, PlusOutlined} from "@ant-design/icons";
 import {Button, Label} from "reactstrap";
@@ -7,67 +7,20 @@ import {routerRedux} from "dva/router";
 const { TabPane } = Tabs;
 const FormItem = Form.Item;
 
-@connect(({order, app}) => ({order, app}))
-class Order extends Component {
+@connect(({shipping, app}) => ({shipping, app}))
+class Shipping extends Component {
   render() {
-    const {order, dispatch} = this.props;
-    const {model, isModalOpen, itemList, currentItem, modalType, managerList, clientList, carrierList, currencyList, shipTypeList, orderStatusList, selectOrderList,
-      modalWidth, createTitle, editTitle, visibleColumns} = order;
-
-    const getFormItems = () => {
-      switch (model) {
-        case 'Order': return [
-          {
-            label: 'Номер',
-            name: 'num',
-            width: 12,
-            rules: [{required: true, message: 'Этот поля не должно быть пустое',},],
-            obj: <Input placeholder='номер заказа'/>
-          }, {
-            label: "Дата",
-            name: 'date',
-            width: 12,
-            rules: [{required: true, message: 'Этот поля не должно быть пустое',},],
-            obj: <DatePicker format={'DD.MM.YYYY'}/>
-          }, {
-            label: "Клиент",
-            name: 'clientId',
-            width: 12,
-            rules: [{required: true, message: 'Выберите клиента',},],
-            obj: <Select placeholder='клиент'>
-              {clientList.map(client => <Select.Option key={client.id} value={client.id}>{client.name}</Select.Option>)}
-            </Select>
-          }, {
-            label: "Менеджер",
-            name: 'managerId',
-            width: 12,
-            rules: [{required: true, message: 'Выберите менеджера',},],
-            obj: <Select placeholder='менеджер'>
-              {managerList.map(manager => <Select.Option key={manager.id} value={manager.id}>{manager.fullName}</Select.Option>)}
-            </Select>
-          }, {
-            label: "Статус",
-            name: 'statusId',
-            width: 12,
-            rules: [{required: true, message: 'Выберите статус заказа',},],
-            obj: <Select placeholder='статус'>
-              {orderStatusList.map(status => <Select.Option key={status.id} value={status.id}>{status.nameRu}</Select.Option>)}
-            </Select>
-          }
-        ];
-        case 'Cargo': return [];
-
-        default: return [];
-      }
-    }
+    const {shipping, dispatch} = this.props;
+    const {model, isModalOpen, itemList, currentItem, modalType, managerList, carrierList, currencyList, shipTypeList, selectOrderList,
+      modalWidth, createTitle, editTitle, visibleColumns} = shipping;
 
     const onChange = (key) => {
-      if (key !== 'Order')
-        dispatch({type: 'order/pushToPage', payload: {key}});
+      if (key !== 'Shipping')
+        dispatch({type: 'shipping/pushToPage', payload: {key}});
     }
     const handleSubmit = (name, {values, forms}) => {
       dispatch({
-        type: 'order/updateState',
+        type: 'shipping/updateState',
         payload: {isModalOpen: false}
       })
       if (modalType !== 'create')
@@ -78,7 +31,7 @@ class Order extends Component {
         values.date = date.format('DD.MM.YYYY HH:mm:ss');
 
       dispatch({
-        type: 'order/save' + model,
+        type: 'shipping/save' + model,
         payload: {
           ...values
         }
@@ -86,10 +39,10 @@ class Order extends Component {
     };
     const openModal = () => {
       dispatch({
-        type: 'order/updateState',
+        type: 'shipping/updateState',
         payload: {
           isModalOpen: !isModalOpen,
-          currentItem: model === 'Shipping' ? {rate:1} : null,
+          currentItem: {rate:1},
           modalType: 'create',
           isBtnDisabled: false
         }
@@ -120,7 +73,7 @@ class Order extends Component {
       width: modalWidth,
       onCancel() {
         dispatch({
-          type: 'order/updateState',
+          type: 'shipping/updateState',
           payload: {
             isModalOpen: false
           }
@@ -129,13 +82,13 @@ class Order extends Component {
     };
     const handleEdit = (id) => {
       dispatch({
-        type: 'order/get' + model + 'ById',
+        type: 'shipping/get' + model + 'ById',
         payload: {id}
       })
     };
     const handleDelete = (id) => {
       dispatch({
-        type: 'order/delete' + model + 'ById',
+        type: 'shipping/delete' + model + 'ById',
         payload: {id}
       })
     }
@@ -157,12 +110,12 @@ class Order extends Component {
       const getPrice = (event) => {
         let price = event.target.value;
         let rate = document.getElementById("rate").value;
-        form.setFieldsValue({finalPrice: price * rate})
+        form.setFieldsValue({finalPrice: price / rate})
       }
       const getRate = (event) => {
         let price = document.getElementById("price").value;
         let rate = event.target.value;
-        form.setFieldsValue({finalPrice: price * rate})
+        form.setFieldsValue({finalPrice: price / rate})
       }
       const onOk = () => {
         form.submit();
@@ -209,7 +162,7 @@ class Order extends Component {
               </Col>
               <Col span={6}><Label>Конечное цена</Label>
                 <FormItem key={'finalPrice'} name={'finalPrice'} rules={[{required: true, message: 'Введите конечную цену'}]}>
-                  <Input placeholder='конечное цена' />
+                  <InputNumber placeholder='конечное цена' precision={4} />
                 </FormItem>
               </Col>
               <Col span={8}><Label>Тип транспорта</Label>
@@ -236,39 +189,19 @@ class Order extends Component {
         </Modal>
       );
     };
-    const ModalForm = () => {
-      const [form] = Form.useForm();
-      const onOk = () => {
-        form.submit();
-      };
-      return (
-        <Modal {...modalProps} onOk={onOk} okText={"Добавить"} cancelText={"Отмена"}>
-          <Form form={form} initialValues={currentItem !== null ? currentItem : ''}>
-            <Row> {getFormItems().map((item) =>
-              <Col span={item.width} key={item.name}>
-                <Label>{item.label}</Label>
-                <FormItem key={item.name} name={item.name} rules={item.rules}>
-                  {item.obj}
-                </FormItem>
-              </Col>
-            )}</Row>
-          </Form>
-        </Modal>
-      );
-    };
     return (
       <div className="order-page">
         <Card style={{width: '100%'}} bordered={false}>
-          <Tabs onChange={onChange}>
-            <TabPane tab="Заказы" key="Order"><TabBody /></TabPane>
+          <Tabs onChange={onChange} defaultActiveKey="Shipping">{console.log(itemList)}
+            <TabPane tab="Заказы" key="/order">Подождите пожалуйста ...</TabPane>
             <TabPane tab="Грузы" key="/order/cargo">Подождите пожалуйста ...</TabPane>
-            <TabPane tab="Рейсы" key="/order/shipping">Подождите пожалуйста ...</TabPane>
+            <TabPane tab="Рейсы" key="Shipping"><TabBody /></TabPane>
           </Tabs>
-          <Form.Provider onFormFinish={handleSubmit}>{model === 'Shipping' ? <ShippingModal/> : <ModalForm/>}</Form.Provider>
+          <Form.Provider onFormFinish={handleSubmit}><ShippingModal/></Form.Provider>
         </Card>
       </div>
     );
   }
 }
 
-export default Order;
+export default Shipping;

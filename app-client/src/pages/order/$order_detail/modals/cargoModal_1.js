@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React from 'react'
 import {Col, DatePicker, Form, Input, Modal, Row, Select, Typography, Upload, Button, Space} from 'antd'
 import { UploadOutlined, MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import {Label} from "reactstrap";
@@ -6,33 +6,12 @@ import 'moment/locale/ru';
 import locale from 'antd/es/date-picker/locale/ru_RU';
 
 // https://github.com/8iq/nodejs-hackathon-boilerplate-starter-kit/blob/c82e514305bbe4ae77854c8242bc04b1a9736a43/apps/_example05app/containers/FormList.js#L213
-function CargoModal ({ modalProps, modalType, openModal, currentItem, isBtnDisabled, handleSubmit, countryList, customRequest, uploadChange, isLoading,
+function CargoModal ({ modalProps, currentItem, isBtnDisabled, handleSubmit, countryList, customRequest, uploadChange, isLoading,
                        senderAttachments, receiverAttachments, customFromAttachments, customToAttachments, packageTypeList }) {
   // useEffect(() => form.resetFields(), [props.initialValues]);
   const [form] = Form.useForm()
-  // const prevRef = React.createRef(); //useRef();
-
-  useEffect(() => {
-    form.setFieldsValue({
-      ...currentItem
-    });
-    // if (modalType === 'create')
-    //   form.resetFields();
-    // else
-    //   prevRef.current = currentItem;
-  });
-
   function handleFormSubmit (values) {
     handleSubmit(values);
-    form.resetFields();
-    // form.resetForm();
-    // prevRef.current.resetFields();
-  }
-  function handleCancel () {
-    // prevRef.current.resetFields();
-    form.resetFields();
-
-    openModal();
   }
   function handleSave () {
     form.submit()
@@ -41,7 +20,7 @@ function CargoModal ({ modalProps, modalType, openModal, currentItem, isBtnDisab
     // if (onFormValuesChange) onFormValuesChange(changedValues, allValues)
   }
 
-  return (<Modal {...modalProps} onOk={handleSave} onCancel={handleCancel} okButtonProps={{disabled: isBtnDisabled}} okText={"Добавить"} cancelText={"Отмена"}>
+  return (<Modal {...modalProps} onOk={handleSave} okButtonProps={{disabled: isBtnDisabled}} okText={"Добавить"} cancelText={"Отмена"}>
     <Form form={form} initialValues={currentItem !== null ? currentItem : ''} onFinish={handleFormSubmit} onValuesChange={handleChangeForm}>
       <Row>
         <Col span={5} key={'name'}><Label>Название груза</Label>
@@ -239,4 +218,4 @@ function CargoModal ({ modalProps, modalType, openModal, currentItem, isBtnDisab
   </Modal>)
 }
 
-export default CargoModal;
+export {CargoModal}
