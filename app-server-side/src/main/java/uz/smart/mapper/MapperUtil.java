@@ -72,5 +72,13 @@ public abstract class MapperUtil {
     @InheritInverseConfiguration
     public abstract List<CarrierDto> toCarrierDto(List<CarrierEntity> entities);
     public abstract CarrierDto toCarrierDto(CarrierEntity entity);
+    @AfterMapping
+    void toCarrierDto(@MappingTarget CarrierDto dto, CarrierEntity entity) {
+        if (entity.getManagerId() != null) {
+            User manager = userRepository.findById(entity.getManagerId())
+                    .orElseThrow(() -> new ResourceNotFoundException("User", "role", entity.getManagerId()));
+            dto.setManagerName(manager.getFullName());
+        }
+    }
 
 }

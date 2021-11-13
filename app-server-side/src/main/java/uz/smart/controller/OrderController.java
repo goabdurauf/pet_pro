@@ -32,9 +32,10 @@ public class OrderController {
     }
 
     @GetMapping("/{id}")
-    public ResOrder get(@PathVariable UUID id) {
-        return service.getOrder(id);
-    }
+    public ResOrder get(@PathVariable UUID id) {return service.getOrder(id, false);}
+
+    @GetMapping("/detail/{id}")
+    public ResOrder getDetail(@PathVariable UUID id) {return service.getOrder(id, true);}
 
     @PostMapping("/list")
     public HttpEntity<?> getList(@RequestBody ReqSearch req) {

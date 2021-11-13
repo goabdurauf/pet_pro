@@ -37,6 +37,10 @@ export default {
           component: './order/$order_detail',
         },
         {
+          path: '/order/shipping/detail/:shipping_detail',
+          component: './order/shipping/$shipping_detail',
+        },
+        {
           path: '/finance',
           component: './finance',
         },
@@ -45,8 +49,8 @@ export default {
           component: './client',
         },
         {
-          path: '/supplier',
-          component: './supplier',
+          path: '/carrier',
+          component: './carrier',
         },
         {
           path: '/report',

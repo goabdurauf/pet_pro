@@ -76,6 +76,11 @@ public class ShippingService {
         return list;
     }
 
+    public ResShipping getResShipping(UUID id) {
+        return getResShipping(repository.getShippingById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Shipping", "id", id)));
+    }
+
     private ResShipping getResShipping(ShippingEntity entity) {
         ResShipping res = mapper.toResShipping(entity);
         User manager = userRepository.findById(entity.getManagerId())

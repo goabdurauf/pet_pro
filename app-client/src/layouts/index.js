@@ -153,10 +153,10 @@ class Index extends Component {
                     <p className="text-center">Клиенты</p>
                   </li>
                 </Link>
-                <Link to="/supplier">
-                  <li className={"nav-item " + (pathname === '/supplier' ? "current" : "")}>
+                <Link to="/carrier">
+                  <li className={"nav-item " + (pathname === '/carrier' ? "current" : "")}>
                     <span><img alt='' src="/icons/customer.svg"/></span>
-                    <p className="text-center">Поставщики</p>
+                    <p className="text-center">Перевозчики</p>
                   </li>
                 </Link>
                 <Link to="/report">

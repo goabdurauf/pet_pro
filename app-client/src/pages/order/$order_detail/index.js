@@ -28,7 +28,7 @@ class OrderDetail extends Component {
 
   render() {
     const {orderDetail, dispatch} = this.props;
-      const {model, orderId, isModalOpen, itemList, currentItem, modalType, modalWidth, countryList, orderStatusList, managerList, createTitle, editTitle, visibleColumns,
+      const {model, orderId, isModalOpen, itemList, currentModel, currentItem, modalType, modalWidth, countryList, orderStatusList, managerList, createTitle, editTitle, visibleColumns,
       senderAttachments, receiverAttachments, customFromAttachments, customToAttachments, packageTypeList, carrierList, currencyList, shipTypeList} = orderDetail;
 
     const openModal = () => {
@@ -183,7 +183,7 @@ class OrderDetail extends Component {
                   <Input placeholder='курс' onChange={getRate} />
                 </FormItem>
               </Col>
-              <Col span={6}><Label>Конечное цена</Label>
+              <Col span={6}><Label>Конечное цена (USD)</Label>
                 <FormItem key={'finalPrice'} name={'finalPrice'} rules={[{required: true, message: 'Введите конечную цену'}]}>
                   <InputNumber placeholder='конечное цена' precision={4}/>
                 </FormItem>
@@ -420,13 +420,13 @@ class OrderDetail extends Component {
                   <Card style={{width: '100%'}} bordered={false}>
                     <div className="row">
                       <div className="col-md-12">
-                        <Space className="float-left mt-1">Номер заказа: 21922546</Space>
+                        <Space className="float-left mt-1">Номер заказа: {currentModel && currentModel.num}</Space>
                         <Button className="float-right" outline color="primary" size="sm" >Редактировать</Button>
                       </div>
                     </div>
                     <div className="row">
                       <div className="col-md-12">
-                        <Select id={'orderStatusId'} style={{width: '100%', marginTop: '20px'}}>
+                        <Select id={'orderStatusId'} style={{width: '100%', marginTop: '20px'}} defaultValue={currentModel && currentModel.statusId}>
                           {orderStatusList.map(status => <Select.Option key={status.id} value={status.id}>{status.nameRu}</Select.Option>)}
                         </Select>
                       </div>
@@ -441,10 +441,10 @@ class OrderDetail extends Component {
                           <tr><td>Прибыль:</td><td>1500 USD</td></tr>
                           <tr></tr>
                           <tr><td>Компания:</td><td>DAFEX</td></tr>
-                          <tr><td>Менеджер:</td><td>Дилшод Тиллаев</td></tr>
-                          <tr><td>Дата заказа:</td><td>19.09.2021</td></tr>
+                          <tr><td>Менеджер:</td><td>{currentModel && currentModel.managerName}</td></tr>
+                          <tr><td>Дата заказа:</td><td>{currentModel && currentModel.date.substring(0, currentModel.date.indexOf(' '))}</td></tr>
                           <tr></tr>
-                          <tr><td>Клиент:</td><td>samarez cex jizzah</td></tr>
+                          <tr><td>Клиент:</td><td>{currentModel && currentModel.clientName}</td></tr>
                           <tr><td>Перевозчики:</td><td>Norman logistics</td></tr>
                           <tr><td>Экспедиторы:</td><td>Дилшод Тиллаев</td></tr>
                           <tr></tr>

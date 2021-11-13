@@ -43,11 +43,13 @@ export default ({
         title: 'Дата погрузки',
         dataIndex: 'loadDate',
         key: 'loadDate',
+        render: (text, record) => text.substring(0, text.indexOf(' '))
       },
       {
         title: 'Дата разгрузки',
         dataIndex: 'unloadDate',
         key: 'unloadDate',
+        render: (text, record) => text.substring(0, text.indexOf(' '))
       },
       {
         title: 'Погрузка',

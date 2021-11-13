@@ -37,6 +37,10 @@ public class CarrierService {
                 .orElseThrow(() -> new ResourceNotFoundException("List", "countryId", dto.getCountryId()));
         entity.setCountryName(country.getNameRu());
 
+        ListEntity about = listRepository.findById(dto.getAboutId())
+                .orElseThrow(() -> new ResourceNotFoundException("List", "aboutId", dto.getAboutId()));
+        entity.setAboutName(about.getNameRu());
+
         repository.save(entity);
         return ResponseEntity.ok().body(new ApiResponse("Сохранено успешно", true));
     }

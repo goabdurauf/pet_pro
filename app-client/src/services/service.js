@@ -39,12 +39,14 @@ export function saveShipping(data) {return request({url: '/api/shipping/save', m
 export function getShippingList() {return request({url: '/api/shipping/list', method: 'get',})}
 export function getShippingListByOrderId(id) {return request({url: '/api/shipping/order/' + id, method: 'get',})}
 export function getShippingById(id) {return request({url: '/api/shipping/' + id, method: 'get',})}
+export function getShippingDetailById(id) {return request({url: '/api/shipping/detail/' + id, method: 'get',})}
 export function deleteShippingById(id) {return request({url: '/api/shipping/' + id, method: 'delete',})}
 
 export function saveOrder(data) {return request({url: '/api/order/save', method: 'post', data})}
 export function getOrderList(data) {return request({url: '/api/order/list', method: 'post', data})}
 export function getSelectOrders() {return request({url: '/api/order/select', method: 'get'})}
 export function getOrderById(id) {return request({url: '/api/order/' + id, method: 'get',})}
+export function getOrderDetailById(id) {return request({url: '/api/order/detail/' + id, method: 'get',})}
 export function deleteOrderById(id) {return request({url: '/api/order/' + id, method: 'delete',})}
 
 export function uploadFile(data) {return request({url: '/api/file', method: 'post', data})}

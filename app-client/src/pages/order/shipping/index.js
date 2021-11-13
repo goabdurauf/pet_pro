@@ -3,7 +3,6 @@ import {Card, Row, Col, Tabs, Form, Input, Select, Space, Popconfirm, Table, Inp
 import {connect} from "react-redux";
 import {DeleteOutlined, FormOutlined, PlusOutlined} from "@ant-design/icons";
 import {Button, Label} from "reactstrap";
-import {routerRedux} from "dva/router";
 const { TabPane } = Tabs;
 const FormItem = Form.Item;
 
@@ -114,8 +113,7 @@ class Shipping extends Component {
       }
       const getRate = (event) => {
         let price = document.getElementById("price").value;
-        let rate = event.target.value;
-        form.setFieldsValue({finalPrice: price / rate})
+        form.setFieldsValue({finalPrice: price / event})
       }
       const onOk = () => {
         form.submit();
@@ -157,12 +155,12 @@ class Shipping extends Component {
               </Col>
               <Col span={6}><Label>Курс</Label>
                 <FormItem key={'rate'} name={'rate'} rules={[{required: true, message: 'Введите курса'}]} >
-                  <Input placeholder='курс' onChange={getRate} />
+                  <InputNumber placeholder='курс' onChange={getRate} precision={4} />
                 </FormItem>
               </Col>
-              <Col span={6}><Label>Конечное цена</Label>
+              <Col span={6}><Label>Конечное цена (USD)</Label>
                 <FormItem key={'finalPrice'} name={'finalPrice'} rules={[{required: true, message: 'Введите конечную цену'}]}>
-                  <InputNumber placeholder='конечное цена' precision={4} />
+                  <InputNumber placeholder='конечное цена' precision={2} />
                 </FormItem>
               </Col>
               <Col span={8}><Label>Тип транспорта</Label>

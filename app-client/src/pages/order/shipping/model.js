@@ -32,6 +32,7 @@ export default ({
         title: 'Номер рейса',
         dataIndex: 'num',
         key: 'num',
+        render: (text, record) => <Link to={'/order/shipping/detail/' + record.id}>{text}</Link>
       },
       {
         title: 'Номер заказа',
@@ -49,15 +50,16 @@ export default ({
         dataIndex: 'carrierName',
         key: 'carrierName',
       },
-      {
+      /*{
         title: 'Валюта',
         dataIndex: 'currencyName',
         key: 'currencyName',
-      },
+      },*/
       {
         title: 'Цена',
-        dataIndex: 'finalPrice',
-        key: 'finalPrice',
+        dataIndex: 'customFinalPrice',
+        key: 'customFinalPrice',
+        render: (text, record) => {return record.finalPrice + ' USD (' + record.price + ' ' + record.currencyName + ')'}
       },
       {
         title: 'Тип транспорта',

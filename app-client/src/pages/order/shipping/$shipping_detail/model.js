@@ -1,5 +1,5 @@
-import {getOrderDetailById, saveCargo, getCargoListByOrderId, getCargoById, deleteCargoById, getClientList, getManagers, getListItems, uploadFile, deleteFile,
-  getShippingListByOrderId, getSelectOrders, saveShipping, getShippingById, deleteShippingById, getCarrierList
+import {saveCargo, getCargoListByOrderId, getCargoById, deleteCargoById, getClientList, getManagers, getListItems, uploadFile, deleteFile,
+  getShippingListByOrderId, getSelectOrders, saveShipping, getShippingById, getShippingDetailById, deleteShippingById, getCarrierList
 } from '@/services/service'
 import {Input, Select, Form, notification} from 'antd'
 import moment from "moment";
@@ -8,7 +8,7 @@ import {routerRedux} from "dva/router";
 import {Link} from "umi";
 
 export default ({
-  namespace: 'orderDetail',
+  namespace: 'shippingDetail',
   state: {
     model: '',
     orderId: '',
@@ -37,11 +37,12 @@ export default ({
   subscriptions: {
     setup({dispatch, history}) {
       history.listen((location) => {
-        if (location.pathname.startsWith('/order/detail')) {
+        if (location.pathname.startsWith('/order/shipping/detail')) {
           dispatch({
             type: 'getDetail',
-            payload:{id: location.pathname.split('/')[3]}
+            payload:{id: location.pathname.split('/')[4]}
           });
+          /*
           dispatch({
             type: 'queryCargo',
             payload:{id: location.pathname.split('/')[3]}
@@ -49,20 +50,22 @@ export default ({
           dispatch({
             type: 'getAdditionals'
           });
+          */
         }
       });
     },
   },
   effects: {
     * getDetail({payload}, {call, put, select}) {
-      let order = yield call(getOrderDetailById, payload.id);
-      yield put({
-        type: 'updateState',
-        payload: {
-          orderId: payload.id,
-          currentModel: order
-        }
-      })
+      const result = yield call(getShippingDetailById, payload.id);
+      if (result.success) {
+        yield put({
+          type: 'updateState',
+          payload: {
+            currentModel: result
+          }
+        })
+      }
     },
     * queryCargo({payload}, {call, put, select}) {
       let data = yield call(getCargoListByOrderId, payload.id);
@@ -74,50 +77,7 @@ export default ({
           payload: {
             model: 'Cargo',
             itemList: data.list,
-            /*
-            cargoDetails: [
-              {
-                weight: <Form.Item key={'weight'} name={'weight'}><Input name={'weight'} placeholder='Вес'/></Form.Item>,
-                capacity: <Form.Item key={'capacity'} name={'capacity'}><Input name={'capacity'} placeholder='Объём'/></Form.Item>,
-                packageTypeId: <Form.Item key={'packageTypeId'} name={'packageTypeId'}><Select name={'packageTypeId'} placeholder='Тип упаковки'>
-                  {packageType.list.map(type => <Select.Option key={type.id} value={type.id}>{type.nameRu}</Select.Option>)}
-                </Select></Form.Item>,
-                packageAmount: <Form.Item key={'packageAmount'} name={'packageAmount'}><Input name={'packageAmount'} placeholder='Количество упаковки'/></Form.Item>
-              },{
-                weight: <Form.Item key={'weight'} name={'weight'}><Input name={'weight'} placeholder='Вес'/></Form.Item>,
-                capacity: <Form.Item key={'capacity'} name={'capacity'}><Input name={'capacity'} placeholder='Объём'/></Form.Item>,
-                packageTypeId: <Form.Item key={'packageTypeId'} name={'packageTypeId'}><Select name={'packageTypeId'} placeholder='Тип упаковки'>
-                  {packageType.list.map(type => <Select.Option key={type.id} value={type.id}>{type.nameRu}</Select.Option>)}
-                </Select></Form.Item>,
-                packageAmount: <Form.Item key={'packageAmount'} name={'packageAmount'}><Input name={'packageAmount'} placeholder='Количество упаковки'/></Form.Item>
-              },
-            ],
-            cargoDetails1: [
-              {
-                weight: <input type="number" className="form-control text-center" name="weight" placeholder="Вес"/>,
-                capacity: <input type="number" className="form-control text-center" name="capacity" placeholder="Объём"/>,
-                packageTypeId: <select name="packageTypeId" placeholder='Тип упаковки'>
-                  {packageType.list.map(type => <option key={type.id} value={type.id}>{type.nameRu}</option>)}
-                </select>,
-                packageAmount: <input type="number" className="form-control text-center" name="packageAmount" placeholder="Количество упаковки"/>,
-              },{
-                weight: <input type="number" className="form-control text-center" name="weight" placeholder="Вес"/>,
-                capacity: <input type="number" className="form-control text-center" name="capacity" placeholder="Объём"/>,
-                packageTypeId: <select name="packageTypeId" placeholder='Тип упаковки'>
-                  {packageType.list.map(type => <option key={type.id} value={type.id}>{type.nameRu}</option>)}
-                </select>,
-                packageAmount: <input type="number" className="form-control text-center" name="packageAmount" placeholder="Количество упаковки"/>,
-              },{
-                weight: <input type="number" className="form-control text-center" name="weight" placeholder="Вес"/>,
-                capacity: <input type="number" className="form-control text-center" name="capacity" placeholder="Объём"/>,
-                packageTypeId: <select name="packageTypeId" placeholder='Тип упаковки'>
-                  {packageType.list.map(type => <option key={type.id} value={type.id}>{type.nameRu}</option>)}
-                </select>,
-                packageAmount: <input type="number" className="form-control text-center" name="packageAmount" placeholder="Количество упаковки"/>,
-              },
-            ],
-            */
-            modalWidth: 1200,
+           modalWidth: 1200,
             currentItem: {cargoDetails:[{weight:'', capacity:'', packageTypeId:'', packageAmount:''}]},
             isModalOpen: false,
             isBtnDisabled: false,
@@ -155,7 +115,6 @@ export default ({
                 title: 'Дата погрузки',
                 dataIndex: 'loadDate',
                 key: 'loadDate',
-                render: (text, record) => text.substring(0, text.indexOf(' '))
               },
               {
                 title: 'Разгрузка',
@@ -166,7 +125,6 @@ export default ({
                 title: 'Дата разгрузки',
                 dataIndex: 'unloadDate',
                 key: 'unloadDate',
-                render: (text, record) => text.substring(0, text.indexOf(' '))
               },
               {
                 title: 'Рейсы',

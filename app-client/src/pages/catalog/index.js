@@ -10,8 +10,7 @@ const FormItem = Form.Item;
 class Catalog extends Component {
   render() {
     const {catalog, dispatch} = this.props;
-    const {model, title, createTitle, editTitle, isModalOpen, itemList, currentItem, modalType, roleList, measureList, countryList,
-      visibleColumns} = catalog;
+    const {model, title, createTitle, editTitle, isModalOpen, itemList, currentItem, modalType, roleList, measureList, visibleColumns} = catalog;
 
     const getFormItems = () => {
       switch (model) {
@@ -118,38 +117,6 @@ class Catalog extends Component {
             width: 24,
             rules: [{required: true, message: 'Этот поля не должно быть пустое',},],
             obj: <Input placeholder='Название'/>
-          }
-        ];
-        case 'Carrier': return [
-          {
-            label: 'Название',
-            name: 'name',
-            width: 24,
-            rules: [{required: true, message: 'Этот поля не должно быть пустое',},],
-            obj: <Input placeholder='Название'/>
-          },
-          {
-            label: 'Телефон номер',
-            name: 'phone',
-            width: 12,
-            rules: [{required: false, message: 'Этот поля не должно быть пустое',},],
-            obj: <Input placeholder='Телефон номер'/>
-          },{
-            label: 'Страна',
-            name: 'countryId',
-            width: 12,
-            rules: [{required: true, message: 'Этот поля не должно быть пустое',},],
-            obj: <Select placeholder='Страна' showSearch
-                         filterOption={(input, option) =>
-                           option.children.toLocaleLowerCase().indexOf(input.toLocaleLowerCase()) >= 0 }>
-              {countryList.map(country => <Select.Option key={country.id} value={country.id}>{country.nameRu}</Select.Option>)}
-            </Select>
-          },{
-            label: 'Город',
-            name: 'city',
-            width: 12,
-            rules: [{required: false, message: 'Этот поля не должно быть пустое',},],
-            obj: <Input placeholder='Город'/>
           }
         ];
         case 'PackageType': return [
@@ -288,7 +255,6 @@ class Catalog extends Component {
             <TabPane tab="Валюта" key="Currency"><TabBody /></TabPane>
             <TabPane tab="Тип транспорта" key="ShippingType"><TabBody /></TabPane>
             <TabPane tab="Статус заказа" key="OrderStatus"><TabBody /></TabPane>
-            <TabPane tab="Перевозчик" key="Carrier"><TabBody /></TabPane>
             <TabPane tab="Тип упаковки" key="PackageType"><TabBody /></TabPane>
 
 

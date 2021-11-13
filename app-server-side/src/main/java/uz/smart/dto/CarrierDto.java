@@ -14,8 +14,13 @@ import java.util.UUID;
 public class CarrierDto {
     private UUID id;
     private String name;
+    private String contactPerson;
     private String phone;
     private Long countryId;
     private String countryName;
     private String city;
+    private UUID managerId;
+    private String managerName;
+    private Long aboutId;
+    private String aboutName;
 }
