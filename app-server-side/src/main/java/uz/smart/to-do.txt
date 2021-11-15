@@ -1,3 +1,4 @@
  - open order detail after order creating
  - reyslarni ichini ham ochish
 
+- bug in adding cargo detail in edit modes

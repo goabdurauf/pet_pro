@@ -9,10 +9,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import uz.smart.entity.template.BaseEntity;
 
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
+import javax.persistence.*;
 import java.sql.Timestamp;
 import java.util.List;
 
@@ -24,12 +21,13 @@ public class CargoEntity extends BaseEntity {
     private OrderEntity order;
 
     private String name;
+    private String num;
     private String code;
     private Timestamp loadDate;
     private Timestamp unloadDate;
     private String comment;
 
-    @OneToMany(fetch = FetchType.LAZY)
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
     private List<CargoDetailEntity> cargoDetails;
 
     private String senderName;

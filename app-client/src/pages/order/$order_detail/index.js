@@ -28,7 +28,7 @@ class OrderDetail extends Component {
 
   render() {
     const {orderDetail, dispatch} = this.props;
-      const {model, orderId, isModalOpen, itemList, currentModel, currentItem, modalType, modalWidth, countryList, orderStatusList, managerList, createTitle, editTitle, visibleColumns,
+      const {model, orderId, isModalOpen, itemList, cargoList, currentModel, currentItem, modalType, modalWidth, countryList, orderStatusList, managerList, createTitle, editTitle, visibleColumns,
       senderAttachments, receiverAttachments, customFromAttachments, customToAttachments, packageTypeList, carrierList, currencyList, shipTypeList} = orderDetail;
 
     const openModal = () => {
@@ -137,8 +137,7 @@ class OrderDetail extends Component {
       }
       const getRate = (event) => {
         let price = document.getElementById("price").value;
-        let rate = event.target.value;
-        form.setFieldsValue({finalPrice: price / rate})
+        form.setFieldsValue({finalPrice: price / event})
       }
       const onOk = () => {
         form.submit();
@@ -147,11 +146,6 @@ class OrderDetail extends Component {
         <Modal {...modalProps} onOk={onOk} okText={"Добавить"} cancelText={"Отмена"}>
           <Form form={form} initialValues={currentItem !== null ? currentItem : ''}>
             <Row>
-              <Col span={8}><Label>Номер</Label>
-                <FormItem key={'num'} name={'num'} rules={[{required: true, message: 'Этот поля не должно быть пустое'}]}>
-                  <Input placeholder='номер рейса' />
-                </FormItem>
-              </Col>
               <Col span={8}><Label>Менеджер</Label>
                 <FormItem key={'managerId'} name={'managerId'} rules={[{required: true, message: 'Выберите менеджера'}]}>
                   <Select placeholder='менеджер'>
@@ -163,6 +157,13 @@ class OrderDetail extends Component {
                 <FormItem key={'carrierId'} name={'carrierId'} rules={[{required: true, message: 'Выберите перевозчика'}]}>
                   <Select placeholder='перевозчик'>
                     {carrierList.map(carrier => <Select.Option key={carrier.id} value={carrier.id}>{carrier.name}</Select.Option>)}
+                  </Select>
+                </FormItem>
+              </Col>
+              <Col span={8}><Label>Тип транспорта</Label>
+                <FormItem key={'shippingTypeId'} name={'shippingTypeId'} rules={[{required: true, message: 'Выберите тип транспорта'}]}>
+                  <Select placeholder='тип транспорта'>
+                    {shipTypeList.map(type => <Select.Option key={type.id} value={type.id}>{type.nameRu}</Select.Option>)}
                   </Select>
                 </FormItem>
               </Col>
@@ -180,24 +181,24 @@ class OrderDetail extends Component {
               </Col>
               <Col span={6}><Label>Курс</Label>
                 <FormItem key={'rate'} name={'rate'} rules={[{required: true, message: 'Введите курса'}]} >
-                  <Input placeholder='курс' onChange={getRate} />
+                  <InputNumber placeholder='курс' onChange={getRate} precision={4}/>
                 </FormItem>
               </Col>
               <Col span={6}><Label>Конечное цена (USD)</Label>
                 <FormItem key={'finalPrice'} name={'finalPrice'} rules={[{required: true, message: 'Введите конечную цену'}]}>
-                  <InputNumber placeholder='конечное цена' precision={4}/>
+                  <InputNumber placeholder='конечное цена' precision={2}/>
                 </FormItem>
               </Col>
-              <Col span={8}><Label>Тип транспорта</Label>
-                <FormItem key={'shippingTypeId'} name={'shippingTypeId'} rules={[{required: true, message: 'Выберите тип транспорта'}]}>
-                  <Select placeholder='тип транспорта'>
-                    {shipTypeList.map(type => <Select.Option key={type.id} value={type.id}>{type.nameRu}</Select.Option>)}
-                  </Select>
-                </FormItem>
-              </Col>
-              <Col span={8}><Label>Номер транспорта</Label>
+              <Col span={12}><Label>Номер транспорта</Label>
                 <FormItem key={'shippingNum'} name={'shippingNum'} rules={[{required: true, message: 'Введите номер транспорта'}]}>
                   <Input placeholder='номер транспорта' />
+                </FormItem>
+              </Col>
+              <Col span={12}><Label>Грузы</Label>
+                <FormItem key={'cargoList'} name={'cargoList'} rules={[{required: true, message: 'Выберите грузы'}]}>
+                  <Select placeholder='грузы' mode="multiple" allowClear>
+                    {cargoList.map(cargo => <Select.Option key={cargo.id} value={cargo.id}>{cargo.num}</Select.Option>)}
+                  </Select>
                 </FormItem>
               </Col>
             </Row>
@@ -291,24 +292,22 @@ class OrderDetail extends Component {
               <Col span={6} key={'sender'} className={'sides'}>
                 <Typography.Title level={5}>Отправитель</Typography.Title>
                 <Label>Название</Label>
-                <Form.Item key={'senderName'} name={'senderName'} rules={[{required: true, message: 'Введите название'}]}>
+                <Form.Item key={'senderName'} name={'senderName'} rules={[{required: false, message: 'Введите название'}]}>
                   <Input placeholder='название'/>
                 </Form.Item>
                 <Label>Страна</Label>
-                <Form.Item key={'senderCountryId'} name={'senderCountryId'} rules={[{required: true, message: 'Выберите страну'}]}>
+                <Form.Item key={'senderCountryId'} name={'senderCountryId'} rules={[{required: false, message: 'Выберите страну'}]}>
                   <Select placeholder='страна' showSearch
                           filterOption={(input, option) => option.children.toLocaleLowerCase().indexOf(input.toLocaleLowerCase()) >= 0 }>
                     {countryList.map(country => <Select.Option key={country.id} value={country.id}>{country.nameRu}</Select.Option>)}
                   </Select>
                 </Form.Item>
                 <Label>Город</Label>
-                <Form.Item key={'senderCity'} name={'senderCity'} rules={[{required: true, message: 'Введите город'}]}>
+                <Form.Item key={'senderCity'} name={'senderCity'} rules={[{required: false, message: 'Введите город'}]}>
                   <Input placeholder='город'/>
                 </Form.Item>
                 <Label>Другие</Label>
-                <Form.Item key={'senderOthers'} name={'senderOthers'}>
-                  <Input placeholder='другие'/>
-                </Form.Item>
+                <Form.Item key={'senderOthers'} name={'senderOthers'}><Input placeholder='другие'/></Form.Item>
                 {/*<div className={'uploads'}>
                   <Upload fileList={senderAttachments}
                           onChange={(e) => uploadChange(e, 'sender')}
@@ -320,24 +319,22 @@ class OrderDetail extends Component {
               <Col span={6} key={'receiver'} className={'sides'}>
                 <Typography.Title level={5}>Получатель</Typography.Title>
                 <Label>Название</Label>
-                <Form.Item key={'receiverName'} name={'receiverName'} rules={[{required: true, message: 'Введите название'}]}>
+                <Form.Item key={'receiverName'} name={'receiverName'} rules={[{required: false, message: 'Введите название'}]}>
                   <Input placeholder='название'/>
                 </Form.Item>
                 <Label>Страна</Label>
-                <Form.Item key={'receiverCountryId'} name={'receiverCountryId'} rules={[{required: true, message: 'Выберите страну'}]}>
+                <Form.Item key={'receiverCountryId'} name={'receiverCountryId'} rules={[{required: false, message: 'Выберите страну'}]}>
                   <Select placeholder='страна' showSearch
                           filterOption={(input, option) => option.children.toLocaleLowerCase().indexOf(input.toLocaleLowerCase()) >= 0 }>
                     {countryList.map(country => <Select.Option key={country.id} value={country.id}>{country.nameRu}</Select.Option>)}
                   </Select>
                 </Form.Item>
                 <Label>Город</Label>
-                <Form.Item key={'receiverCity'} name={'receiverCity'} rules={[{required: true, message: 'Введите город'}]}>
+                <Form.Item key={'receiverCity'} name={'receiverCity'} rules={[{required: false, message: 'Введите город'}]}>
                   <Input placeholder='город'/>
                 </Form.Item>
                 <Label>Другие</Label>
-                <Form.Item key={'receiverOthers'} name={'receiverOthers'}>
-                  <Input placeholder='другие'/>
-                </Form.Item>
+                <Form.Item key={'receiverOthers'} name={'receiverOthers'}><Input placeholder='другие'/></Form.Item>
                 {/*<div className={'uploads'}>
                   <Upload fileList={receiverAttachments}
                           onChange={(e) => uploadChange(e, 'receiver')}
@@ -349,24 +346,22 @@ class OrderDetail extends Component {
               <Col span={6} key={'customFrom'} className={'sides'}>
                 <Typography.Title level={5}>Таможня отправления</Typography.Title>
                 <Label>Название</Label>
-                <Form.Item key={'customFromName'} name={'customFromName'} rules={[{required: true, message: 'Введите название'}]}>
+                <Form.Item key={'customFromName'} name={'customFromName'} rules={[{required: false, message: 'Введите название'}]}>
                   <Input placeholder='название'/>
                 </Form.Item>
                 <Label>Страна</Label>
-                <Form.Item key={'customFromCountryId'} name={'customFromCountryId'} rules={[{required: true, message: 'Выберите страну'}]}>
+                <Form.Item key={'customFromCountryId'} name={'customFromCountryId'} rules={[{required: false, message: 'Выберите страну'}]}>
                   <Select placeholder='страна' showSearch
                           filterOption={(input, option) => option.children.toLocaleLowerCase().indexOf(input.toLocaleLowerCase()) >= 0 }>
                     {countryList.map(country => <Select.Option key={country.id} value={country.id}>{country.nameRu}</Select.Option>)}
                   </Select>
                 </Form.Item>
                 <Label>Город</Label>
-                <Form.Item key={'customFromCity'} name={'customFromCity'} rules={[{required: true, message: 'Введите город'}]}>
+                <Form.Item key={'customFromCity'} name={'customFromCity'} rules={[{required: false, message: 'Введите город'}]}>
                   <Input placeholder='город'/>
                 </Form.Item>
                 <Label>Другие</Label>
-                <Form.Item key={'customFromOthers'} name={'customFromOthers'}>
-                  <Input placeholder='другие'/>
-                </Form.Item>
+                <Form.Item key={'customFromOthers'} name={'customFromOthers'}><Input placeholder='другие'/></Form.Item>
                 {/*<div className={'uploads'}>
                   <Upload fileList={customFromAttachments}
                           onChange={(e) => uploadChange(e, 'customFrom')}
@@ -378,24 +373,22 @@ class OrderDetail extends Component {
               <Col span={6} key={'customTo'} className={'sides-l'}>
                 <Typography.Title level={5}>Таможня назначения</Typography.Title>
                 <Label>Название</Label>
-                <Form.Item key={'customToName'} name={'customToName'} rules={[{required: true, message: 'Введите название'}]}>
+                <Form.Item key={'customToName'} name={'customToName'} rules={[{required: false, message: 'Введите название'}]}>
                   <Input placeholder='название'/>
                 </Form.Item>
                 <Label>Страна</Label>
-                <Form.Item key={'customToCountryId'} name={'customToCountryId'} rules={[{required: true, message: 'Выберите страну'}]}>
+                <Form.Item key={'customToCountryId'} name={'customToCountryId'} rules={[{required: false, message: 'Выберите страну'}]}>
                   <Select placeholder='страна' showSearch
                           filterOption={(input, option) => option.children.toLocaleLowerCase().indexOf(input.toLocaleLowerCase()) >= 0 }>
                     {countryList.map(country => <Select.Option key={country.id} value={country.id}>{country.nameRu}</Select.Option>)}
                   </Select>
                 </Form.Item>
                 <Label>Город</Label>
-                <Form.Item key={'customToCity'} name={'customToCity'} rules={[{required: true, message: 'Введите город'}]}>
+                <Form.Item key={'customToCity'} name={'customToCity'} rules={[{required: false, message: 'Введите город'}]}>
                   <Input placeholder='город'/>
                 </Form.Item>
                 <Label>Другие</Label>
-                <Form.Item key={'customToOthers'} name={'customToOthers'}>
-                  <Input placeholder='другие'/>
-                </Form.Item>
+                <Form.Item key={'customToOthers'} name={'customToOthers'}><Input placeholder='другие'/></Form.Item>
                 {/*<div className={'uploads'}>
                   <Upload fileList={customToAttachments}
                           onChange={(e) => uploadChange(e, 'customTo')}

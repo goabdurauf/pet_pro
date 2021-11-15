@@ -19,12 +19,6 @@ export default ({
     itemList: [],
     currentItem: null,
     isModalOpen: false,
-    managerList: [],
-    clientList: [],
-    carrierList: [],
-    currencyList: [],
-    shipTypeList: [],
-    orderStatusList: [],
     countryList: [],
     packageTypeList: [],
     visibleColumns : [
@@ -33,6 +27,11 @@ export default ({
         dataIndex: 'orderNum',
         key: 'orderNum',
         render: (text, record) => <Link to={'/order/detail/' + record.orderId}>{text}</Link>
+      },
+      {
+        title: 'Номер груза',
+        dataIndex: 'num',
+        key: 'num'
       },
       {
         title: 'Клиент',
@@ -70,6 +69,9 @@ export default ({
           dispatch({
             type: 'queryCargo',
           });
+          dispatch({
+            type: 'getAdditionals',
+          });
         }
       });
     },
@@ -91,25 +93,13 @@ export default ({
       }
     },
     * getAdditionals({payload}, {call, put, select}) {
-      let manager = yield call(getManagers);
-      let client = yield call(getClientList);
-      let carrier = yield call(getCarrierList);
-      let currency = yield call(getListItems, 4);
-      let shipType = yield call(getListItems, 5);
-      let status = yield call(getListItems, 6);
       let country = yield call(getListItems, 2);
       let packageType = yield call(getListItems, 7);
 
-      if (manager.success && client.success) {
+      if (country.success && packageType.success) {
         yield put({
           type: 'updateState',
           payload: {
-            managerList: manager.list,
-            clientList: client.list,
-            carrierList: carrier.list,
-            currencyList: currency.list,
-            shipTypeList: shipType.list,
-            orderStatusList: status.list,
             countryList: country.list,
             packageTypeList: packageType.list
           }

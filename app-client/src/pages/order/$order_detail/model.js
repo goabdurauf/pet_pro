@@ -14,6 +14,7 @@ export default ({
     orderId: '',
     isModalOpen: false,
     itemList: [],
+    cargoList: [],
     currentModel: null,
     currentItem: null,
     modalType: 'create',
@@ -74,6 +75,7 @@ export default ({
           payload: {
             model: 'Cargo',
             itemList: data.list,
+            cargoList: data.list,
             /*
             cargoDetails: [
               {
@@ -127,8 +129,8 @@ export default ({
             visibleColumns : [
               {
                 title: 'Номер груза',
-                dataIndex: 'code',
-                key: 'code'
+                dataIndex: 'num',
+                key: 'num'
               },
               {
                 title: 'Название груза',
@@ -311,6 +313,13 @@ export default ({
                 title: 'Номер заказа',
                 dataIndex: 'orderNum',
                 key: 'orderNum',
+                render: (text, record) => {
+                  let data = [];
+                  record.orderList && record.orderList.forEach(order => {
+                    data.push(<div key={order.id}>{order.num} {order.date.substring(0, order.date.indexOf(' '))}</div>)
+                  });
+                  return data;
+                }
               },
               {
                 title: 'Менеджер',

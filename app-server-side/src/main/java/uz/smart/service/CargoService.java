@@ -47,6 +47,16 @@ public class CargoService {
                 .orElseThrow(() -> new ResourceNotFoundException("Cargo", "orderId", dto.getId()));
         entity.setOrder(order);
 
+        if (dto.getId() == null) {
+            List<CargoEntity> entityList = repository.getAllByOrder_IdAndStateGreaterThanOrderByCreatedAt(order.getId(), 0);
+            if (entityList.size() > 0) {
+                String lastNum = entityList.get(entityList.size() - 1).getNum();
+                int num = Integer.parseInt(lastNum.substring(lastNum.lastIndexOf("-") + 1)) + 1;
+                entity.setNum(lastNum.substring(0, lastNum.lastIndexOf("-") + 1) + num);
+            } else
+                entity.setNum(order.getNum() + "-" + 1);
+        }
+
         if (dto.getSenderCountryId() != null) {
             ListEntity senderCountry = listRepository.findById(dto.getSenderCountryId())
                     .orElseThrow(() -> new ResourceNotFoundException("List", "senderCountryId", dto.getSenderCountryId()));
@@ -78,7 +88,8 @@ public class CargoService {
                         .orElseThrow(() -> new ResourceNotFoundException("List", "packegeTypeId", detailDto.getPackageTypeId()));
                 detailEntity.setPackageTypeName(packegeType.getNameRu());
 
-                cargoDetails.add(detailRepository.saveAndFlush(detailEntity));
+                detailEntity = detailRepository.saveAndFlush(detailEntity);
+                cargoDetails.add(detailEntity);
             }
         }
         entity.setCargoDetails(cargoDetails);
@@ -136,7 +147,7 @@ public class CargoService {
     }
 
     public List<ResCargo> getCargoListByOrderId(UUID orderId) {
-        return getCargoList(repository.getAllByOrder_IdAndStateGreaterThan(orderId, 0));
+        return getCargoList(repository.getAllByOrder_IdAndStateGreaterThanOrderByCreatedAt(orderId, 0));
     }
 
     public List<ResCargo> getCargoList() {

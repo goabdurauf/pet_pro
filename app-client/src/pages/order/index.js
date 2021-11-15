@@ -18,18 +18,6 @@ class Order extends Component {
       switch (model) {
         case 'Order': return [
           {
-            label: 'Номер',
-            name: 'num',
-            width: 12,
-            rules: [{required: true, message: 'Этот поля не должно быть пустое',},],
-            obj: <Input placeholder='номер заказа'/>
-          }, {
-            label: "Дата",
-            name: 'date',
-            width: 12,
-            rules: [{required: true, message: 'Этот поля не должно быть пустое',},],
-            obj: <DatePicker format={'DD.MM.YYYY'}/>
-          }, {
             label: "Клиент",
             name: 'clientId',
             width: 12,
@@ -37,6 +25,12 @@ class Order extends Component {
             obj: <Select placeholder='клиент'>
               {clientList.map(client => <Select.Option key={client.id} value={client.id}>{client.name}</Select.Option>)}
             </Select>
+          },{
+            label: "Дата",
+            name: 'date',
+            width: 12,
+            rules: [{required: true, message: 'Этот поля не должно быть пустое',},],
+            obj: <DatePicker format={'DD.MM.YYYY'}/>
           }, {
             label: "Менеджер",
             name: 'managerId',

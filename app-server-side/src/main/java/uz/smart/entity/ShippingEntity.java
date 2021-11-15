@@ -9,9 +9,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import uz.smart.entity.template.BaseEntity;
 
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.OneToMany;
+import javax.persistence.*;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
@@ -30,7 +28,14 @@ public class ShippingEntity extends BaseEntity {
     private long shippingTypeId;
     private String shippingTypeName;
     private String shippingNum;
-    private UUID orderId;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "shipping_order", joinColumns = {@JoinColumn(name = "shipping_id")},
+            inverseJoinColumns = {@JoinColumn(name = "order_id")})
+    private List<OrderEntity> orderEntities;
+
+    @OneToMany(fetch = FetchType.LAZY)
+    private List<CargoEntity> cargoEntities;
 
     @OneToMany(fetch = FetchType.LAZY)
     private List<Attachment> attachments;

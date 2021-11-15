@@ -18,7 +18,7 @@ public interface CargoRepository extends JpaRepository<CargoEntity, UUID> {
 
     @Transactional
     @Modifying
-    @Query("update cargo set state=0 where id = :id")
+    @Query("delete from cargo where id = :id")
     void updateById(UUID id);
 
     @Query("select c from cargo c where c.state > 0 and c.id = :id")
@@ -27,6 +27,6 @@ public interface CargoRepository extends JpaRepository<CargoEntity, UUID> {
     @Query("select c from cargo c where c.state > 0 order by c.createdAt desc")
     List<CargoEntity> getAllCargos();
 
-    List<CargoEntity> getAllByOrder_IdAndStateGreaterThan(UUID order_id, int state);
+    List<CargoEntity> getAllByOrder_IdAndStateGreaterThanOrderByCreatedAt(UUID order_id, int state);
 
 }

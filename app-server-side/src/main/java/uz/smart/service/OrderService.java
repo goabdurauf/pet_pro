@@ -11,24 +11,20 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import uz.smart.dto.OrderDto;
-import uz.smart.entity.ClientEntity;
-import uz.smart.entity.ListEntity;
-import uz.smart.entity.OrderEntity;
-import uz.smart.entity.User;
+import uz.smart.dto.OrderSelectDto;
+import uz.smart.entity.*;
 import uz.smart.exception.ResourceNotFoundException;
 import uz.smart.mapper.OrderMapper;
 import uz.smart.payload.ApiResponse;
 import uz.smart.payload.ReqSearch;
 import uz.smart.payload.ResOrder;
 import uz.smart.payload.ResPageable;
-import uz.smart.repository.ClientRepository;
-import uz.smart.repository.ListRepository;
-import uz.smart.repository.OrderRepository;
-import uz.smart.repository.UserRepository;
+import uz.smart.repository.*;
 import uz.smart.utils.CommonUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service @AllArgsConstructor
@@ -38,6 +34,7 @@ public class OrderService {
     private final ClientRepository clientRepository;
     private final OrderRepository repository;
     private final ListRepository listRepository;
+    private final CargoRepository cargoRepository;
     private final OrderMapper mapper;
 
     public HttpEntity<?> saveAndUpdate(OrderDto dto){
@@ -45,6 +42,14 @@ public class OrderService {
                 ? mapper.toEntity(dto)
                 : mapper.updateEntity(dto, repository.findById(dto.getId())
                     .orElseThrow(() -> new ResourceNotFoundException("Order", "Id", dto.getId())));
+
+        if (dto.getId() == null){
+            Optional<OrderEntity> opt = repository.getFirstByOrderByCreatedAtDesc();
+            if (opt.isEmpty())
+                entity.setNum(CommonUtils.generateNextNum("Z", ""));
+            else
+                entity.setNum(CommonUtils.generateNextNum("Z", opt.get().getNum()));
+        }
 
         ListEntity status = listRepository.findById(dto.getStatusId())
                 .orElseThrow(() -> new ResourceNotFoundException("List", "currencyId", dto.getStatusId()));
@@ -71,7 +76,20 @@ public class OrderService {
 
     public HttpEntity<?> getOrdersForSelect() {
         Page<OrderEntity> page = repository.getAllOrders(CommonUtils.getPageable(0, 15));
-        return ResponseEntity.status(HttpStatus.OK).body(new ResPageable(getResOrderList(page.getContent(), false), 0, 0));
+        List<OrderSelectDto> dtoList = new ArrayList<>();
+        for (OrderEntity order : page.getContent()) {
+            OrderSelectDto dto = new OrderSelectDto(order.getNum(), order.getId(), order.getId());
+            List<CargoEntity> cargoList = cargoRepository.getAllByOrder_IdAndStateGreaterThanOrderByCreatedAt(order.getId(), 0);
+            if (cargoList.size() > 0) {
+                List<OrderSelectDto> childList = new ArrayList<>();
+                for (CargoEntity cargo : cargoList) {
+                    childList.add(new OrderSelectDto(cargo.getNum(), cargo.getId(), cargo.getId()));
+                }
+                dto.setChildren(childList);
+                dtoList.add(dto);
+            }
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(new ResPageable(dtoList, 0, 0));
     }
 
     private List<ResOrder> getResOrderList(List<OrderEntity> entities, boolean hasDetail) {
@@ -81,7 +99,8 @@ public class OrderService {
         }
         return resList;
     }
-    private ResOrder getResOrder(OrderEntity entity, boolean hasDetails) {
+
+    public ResOrder getResOrder(OrderEntity entity, boolean hasDetails) {
         ResOrder resOrder = mapper.toResOrder(entity);
         if (hasDetails) {
             User manager = userRepository.findById(entity.getManagerId())
@@ -94,4 +113,5 @@ public class OrderService {
         }
         return resOrder;
     }
+
 }

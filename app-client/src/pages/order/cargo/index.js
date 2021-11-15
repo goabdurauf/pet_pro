@@ -165,24 +165,22 @@ class Cargo extends Component {
               <Col span={6} key={'sender'} className={'sides'}>
                 <Typography.Title level={5}>Отправитель</Typography.Title>
                 <Label>Название</Label>
-                <Form.Item key={'senderName'} name={'senderName'} rules={[{required: true, message: 'Введите название'}]}>
+                <Form.Item key={'senderName'} name={'senderName'} rules={[{required: false, message: 'Введите название'}]}>
                   <Input placeholder='название'/>
                 </Form.Item>
                 <Label>Страна</Label>
-                <Form.Item key={'senderCountryId'} name={'senderCountryId'} rules={[{required: true, message: 'Выберите страну'}]}>
+                <Form.Item key={'senderCountryId'} name={'senderCountryId'} rules={[{required: false, message: 'Выберите страну'}]}>
                   <Select placeholder='страна' showSearch
                           filterOption={(input, option) => option.children.toLocaleLowerCase().indexOf(input.toLocaleLowerCase()) >= 0 }>
                     {countryList.map(country => <Select.Option key={country.id} value={country.id}>{country.nameRu}</Select.Option>)}
                   </Select>
                 </Form.Item>
                 <Label>Город</Label>
-                <Form.Item key={'senderCity'} name={'senderCity'} rules={[{required: true, message: 'Введите город'}]}>
+                <Form.Item key={'senderCity'} name={'senderCity'} rules={[{required: false, message: 'Введите город'}]}>
                   <Input placeholder='город'/>
                 </Form.Item>
                 <Label>Другие</Label>
-                <Form.Item key={'senderOthers'} name={'senderOthers'}>
-                  <Input placeholder='другие'/>
-                </Form.Item>
+                <Form.Item key={'senderOthers'} name={'senderOthers'}><Input placeholder='другие'/></Form.Item>
                 {/*<div className={'uploads'}>
                   <Upload fileList={senderAttachments}
                           onChange={(e) => uploadChange(e, 'sender')}
@@ -194,24 +192,22 @@ class Cargo extends Component {
               <Col span={6} key={'receiver'} className={'sides'}>
                 <Typography.Title level={5}>Получатель</Typography.Title>
                 <Label>Название</Label>
-                <Form.Item key={'receiverName'} name={'receiverName'} rules={[{required: true, message: 'Введите название'}]}>
+                <Form.Item key={'receiverName'} name={'receiverName'} rules={[{required: false, message: 'Введите название'}]}>
                   <Input placeholder='название'/>
                 </Form.Item>
                 <Label>Страна</Label>
-                <Form.Item key={'receiverCountryId'} name={'receiverCountryId'} rules={[{required: true, message: 'Выберите страну'}]}>
+                <Form.Item key={'receiverCountryId'} name={'receiverCountryId'} rules={[{required: false, message: 'Выберите страну'}]}>
                   <Select placeholder='страна' showSearch
                           filterOption={(input, option) => option.children.toLocaleLowerCase().indexOf(input.toLocaleLowerCase()) >= 0 }>
                     {countryList.map(country => <Select.Option key={country.id} value={country.id}>{country.nameRu}</Select.Option>)}
                   </Select>
                 </Form.Item>
                 <Label>Город</Label>
-                <Form.Item key={'receiverCity'} name={'receiverCity'} rules={[{required: true, message: 'Введите город'}]}>
+                <Form.Item key={'receiverCity'} name={'receiverCity'} rules={[{required: false, message: 'Введите город'}]}>
                   <Input placeholder='город'/>
                 </Form.Item>
                 <Label>Другие</Label>
-                <Form.Item key={'receiverOthers'} name={'receiverOthers'}>
-                  <Input placeholder='другие'/>
-                </Form.Item>
+                <Form.Item key={'receiverOthers'} name={'receiverOthers'}><Input placeholder='другие'/></Form.Item>
                 {/*<div className={'uploads'}>
                   <Upload fileList={receiverAttachments}
                           onChange={(e) => uploadChange(e, 'receiver')}
@@ -223,24 +219,22 @@ class Cargo extends Component {
               <Col span={6} key={'customFrom'} className={'sides'}>
                 <Typography.Title level={5}>Таможня отправления</Typography.Title>
                 <Label>Название</Label>
-                <Form.Item key={'customFromName'} name={'customFromName'} rules={[{required: true, message: 'Введите название'}]}>
+                <Form.Item key={'customFromName'} name={'customFromName'} rules={[{required: false, message: 'Введите название'}]}>
                   <Input placeholder='название'/>
                 </Form.Item>
                 <Label>Страна</Label>
-                <Form.Item key={'customFromCountryId'} name={'customFromCountryId'} rules={[{required: true, message: 'Выберите страну'}]}>
+                <Form.Item key={'customFromCountryId'} name={'customFromCountryId'} rules={[{required: false, message: 'Выберите страну'}]}>
                   <Select placeholder='страна' showSearch
                           filterOption={(input, option) => option.children.toLocaleLowerCase().indexOf(input.toLocaleLowerCase()) >= 0 }>
                     {countryList.map(country => <Select.Option key={country.id} value={country.id}>{country.nameRu}</Select.Option>)}
                   </Select>
                 </Form.Item>
                 <Label>Город</Label>
-                <Form.Item key={'customFromCity'} name={'customFromCity'} rules={[{required: true, message: 'Введите город'}]}>
+                <Form.Item key={'customFromCity'} name={'customFromCity'} rules={[{required: false, message: 'Введите город'}]}>
                   <Input placeholder='город'/>
                 </Form.Item>
                 <Label>Другие</Label>
-                <Form.Item key={'customFromOthers'} name={'customFromOthers'}>
-                  <Input placeholder='другие'/>
-                </Form.Item>
+                <Form.Item key={'customFromOthers'} name={'customFromOthers'}><Input placeholder='другие'/></Form.Item>
                 {/*<div className={'uploads'}>
                   <Upload fileList={customFromAttachments}
                           onChange={(e) => uploadChange(e, 'customFrom')}
@@ -252,24 +246,22 @@ class Cargo extends Component {
               <Col span={6} key={'customTo'} className={'sides-l'}>
                 <Typography.Title level={5}>Таможня назначения</Typography.Title>
                 <Label>Название</Label>
-                <Form.Item key={'customToName'} name={'customToName'} rules={[{required: true, message: 'Введите название'}]}>
+                <Form.Item key={'customToName'} name={'customToName'} rules={[{required: false, message: 'Введите название'}]}>
                   <Input placeholder='название'/>
                 </Form.Item>
                 <Label>Страна</Label>
-                <Form.Item key={'customToCountryId'} name={'customToCountryId'} rules={[{required: true, message: 'Выберите страну'}]}>
+                <Form.Item key={'customToCountryId'} name={'customToCountryId'} rules={[{required: false, message: 'Выберите страну'}]}>
                   <Select placeholder='страна' showSearch
                           filterOption={(input, option) => option.children.toLocaleLowerCase().indexOf(input.toLocaleLowerCase()) >= 0 }>
                     {countryList.map(country => <Select.Option key={country.id} value={country.id}>{country.nameRu}</Select.Option>)}
                   </Select>
                 </Form.Item>
                 <Label>Город</Label>
-                <Form.Item key={'customToCity'} name={'customToCity'} rules={[{required: true, message: 'Введите город'}]}>
+                <Form.Item key={'customToCity'} name={'customToCity'} rules={[{required: false, message: 'Введите город'}]}>
                   <Input placeholder='город'/>
                 </Form.Item>
                 <Label>Другие</Label>
-                <Form.Item key={'customToOthers'} name={'customToOthers'}>
-                  <Input placeholder='другие'/>
-                </Form.Item>
+                <Form.Item key={'customToOthers'} name={'customToOthers'}><Input placeholder='другие'/></Form.Item>
                 {/*<div className={'uploads'}>
                   <Upload fileList={customToAttachments}
                           onChange={(e) => uploadChange(e, 'customTo')}

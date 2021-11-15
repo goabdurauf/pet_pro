@@ -9,12 +9,12 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.UUID;
 
 @Data @NoArgsConstructor @AllArgsConstructor
 public class ShippingDto {
     private UUID id;
-    private String num;
     private UUID managerId;
     private UUID carrierId;
     private long currencyId;
@@ -24,4 +24,5 @@ public class ShippingDto {
     private long shippingTypeId;
     private String shippingNum;
     private UUID orderId;
+    private List<UUID> cargoList;
 }

@@ -11,6 +11,7 @@ import uz.smart.dto.CargoDto;
 
 @Data @NoArgsConstructor @AllArgsConstructor
 public class ResCargo extends CargoDto {
+    private String num;
     private String orderNum;
     private String clientName;
 

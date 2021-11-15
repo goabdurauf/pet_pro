@@ -38,7 +38,13 @@ export default ({
         title: 'Номер заказа',
         dataIndex: 'orderNum',
         key: 'orderNum',
-        render: (text, record) => <Link to={'/order/detail/' + record.orderId}>{text}</Link>
+        render: (text, record) => {
+          let data = [];
+          record.orderList && record.orderList.forEach(order => {
+            data.push(<div key={order.id}><Link key={order.id} to={'/order/detail/' + order.id}>{order.num}</Link> {order.date.substring(0, order.date.indexOf(' '))}</div>)
+          });
+          return data;
+        }
       },
       {
         title: 'Менеджер',

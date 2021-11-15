@@ -20,7 +20,7 @@ public interface OrderRepository extends JpaRepository<OrderEntity, UUID> {
 
     @Transactional
     @Modifying
-    @Query("update orders set state=0 where id = :id")
+    @Query("delete from orders where id = :id")
     void updateById(UUID id);
 
     @Query("select o from orders o where o.state > 0 and o.id = :id")
@@ -31,4 +31,6 @@ public interface OrderRepository extends JpaRepository<OrderEntity, UUID> {
 
     @Query("select o from orders o where o.state > 0 and o.num like '%'||:num||'%'")
     List<OrderEntity> searchByNum(String num);
+
+    Optional<OrderEntity> getFirstByOrderByCreatedAtDesc();
 }

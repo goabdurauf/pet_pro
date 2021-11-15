@@ -13,12 +13,12 @@ import uz.smart.entity.*;
 import uz.smart.exception.ResourceNotFoundException;
 import uz.smart.mapper.ShippingMapper;
 import uz.smart.payload.ApiResponse;
+import uz.smart.payload.ResOrder;
 import uz.smart.payload.ResShipping;
 import uz.smart.repository.*;
+import uz.smart.utils.CommonUtils;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Service @AllArgsConstructor
 public class ShippingService {
@@ -29,6 +29,10 @@ public class ShippingService {
     private final ShippingRepository repository;
     private final ListRepository listRepository;
     private final ClientRepository clientRepository;
+    private final CargoRepository cargoRepository;
+
+    private final OrderService orderService;
+
     private final ShippingMapper mapper;
 
     public HttpEntity<?> saveAndUpdateShipping(ShippingDto dto){
@@ -36,6 +40,32 @@ public class ShippingService {
                 ? mapper.toEntity(dto)
                 : mapper.updateEntity(dto, repository.findById(dto.getId())
                     .orElseThrow(() -> new ResourceNotFoundException("Shipping", "Id", dto.getId())));
+
+        if (dto.getId() == null) {
+            Optional<ShippingEntity> opt = repository.getFirstByOrderByCreatedAtDesc();
+            if (opt.isEmpty())
+                entity.setNum(CommonUtils.generateNextNum("R", ""));
+            else
+                entity.setNum(CommonUtils.generateNextNum("R", opt.get().getNum()));
+        }
+
+        Set<OrderEntity> orderEntities = new HashSet<>();
+        if (dto.getOrderId() != null) {
+            orderEntities.add(orderRepository.findById(dto.getOrderId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Shipping", "orderId", dto.getOrderId())));
+        }
+
+        if (dto.getCargoList() != null) {
+            List<CargoEntity> cargoEntities = new ArrayList<>();
+            for (UUID id : dto.getCargoList()) {
+                CargoEntity cargoEntity = cargoRepository.findById(id)
+                        .orElseThrow(() -> new ResourceNotFoundException("Shipping", "cargoId", id));
+                orderEntities.add(cargoEntity.getOrder());
+                cargoEntities.add(cargoEntity);
+            }
+            entity.setCargoEntities(cargoEntities);
+        }
+        entity.setOrderEntities(new ArrayList<>(orderEntities));
 
         ListEntity currency = listRepository.findById(dto.getCurrencyId())
                 .orElseThrow(() -> new ResourceNotFoundException("List", "currencyId", dto.getCurrencyId()));
@@ -55,12 +85,25 @@ public class ShippingService {
     }
 
     public ShippingDto getShipping(UUID id) {
-        return mapper.toDto(repository.getShippingById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Shipping", "id", id)));
+        ShippingEntity entity = repository.getShippingById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Shipping", "id", id));
+        ShippingDto dto = mapper.toDto(entity);
+        if (entity.getCargoEntities() != null) {
+            List<UUID> cargoIds = new ArrayList<>();
+            for (CargoEntity cargo : entity.getCargoEntities()) {
+                cargoIds.add(cargo.getId());
+            }
+            dto.setCargoList(cargoIds);
+        }
+        return dto;
     }
 
     public List<ResShipping> getShippingListByOrderId(UUID id) {
-        return getShippingList(repository.getAllByOrderIdAndStateGreaterThan(id, 0));
+        return getShippingList(
+                repository.getAllByOrderEntitiesInAndStateGreaterThan(
+                        Arrays.asList(
+                                orderRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Shipping", "cargoId", id))),
+                        0));
     }
 
     public List<ResShipping> getShippingList() {
@@ -91,14 +134,16 @@ public class ShippingService {
                 .orElseThrow(() -> new ResourceNotFoundException("Carrier", "carrierId", entity.getCarrierId()));
         res.setCarrierName(carrier.getName());
 
-        OrderEntity order = orderRepository.findById(entity.getOrderId())
-                .orElseThrow(() -> new ResourceNotFoundException("Order", "orderId", entity.getOrderId()));
-        res.setOrderNum(order.getNum());
-
-        ClientEntity client = clientRepository.findById(order.getClientId())
-                .orElseThrow(() -> new ResourceNotFoundException("Order", "clientId", order.getClientId()));
-        res.setClientName(client.getName());
+        if (entity.getOrderEntities() != null) {
+            List<ResOrder> orderList = new ArrayList<>();
+            for (OrderEntity order : entity.getOrderEntities()) {
+                orderList.add(orderService.getResOrder(order, false));
+            }
+            res.setOrderList(orderList);
+        }
 
         return res;
     }
+
+
 }
