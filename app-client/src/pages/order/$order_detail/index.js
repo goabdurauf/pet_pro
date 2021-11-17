@@ -82,13 +82,23 @@ class OrderDetail extends Component {
       if (modalType !== 'create')
         values = {...values, id: currentItem.id}
 
-      let date = values.loadDate;
-      if (date !== undefined)
-        values.loadDate = date.format('DD.MM.YYYY HH:mm:ss');
+      if (values.loadDate !== undefined && values.loadDate !== '')
+        values.loadDate = values.loadDate.format('DD.MM.YYYY HH:mm');
 
-      date = values.unloadDate;
-      if (date !== undefined)
-        values.unloadDate = date.format('DD.MM.YYYY HH:mm:ss');
+      if (values.loadSendDate !== undefined && values.loadSendDate !== '')
+        values.loadSendDate = values.loadSendDate.format('DD.MM.YYYY HH:mm');
+
+      if (values.customArrivalDate !== undefined && values.customArrivalDate !== '')
+        values.customArrivalDate = values.customArrivalDate.format('DD.MM.YYYY HH:mm');
+
+      if (values.customSendDate !== undefined && values.customSendDate !== '')
+        values.customSendDate = values.customSendDate.format('DD.MM.YYYY HH:mm');
+
+      if (values.unloadArrivalDate !== undefined && values.unloadArrivalDate !== '')
+        values.unloadArrivalDate = values.unloadArrivalDate.format('DD.MM.YYYY HH:mm');
+
+      if (values.unloadDate !== undefined && values.unloadDate !== '')
+        values.unloadDate = values.unloadDate.format('DD.MM.YYYY HH:mm');
 
       dispatch({
         type: 'orderDetail/save' + model,
@@ -126,6 +136,19 @@ class OrderDetail extends Component {
         type: 'orderDetail/delete' + model + 'ById',
         payload: {id}
       })
+    }
+    const getTotals = () => {
+      let weight = 0;
+      let capacity = 0;
+      let amount = 0;
+      itemList.forEach(item => {
+        item.cargoDetails && item.cargoDetails.forEach(detail => {
+          weight += detail.weight;
+          capacity += detail.capacity;
+          amount += detail.packageAmount;
+        })
+      })
+      return ' Вес: ' + weight + '; Объём: ' + capacity + '; Кол-во уп.: ' + amount;
     }
 
     const ShippingModal = () => {
@@ -200,6 +223,35 @@ class OrderDetail extends Component {
                     {cargoList.map(cargo => <Select.Option key={cargo.id} value={cargo.id}>{cargo.num}</Select.Option>)}
                   </Select>
                 </FormItem>
+              </Col>
+            </Row>
+            <Row>
+              <Col span={8} key={'load'} className={'sides'}>
+                <Typography.Title level={5}>Место загрузки</Typography.Title>
+                <Label>Дата и время загрузки</Label>
+                <Form.Item key={'loadDate'} name={'loadDate'}><DatePicker showTime format={'DD.MM.YYYY HH:mm'} locale={locale} placeholder='дата и время'/></Form.Item>
+                <Label>Станция отправления</Label>
+                <Form.Item key={'loadStation'} name={'loadStation'}><Input placeholder='станция'/></Form.Item>
+                <Label>Дата и время отправления</Label>
+                <Form.Item key={'loadSendDate'} name={'loadSendDate'}><DatePicker showTime format={'DD.MM.YYYY HH:mm'} locale={locale} placeholder='дата и время'/></Form.Item>
+              </Col>
+              <Col span={8} key={'custom'} className={'sides'}>
+                <Typography.Title level={5}>Пограничный переход</Typography.Title>
+                <Label>Дата и время прибытия</Label>
+                <Form.Item key={'customArrivalDate'} name={'customArrivalDate'}><DatePicker showTime format={'DD.MM.YYYY HH:mm'} locale={locale} placeholder='дата и время'/></Form.Item>
+                <Label>Станция погран перехода</Label>
+                <Form.Item key={'customStation'} name={'customStation'}><Input placeholder='станция'/></Form.Item>
+                <Label>Дата и время отправления</Label>
+                <Form.Item key={'customSendDate'} name={'customSendDate'}><DatePicker showTime format={'DD.MM.YYYY HH:mm'} locale={locale} placeholder='дата и время'/></Form.Item>
+              </Col>
+              <Col span={8} key={'unload'} className={'sides-l'}>
+                <Typography.Title level={5}>Место разгрузки</Typography.Title>
+                <Label>Дата и время прибытия</Label>
+                <Form.Item key={'unloadArrivalDate'} name={'unloadArrivalDate'}><DatePicker showTime format={'DD.MM.YYYY HH:mm'} locale={locale} placeholder='дата и время'/></Form.Item>
+                <Label>Станция прибытия</Label>
+                <Form.Item key={'unloadStation'} name={'unloadStation'}><Input placeholder='станция'/></Form.Item>
+                <Label>Дата и время разгрузки</Label>
+                <Form.Item key={'unloadDate'} name={'unloadDate'}><DatePicker showTime format={'DD.MM.YYYY HH:mm'} locale={locale} placeholder='дата и время'/></Form.Item>
               </Col>
             </Row>
           </Form>
@@ -453,7 +505,14 @@ class OrderDetail extends Component {
                   <Card style={{width: '100%'}} bordered={false}>
                     <Tabs onChange={onChange}>
                       <Tabs.TabPane tab="Грузы" key="Cargo">
-                        <Button className="float-right" outline color="primary" size="sm" onClick={openModal}><PlusOutlined/> Добавить</Button>
+                        <Row>
+                          <Col span={8} offset={8}>
+                            <Space className="text-center"><b>Общий размер:</b>{getTotals()}</Space>
+                          </Col>
+                          <Col span={8}>
+                            <Button className="float-right" outline color="primary" size="sm" onClick={openModal}><PlusOutlined/> Добавить</Button>
+                          </Col>
+                        </Row>
                         <Table columns={columns} dataSource={itemList} bordered size="middle" rowKey={record => record.id}
                                pagination={false}/>
                       </Tabs.TabPane>

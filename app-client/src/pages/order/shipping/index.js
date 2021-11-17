@@ -1,11 +1,12 @@
 import React, {Component} from 'react';
-import {Card, Row, Col, Tabs, Form, Input, Select, Space, Popconfirm, Table, InputNumber, Modal, TreeSelect} from 'antd';
+import {Card, Row, Col, Tabs, Form, Input, Select, Space, Popconfirm, Table, InputNumber, Modal, TreeSelect, Typography, DatePicker} from 'antd';
 import {connect} from "react-redux";
 import {DeleteOutlined, FormOutlined, PlusOutlined} from "@ant-design/icons";
 import {Button, Label} from "reactstrap";
+import 'moment/locale/ru';
+import locale from 'antd/es/date-picker/locale/ru_RU';
 const { TabPane } = Tabs;
 const FormItem = Form.Item;
-const { SHOW_PARENT } = TreeSelect;
 
 @connect(({shipping, app}) => ({shipping, app}))
 class Shipping extends Component {
@@ -23,8 +24,27 @@ class Shipping extends Component {
         type: 'shipping/updateState',
         payload: {isModalOpen: false}
       })
-      if (modalType !== 'create')
+      if (modalType !== 'create') {
         values = {...values, id: currentItem.id}
+      }
+
+      if (values.loadDate !== undefined && values.loadDate !== '')
+        values.loadDate = values.loadDate.format('DD.MM.YYYY HH:mm');
+
+      if (values.loadSendDate !== undefined && values.loadSendDate !== '')
+        values.loadSendDate = values.loadSendDate.format('DD.MM.YYYY HH:mm');
+
+      if (values.customArrivalDate !== undefined && values.customArrivalDate !== '')
+        values.customArrivalDate = values.customArrivalDate.format('DD.MM.YYYY HH:mm');
+
+      if (values.customSendDate !== undefined && values.customSendDate !== '')
+        values.customSendDate = values.customSendDate.format('DD.MM.YYYY HH:mm');
+
+      if (values.unloadArrivalDate !== undefined && values.unloadArrivalDate !== '')
+        values.unloadArrivalDate = values.unloadArrivalDate.format('DD.MM.YYYY HH:mm');
+
+      if (values.unloadDate !== undefined && values.unloadDate !== '')
+        values.unloadDate = values.unloadDate.format('DD.MM.YYYY HH:mm');
 
       dispatch({
         type: 'shipping/save' + model,
@@ -174,6 +194,35 @@ class Shipping extends Component {
                     {selectOrderList.map(order => <Select.Option key={order.id} value={order.id}>{order.num}</Select.Option>)}
                   </Select>*/}
                 </FormItem>
+              </Col>
+            </Row>
+            <Row>
+              <Col span={8} key={'load'} className={'sides'}>
+                <Typography.Title level={5}>Место загрузки</Typography.Title>
+                <Label>Дата и время загрузки</Label>
+                <Form.Item key={'loadDate'} name={'loadDate'}><DatePicker showTime format={'DD.MM.YYYY HH:mm'} locale={locale} placeholder='дата и время'/></Form.Item>
+                <Label>Станция отправления</Label>
+                <Form.Item key={'loadStation'} name={'loadStation'}><Input placeholder='станция'/></Form.Item>
+                <Label>Дата и время отправления</Label>
+                <Form.Item key={'loadSendDate'} name={'loadSendDate'}><DatePicker showTime format={'DD.MM.YYYY HH:mm'} locale={locale} placeholder='дата и время'/></Form.Item>
+              </Col>
+              <Col span={8} key={'custom'} className={'sides'}>
+                <Typography.Title level={5}>Пограничный переход</Typography.Title>
+                <Label>Дата и время прибытия</Label>
+                <Form.Item key={'customArrivalDate'} name={'customArrivalDate'}><DatePicker showTime format={'DD.MM.YYYY HH:mm'} locale={locale} placeholder='дата и время'/></Form.Item>
+                <Label>Станция погран перехода</Label>
+                <Form.Item key={'customStation'} name={'customStation'}><Input placeholder='станция'/></Form.Item>
+                <Label>Дата и время отправления</Label>
+                <Form.Item key={'customSendDate'} name={'customSendDate'}><DatePicker showTime format={'DD.MM.YYYY HH:mm'} locale={locale} placeholder='дата и время'/></Form.Item>
+              </Col>
+              <Col span={8} key={'unload'} className={'sides-l'}>
+                <Typography.Title level={5}>Место разгрузки</Typography.Title>
+                <Label>Дата и время прибытия</Label>
+                <Form.Item key={'unloadArrivalDate'} name={'unloadArrivalDate'}><DatePicker showTime format={'DD.MM.YYYY HH:mm'} locale={locale} placeholder='дата и время'/></Form.Item>
+                <Label>Станция прибытия</Label>
+                <Form.Item key={'unloadStation'} name={'unloadStation'}><Input placeholder='станция'/></Form.Item>
+                <Label>Дата и время разгрузки</Label>
+                <Form.Item key={'unloadDate'} name={'unloadDate'}><DatePicker showTime format={'DD.MM.YYYY HH:mm'} locale={locale} placeholder='дата и время'/></Form.Item>
               </Col>
             </Row>
           </Form>

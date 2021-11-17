@@ -5,6 +5,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import uz.smart.dto.*;
 import uz.smart.entity.*;
 import uz.smart.exception.ResourceNotFoundException;
+import uz.smart.payload.ResCargo;
+import uz.smart.payload.ResOrder;
+import uz.smart.payload.ResShipping;
 import uz.smart.repository.UserRepository;
 
 import java.util.List;
@@ -80,5 +83,51 @@ public abstract class MapperUtil {
             dto.setManagerName(manager.getFullName());
         }
     }
+
+    // shipping
+    public abstract ShippingEntity toShippingEntity(ShippingDto dto);
+
+    public abstract ShippingEntity updateShippingEntity(ShippingDto dto, @MappingTarget ShippingEntity entity);
+
+    public abstract ShippingDto toShippingDto(ShippingEntity entity);
+
+    @InheritInverseConfiguration
+    public abstract List<ResShipping> toResShipping(List<ShippingEntity> entities);
+
+    public abstract ResShipping toResShipping(ShippingEntity entity);
+
+    // order
+    public abstract OrderEntity toOrderEntity(OrderDto dto);
+
+    public abstract OrderEntity updateOrderEntity(OrderDto dto, @MappingTarget OrderEntity entity);
+
+    @InheritInverseConfiguration
+    public abstract List<ResOrder> toResOrder(List<OrderEntity> entities);
+
+    public abstract ResOrder toResOrder(OrderEntity entity);
+
+    // cargo
+    public abstract CargoEntity toCargoEntity(CargoDto dto, @MappingTarget CargoEntity entity);
+
+    public abstract CargoDetailEntity toCargoDetailEntity(CargoDetailDto dto, @MappingTarget CargoDetailEntity entity);
+
+    public abstract ResCargo toResCargo(CargoEntity entity);
+
+    @InheritInverseConfiguration
+    public abstract List<CargoDetailDto> toCargoDetailDto(List<CargoDetailEntity> entities);
+
+    public abstract CargoDetailDto toCargoDetailDto(CargoDetailEntity entity);
+
+    // attachment
+    @InheritInverseConfiguration
+    public abstract List<AttachmentDto> toAttachmentDto(List<Attachment> attachment);
+
+    public abstract AttachmentDto toAttachmentDto(Attachment attachment);
+
+    // document
+
+    public abstract DocumentEntity toDocumentEntity(DocumentDto dto, @MappingTarget DocumentEntity entity);
+
+    public abstract DocumentDto toDocumentDto(DocumentEntity entity);
 
 }

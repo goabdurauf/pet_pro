@@ -142,10 +142,11 @@ export default ({
                 dataIndex: 'cargoDetails',
                 key: 'cargoDetails',
                 render: (text, record) => {
-                  if (record.cargoDetails && record.cargoDetails.length > 0) {
-                    return 'Вес: ' + record.cargoDetails[0].weight;
-                  } else
-                    return '';
+                  let data = [];
+                  record.cargoDetails && record.cargoDetails.forEach(detail => {
+                    data.push(<div key={detail.id}>Вес: {detail.weight}; Объём: {detail.capacity}; Кол-во уп.: {detail.packageAmount}</div>)
+                  })
+                  return data;
                 }
               },
               {
@@ -293,7 +294,7 @@ export default ({
             isBtnDisabled: false,
             selectOrderList: orders.object,
             modalType: 'create',
-            modalWidth: 700,
+            modalWidth: 800,
             createTitle: 'Создать рейс',
             editTitle: 'Редактировать рейса',
             visibleColumns : [
@@ -310,16 +311,24 @@ export default ({
                 key: 'num',
               },
               {
-                title: 'Номер заказа',
-                dataIndex: 'orderNum',
-                key: 'orderNum',
-                render: (text, record) => {
-                  let data = [];
-                  record.orderList && record.orderList.forEach(order => {
-                    data.push(<div key={order.id}>{order.num} {order.date.substring(0, order.date.indexOf(' '))}</div>)
-                  });
-                  return data;
-                }
+                title: 'Место загрузки',
+                dataIndex: 'loadStation',
+                key: 'loadStation'
+              },
+              {
+                title: 'Место разгрузки',
+                dataIndex: 'unloadStation',
+                key: 'unloadStation'
+              },
+              {
+                title: 'Дата загрузки',
+                dataIndex: 'loadDate',
+                key: 'loadDate',
+              },
+              {
+                title: 'Дата разгрузки',
+                dataIndex: 'unloadDate',
+                key: 'unloadDate',
               },
               {
                 title: 'Менеджер',
@@ -346,6 +355,11 @@ export default ({
                 title: 'Номер транспорта',
                 dataIndex: 'shippingNum',
                 key: 'shippingNum',
+              },
+              {
+                title: 'Документы',
+                dataIndex: 'documents',
+                key: 'documents',
               },
             ]
           }
@@ -382,6 +396,13 @@ export default ({
     * getShippingById({payload}, {call, put, select}) {
       const result = yield call(getShippingById, payload.id);
       if (result.success) {
+        result.loadDate = result.loadDate !== null ? moment(result.loadDate, 'DD.MM.YYYY HH:mm') : '';//zone("+05:00")
+        result.loadSendDate = result.loadSendDate !== null ? moment(result.loadSendDate, 'DD.MM.YYYY HH:mm') : '';
+        result.customArrivalDate = result.customArrivalDate !== null ? moment(result.customArrivalDate, 'DD.MM.YYYY HH:mm') : '';
+        result.customSendDate = result.customSendDate !== null ? moment(result.customSendDate, 'DD.MM.YYYY HH:mm') : '';
+        result.unloadArrivalDate = result.unloadArrivalDate !== null ? moment(result.unloadArrivalDate, 'DD.MM.YYYY HH:mm') : '';
+        result.unloadDate = result.unloadDate !== null ? moment(result.unloadDate, 'DD.MM.YYYY HH:mm') : '';
+
         yield put({
           type: 'updateState',
           payload: {

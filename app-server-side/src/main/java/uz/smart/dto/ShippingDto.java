@@ -4,11 +4,14 @@ package uz.smart.dto;
     Created by Ilhom Ahmadjonov on 30.10.2021.
 */
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import uz.smart.converter.DateTimeDeserializer;
 
 import java.math.BigDecimal;
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.UUID;
 
@@ -25,4 +28,22 @@ public class ShippingDto {
     private String shippingNum;
     private UUID orderId;
     private List<UUID> cargoList;
+
+    @JsonDeserialize(using = DateTimeDeserializer.class)
+    private Timestamp loadDate;
+    private String loadStation;
+    @JsonDeserialize(using = DateTimeDeserializer.class)
+    private Timestamp loadSendDate;
+
+    @JsonDeserialize(using = DateTimeDeserializer.class)
+    private Timestamp customArrivalDate;
+    private String customStation;
+    @JsonDeserialize(using = DateTimeDeserializer.class)
+    private Timestamp customSendDate;
+
+    @JsonDeserialize(using = DateTimeDeserializer.class)
+    private Timestamp unloadArrivalDate;
+    private String unloadStation;
+    @JsonDeserialize(using = DateTimeDeserializer.class)
+    private Timestamp unloadDate;
 }

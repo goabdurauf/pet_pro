@@ -125,15 +125,13 @@ export default ({
     * saveOrder({payload}, {call, put, select}) {
       const result = yield call(saveOrder, payload);
       if (result.success) {
-        yield put({
-          type: 'queryOrder'
-        })
         notification.info({
-          description: result.message,
+          description: "Сохранено успешно",
           placement: 'topRight',
           duration: 3,
           style: {backgroundColor: '#d8ffe9'}
         });
+        yield put(routerRedux.push('/order/detail/' + result.message));
       } else {
         yield put({
           type: 'updateState',

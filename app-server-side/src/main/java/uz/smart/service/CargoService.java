@@ -13,8 +13,7 @@ import uz.smart.dto.CargoDetailDto;
 import uz.smart.dto.CargoDto;
 import uz.smart.entity.*;
 import uz.smart.exception.ResourceNotFoundException;
-import uz.smart.mapper.CargoMapper;
-import uz.smart.mapper.OrderMapper;
+import uz.smart.mapper.MapperUtil;
 import uz.smart.payload.ApiResponse;
 import uz.smart.payload.ResCargo;
 import uz.smart.payload.ResOrder;
@@ -34,13 +33,12 @@ public class CargoService {
     private final AttachmentRepository attachmentRepository;
     private final OrderRepository orderRepository;
 
-    private final CargoMapper mapper;
-    private final OrderMapper orderMapper;
+    private final MapperUtil mapper;
 
     public HttpEntity<?> saveAndUpdate(CargoDto dto) {
         CargoEntity entity = dto.getId() == null
-                ? mapper.toEntity(dto, new CargoEntity())
-                : mapper.toEntity(dto, repository.findById(dto.getId())
+                ? mapper.toCargoEntity(dto, new CargoEntity())
+                : mapper.toCargoEntity(dto, repository.findById(dto.getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Cargo", "Id", dto.getId())));
 
         OrderEntity order = orderRepository.findById(dto.getOrderId())
@@ -81,8 +79,8 @@ public class CargoService {
         if (dto.getCargoDetails() != null) {
             for (CargoDetailDto detailDto : dto.getCargoDetails()) {
                 CargoDetailEntity detailEntity = detailDto.getId() == null
-                        ? mapper.toDetailEntity(detailDto, new CargoDetailEntity())
-                        : mapper.toDetailEntity(detailDto, detailRepository.findById(detailDto.getId())
+                        ? mapper.toCargoDetailEntity(detailDto, new CargoDetailEntity())
+                        : mapper.toCargoDetailEntity(detailDto, detailRepository.findById(detailDto.getId())
                         .orElseThrow(() -> new ResourceNotFoundException("Carrier", "Id", dto.getId())));
                 ListEntity packegeType = listRepository.findById(detailDto.getPackageTypeId())
                         .orElseThrow(() -> new ResourceNotFoundException("List", "packegeTypeId", detailDto.getPackageTypeId()));
@@ -102,25 +100,25 @@ public class CargoService {
         if (dto.getSenderAttachments() != null) {
             for (AttachmentDto attachmentDto : dto.getSenderAttachments()) {
                 senderAttachmentList.add(attachmentRepository.findById(attachmentDto.getId())
-                        .orElseThrow(() -> new ResourceNotFoundException("List", "attachmentId", attachmentDto.getId())));
+                        .orElseThrow(() -> new ResourceNotFoundException("Cargo", "attachmentId", attachmentDto.getId())));
             }
         }
         if (dto.getReceiverAttachments() != null) {
             for (AttachmentDto attachmentDto : dto.getReceiverAttachments()) {
                 receiverAttachmentList.add(attachmentRepository.findById(attachmentDto.getId())
-                        .orElseThrow(() -> new ResourceNotFoundException("List", "attachmentId", attachmentDto.getId())));
+                        .orElseThrow(() -> new ResourceNotFoundException("Cargo", "attachmentId", attachmentDto.getId())));
             }
         }
         if (dto.getCustomFromAttachments() != null) {
             for (AttachmentDto attachmentDto : dto.getCustomFromAttachments()) {
                 customFromAttachmentList.add(attachmentRepository.findById(attachmentDto.getId())
-                        .orElseThrow(() -> new ResourceNotFoundException("List", "attachmentId", attachmentDto.getId())));
+                        .orElseThrow(() -> new ResourceNotFoundException("Cargo", "attachmentId", attachmentDto.getId())));
             }
         }
         if (dto.getCustomToAttachments() != null) {
             for (AttachmentDto attachmentDto : dto.getCustomToAttachments()) {
                 customToAttachmentList.add(attachmentRepository.findById(attachmentDto.getId())
-                        .orElseThrow(() -> new ResourceNotFoundException("List", "attachmentId", attachmentDto.getId())));
+                        .orElseThrow(() -> new ResourceNotFoundException("Cargo", "attachmentId", attachmentDto.getId())));
             }
         }
 
@@ -159,7 +157,7 @@ public class CargoService {
         List<ResCargo> list = new ArrayList<>();
         for (CargoEntity entity : entityList) {
             ResCargo resCargo = getCargo(entity);
-            ResOrder resOrder = orderMapper.toResOrder(entity.getOrder());
+            ResOrder resOrder = mapper.toResOrder(entity.getOrder());
             resCargo.setOrderNum(resOrder.getNum());
             resCargo.setClientName(resOrder.getClientName());
             list.add(resCargo);
@@ -168,10 +166,10 @@ public class CargoService {
         return list;
     }
 
-    private ResCargo getCargo(CargoEntity entity) {
-        ResCargo dto = mapper.toDto(entity);
+    public ResCargo getCargo(CargoEntity entity) {
+        ResCargo dto = mapper.toResCargo(entity);
         dto.setOrderId(entity.getOrder().getId());
-        dto.setCargoDetails(mapper.toDetailDto(entity.getCargoDetails()));
+        dto.setCargoDetails(mapper.toCargoDetailDto(entity.getCargoDetails()));
         dto.setSenderAttachments(mapper.toAttachmentDto(entity.getSenderAttachments()));
         dto.setReceiverAttachments(mapper.toAttachmentDto(entity.getReceiverAttachments()));
         dto.setCustomFromAttachments(mapper.toAttachmentDto(entity.getCustomFromAttachments()));

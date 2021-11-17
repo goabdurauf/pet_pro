@@ -2,6 +2,7 @@ import {getSelectOrders, getManagers, getListItems, saveShipping, getShippingLis
 import {notification} from 'antd'
 import {routerRedux} from "dva/router";
 import {Link} from "umi";
+import moment from "moment";
 
 export default ({
   namespace: 'shipping',
@@ -13,7 +14,7 @@ export default ({
     modalType: 'create',
     createTitle: 'Создать рейс',
     editTitle: 'Редактировать рейса',
-    modalWidth: 700,
+    modalWidth: 800,
     isBtnDisabled: false,
     managerList: [],
     carrierList: [],
@@ -47,6 +48,28 @@ export default ({
         }
       },
       {
+        title: 'Дата загрузки',
+        dataIndex: 'loadDate',
+        key: 'loadDate',
+      },
+      {
+        title: 'Дата разгрузки',
+        dataIndex: 'unloadDate',
+        key: 'unloadDate',
+      },
+      {
+        title: 'Клиент',
+        dataIndex: 'clientName',
+        key: 'clientName',
+        render: (text, record) => {
+          let data = [];
+          record.orderList && record.orderList.forEach(order => {
+            data.push(<div key={order.id}>{order.clientName}</div>)
+          });
+          return data;
+        }
+      },
+      {
         title: 'Менеджер',
         dataIndex: 'managerName',
         key: 'managerName',
@@ -56,11 +79,6 @@ export default ({
         dataIndex: 'carrierName',
         key: 'carrierName',
       },
-      /*{
-        title: 'Валюта',
-        dataIndex: 'currencyName',
-        key: 'currencyName',
-      },*/
       {
         title: 'Цена',
         dataIndex: 'customFinalPrice',
@@ -76,6 +94,11 @@ export default ({
         title: 'Номер транспорта',
         dataIndex: 'shippingNum',
         key: 'shippingNum',
+      },
+      {
+        title: 'Документы',
+        dataIndex: 'documents',
+        key: 'documents',
       },
     ]
   },
@@ -158,6 +181,13 @@ export default ({
     * getShippingById({payload}, {call, put, select}) {
       const result = yield call(getShippingById, payload.id);
       if (result.success) {
+        result.loadDate = result.loadDate !== null ? moment(result.loadDate, 'DD.MM.YYYY HH:mm') : '';//zone("+05:00")
+        result.loadSendDate = result.loadSendDate !== null ? moment(result.loadSendDate, 'DD.MM.YYYY HH:mm') : '';
+        result.customArrivalDate = result.customArrivalDate !== null ? moment(result.customArrivalDate, 'DD.MM.YYYY HH:mm') : '';
+        result.customSendDate = result.customSendDate !== null ? moment(result.customSendDate, 'DD.MM.YYYY HH:mm') : '';
+        result.unloadArrivalDate = result.unloadArrivalDate !== null ? moment(result.unloadArrivalDate, 'DD.MM.YYYY HH:mm') : '';
+        result.unloadDate = result.unloadDate !== null ? moment(result.unloadDate, 'DD.MM.YYYY HH:mm') : '';
+
         yield put({
           type: 'updateState',
           payload: {

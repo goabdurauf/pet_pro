@@ -14,7 +14,7 @@ import uz.smart.dto.OrderDto;
 import uz.smart.dto.OrderSelectDto;
 import uz.smart.entity.*;
 import uz.smart.exception.ResourceNotFoundException;
-import uz.smart.mapper.OrderMapper;
+import uz.smart.mapper.MapperUtil;
 import uz.smart.payload.ApiResponse;
 import uz.smart.payload.ReqSearch;
 import uz.smart.payload.ResOrder;
@@ -35,12 +35,12 @@ public class OrderService {
     private final OrderRepository repository;
     private final ListRepository listRepository;
     private final CargoRepository cargoRepository;
-    private final OrderMapper mapper;
+    private final MapperUtil mapper;
 
     public HttpEntity<?> saveAndUpdate(OrderDto dto){
         OrderEntity entity = dto.getId() == null
-                ? mapper.toEntity(dto)
-                : mapper.updateEntity(dto, repository.findById(dto.getId())
+                ? mapper.toOrderEntity(dto)
+                : mapper.updateOrderEntity(dto, repository.findById(dto.getId())
                     .orElseThrow(() -> new ResourceNotFoundException("Order", "Id", dto.getId())));
 
         if (dto.getId() == null){
@@ -55,8 +55,8 @@ public class OrderService {
                 .orElseThrow(() -> new ResourceNotFoundException("List", "currencyId", dto.getStatusId()));
         entity.setStatusName(status.getNameRu());
 
-        repository.save(entity);
-        return ResponseEntity.ok().body(new ApiResponse("Сохранено успешно", true));
+        entity = repository.save(entity);
+        return ResponseEntity.ok().body(new ApiResponse(entity.getId().toString(), true));
     }
 
     public HttpEntity<?> deleteOrder(UUID id) {

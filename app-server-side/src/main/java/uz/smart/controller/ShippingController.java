@@ -45,4 +45,9 @@ public class ShippingController {
     @GetMapping("/detail/{id}")
     public ResShipping getResShippingById(@PathVariable UUID id) {return service.getResShipping(id);}
 
+    @DeleteMapping("/{shippingId}/cargo/{cargoId}")
+    public HttpEntity<?> deleteCargoFromShippingById(
+            @PathVariable UUID shippingId, @PathVariable UUID cargoId
+    ) {return service.removeCargoById(shippingId, cargoId);}
+
 }

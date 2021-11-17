@@ -1,4 +1,6 @@
- - open order detail after order creating
+ done - open order detail after order creating
  - reyslarni ichini ham ochish
 
 - bug in adding cargo detail in edit modes
+- bug in button disable and file upload
+- bug in shipping date, hour and minut saving as 0

@@ -11,6 +11,7 @@ import uz.smart.entity.template.BaseEntity;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.UUID;
 
@@ -29,6 +30,18 @@ public class ShippingEntity extends BaseEntity {
     private String shippingTypeName;
     private String shippingNum;
 
+    private Timestamp loadDate;
+    private String loadStation;
+    private Timestamp loadSendDate;
+
+    private Timestamp customArrivalDate;
+    private String customStation;
+    private Timestamp customSendDate;
+
+    private Timestamp unloadArrivalDate;
+    private String unloadStation;
+    private Timestamp unloadDate;
+
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "shipping_order", joinColumns = {@JoinColumn(name = "shipping_id")},
             inverseJoinColumns = {@JoinColumn(name = "order_id")})
@@ -38,5 +51,5 @@ public class ShippingEntity extends BaseEntity {
     private List<CargoEntity> cargoEntities;
 
     @OneToMany(fetch = FetchType.LAZY)
-    private List<Attachment> attachments;
+    private List<DocumentEntity> documents;
 }

@@ -27,7 +27,7 @@ class OrderDetail extends Component {
 
   render() {
     const {shippingDetail, dispatch} = this.props;
-      const {model, orderId, isModalOpen, itemList, currentModel, currentItem, modalType, modalWidth, countryList, orderStatusList, managerList, createTitle, editTitle, visibleColumns,
+      const {model, shippingId, isModalOpen, itemList, cargoList, currentModel, currentItem, modalType, modalWidth, countryList, orderStatusList, managerList, createTitle, editTitle, visibleColumns,
       senderAttachments, receiverAttachments, customFromAttachments, customToAttachments, packageTypeList, carrierList, currencyList, shipTypeList} = shippingDetail;
 
     const openModal = () => {
@@ -76,7 +76,7 @@ class OrderDetail extends Component {
       })
     }
     const onChange = (key) => {
-      // dispatch({type: 'shippingDetail/query' + key, payload: {id: orderId}});
+      // dispatch({type: 'shippingDetail/query' + key, payload: {id: shippingId}});
     }
     const handleSubmit = (name, {values, forms}) => {
       // this.setBtnDisabled();
@@ -93,7 +93,7 @@ class OrderDetail extends Component {
 
       dispatch({
         type: 'shippingDetail/save' + model,
-        payload: {...values, orderId}
+        payload: {...values, shippingId}
       })
     }
     const columns = [
@@ -106,7 +106,7 @@ class OrderDetail extends Component {
         align: 'center',
         render: (text, record) => (
           <Space size="middle">
-            <FormOutlined onClick={() => handleEdit(record.id)}/>
+            {model !== 'Cargo' ? <FormOutlined onClick={() => handleEdit(record.id)}/> : ''}
             <Popconfirm title="Удалить?" onConfirm={() => handleDelete(record.id)}
                         okText="Да" cancelText="Нет">
               <DeleteOutlined style={{color: 'red'}}/>
@@ -125,10 +125,25 @@ class OrderDetail extends Component {
     const handleDelete = (id) => {
       dispatch({
         type: 'shippingDetail/delete' + model + 'ById',
-        payload: {id}
+        payload: {
+          shippingId: currentModel.id,
+          cargoId: id
+        }
       })
     }
-
+    const getTotals = () => {
+      let weight = 0;
+      let capacity = 0;
+      let amount = 0;
+      cargoList.forEach(item => {
+        item.cargoDetails && item.cargoDetails.forEach(detail => {
+          weight += detail.weight;
+          capacity += detail.capacity;
+          amount += detail.packageAmount;
+        })
+      })
+      return ' Вес: ' + weight + '; Объём: ' + capacity + '; Кол-во уп.: ' + amount;
+    }
     return (
       <div className="order-page">
         <Card style={{width: '100%'}} bordered={false}>
@@ -154,7 +169,8 @@ class OrderDetail extends Component {
                           <tr><td>Цена:</td><td>{currentModel && (currentModel.finalPrice + ' USD (' + currentModel.price + ' ' + currentModel.currencyName + ')')}</td></tr>
                           <tr><td>Тип транспорта:</td><td>{currentModel && currentModel.shippingTypeName}</td></tr>
                           <tr><td>Номер транспорта:</td><td>{currentModel && currentModel.shippingNum}</td></tr>
-                          <tr><td>Номер заказа:</td><td>{currentModel && currentModel.orderNum}</td></tr>
+                          <tr><td>Дата загрузки:</td><td>{currentModel && currentModel.loadDate}</td></tr>
+                          <tr><td>Дата разгрузки:</td><td>{currentModel && currentModel.unloadDate}</td></tr>
                           </tbody>
                         </table>
                       </div>
@@ -166,8 +182,12 @@ class OrderDetail extends Component {
                   <Card style={{width: '100%'}} bordered={false}>
                     <Tabs onChange={onChange}>
                       <Tabs.TabPane tab="Грузы" key="Cargo">
-                        <Button className="float-right" outline color="primary" size="sm" onClick={openModal}><PlusOutlined/> Добавить</Button>
-                        <Table columns={columns} dataSource={itemList} bordered size="middle" rowKey={record => record.id}
+                        <Row>
+                          <Col span={8} offset={8}>
+                            <Space className="text-center shipping-cargo-header"><b>Общий размер:</b>{getTotals()}</Space>
+                          </Col>
+                        </Row>
+                        <Table columns={columns} dataSource={cargoList} bordered size="middle" rowKey={record => record.id}
                                pagination={false}/>
                       </Tabs.TabPane>
                       <Tabs.TabPane tab="Документы" key="Documents">

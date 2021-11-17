@@ -41,6 +41,7 @@ export function getShippingListByOrderId(id) {return request({url: '/api/shippin
 export function getShippingById(id) {return request({url: '/api/shipping/' + id, method: 'get',})}
 export function getShippingDetailById(id) {return request({url: '/api/shipping/detail/' + id, method: 'get',})}
 export function deleteShippingById(id) {return request({url: '/api/shipping/' + id, method: 'delete',})}
+export function deleteCargoFromShippingById(data) {return request({url: '/api/shipping/' + data.shippingId + '/cargo/' + data.cargoId, method: 'delete',})}
 
 export function saveOrder(data) {return request({url: '/api/order/save', method: 'post', data})}
 export function getOrderList(data) {return request({url: '/api/order/list', method: 'post', data})}

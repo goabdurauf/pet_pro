@@ -7,8 +7,10 @@ package uz.smart.payload;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import uz.smart.dto.DocumentDto;
 
 import java.math.BigDecimal;
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.UUID;
 
@@ -24,5 +26,20 @@ public class ResShipping {
     private BigDecimal finalPrice;
     private String shippingTypeName;
     private String shippingNum;
+
+    private Timestamp loadDate;
+    private String loadStation;
+    private Timestamp loadSendDate;
+
+    private Timestamp customArrivalDate;
+    private String customStation;
+    private Timestamp customSendDate;
+
+    private Timestamp unloadArrivalDate;
+    private String unloadStation;
+    private Timestamp unloadDate;
+
     private List<ResOrder> orderList;
+    private List<ResCargo> cargoList;
+    private List<DocumentDto> documents;
 }

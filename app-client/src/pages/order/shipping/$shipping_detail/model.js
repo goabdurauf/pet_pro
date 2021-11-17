@@ -1,5 +1,5 @@
 import {saveCargo, getCargoListByOrderId, getCargoById, deleteCargoById, getClientList, getManagers, getListItems, uploadFile, deleteFile,
-  getShippingListByOrderId, getSelectOrders, saveShipping, getShippingById, getShippingDetailById, deleteShippingById, getCarrierList
+  getShippingListByOrderId, getSelectOrders, saveShipping, getShippingById, getShippingDetailById, deleteShippingById, getCarrierList, deleteCargoFromShippingById
 } from '@/services/service'
 import {Input, Select, Form, notification} from 'antd'
 import moment from "moment";
@@ -11,9 +11,10 @@ export default ({
   namespace: 'shippingDetail',
   state: {
     model: '',
-    orderId: '',
+    shippingId: '',
     isModalOpen: false,
     itemList: [],
+    cargoList: [],
     currentModel: null,
     currentItem: null,
     modalType: 'create',
@@ -62,7 +63,61 @@ export default ({
         yield put({
           type: 'updateState',
           payload: {
-            currentModel: result
+            model: 'Cargo',
+            shippingId: payload.id,
+            currentModel: result,
+            cargoList: result.cargoList,
+            visibleColumns : [
+              {
+                title: 'Номер груза',
+                dataIndex: 'num',
+                key: 'num'
+              },
+              {
+                title: 'Название груза',
+                dataIndex: 'name',
+                key: 'name',
+              },
+              {
+                title: 'Параметры груза',
+                dataIndex: 'cargoDetails',
+                key: 'cargoDetails',
+                render: (text, record) => {
+                  let data = [];
+                  record.cargoDetails && record.cargoDetails.forEach(detail => {
+                    data.push(<div key={detail.id}>Вес: {detail.weight}; Объём: {detail.capacity}; Кол-во уп.: {detail.packageAmount}</div>)
+                  })
+                  return data;
+                }
+              },
+              {
+                title: 'Погрузка',
+                dataIndex: 'senderCountryName',
+                key: 'senderCountryName',
+              },
+              {
+                title: 'Дата погрузки',
+                dataIndex: 'loadDate',
+                key: 'loadDate',
+                render: (text, record) => text.substring(0, text.indexOf(' '))
+              },
+              {
+                title: 'Разгрузка',
+                dataIndex: 'receiverCountryName',
+                key: 'receiverCountryName',
+              },
+              {
+                title: 'Дата разгрузки',
+                dataIndex: 'unloadDate',
+                key: 'unloadDate',
+                render: (text, record) => text.substring(0, text.indexOf(' '))
+              },
+              {
+                title: 'Рейсы',
+                dataIndex: 'shippingNum',
+                key: 'shippingNum',
+              }
+            ]
           }
         })
       }
@@ -213,11 +268,11 @@ export default ({
     },
     * deleteCargoById({payload}, {call, put, select}) {
       const {orderId} = yield select(_ => _.orderDetail);
-      const result = yield call(deleteCargoById, payload.id);
+      const result = yield call(deleteCargoFromShippingById, payload);
       if (result.success) {
         yield put({
-          type: 'queryCargo',
-          payload:{id: orderId}
+          type: 'getDetail',
+          payload:{id: payload.shippingId}
         })
         notification.info({
           description: result.message,

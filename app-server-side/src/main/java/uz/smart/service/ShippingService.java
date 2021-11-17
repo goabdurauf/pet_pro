@@ -8,11 +8,13 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import uz.smart.dto.DocumentDto;
 import uz.smart.dto.ShippingDto;
 import uz.smart.entity.*;
 import uz.smart.exception.ResourceNotFoundException;
-import uz.smart.mapper.ShippingMapper;
+import uz.smart.mapper.MapperUtil;
 import uz.smart.payload.ApiResponse;
+import uz.smart.payload.ResCargo;
 import uz.smart.payload.ResOrder;
 import uz.smart.payload.ResShipping;
 import uz.smart.repository.*;
@@ -32,13 +34,15 @@ public class ShippingService {
     private final CargoRepository cargoRepository;
 
     private final OrderService orderService;
+    private final CargoService cargoService;
+    private final DocumentService documentService;
 
-    private final ShippingMapper mapper;
+    private final MapperUtil mapper;
 
     public HttpEntity<?> saveAndUpdateShipping(ShippingDto dto){
         ShippingEntity entity = dto.getId() == null
-                ? mapper.toEntity(dto)
-                : mapper.updateEntity(dto, repository.findById(dto.getId())
+                ? mapper.toShippingEntity(dto)
+                : mapper.updateShippingEntity(dto, repository.findById(dto.getId())
                     .orElseThrow(() -> new ResourceNotFoundException("Shipping", "Id", dto.getId())));
 
         if (dto.getId() == null) {
@@ -87,7 +91,7 @@ public class ShippingService {
     public ShippingDto getShipping(UUID id) {
         ShippingEntity entity = repository.getShippingById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Shipping", "id", id));
-        ShippingDto dto = mapper.toDto(entity);
+        ShippingDto dto = mapper.toShippingDto(entity);
         if (entity.getCargoEntities() != null) {
             List<UUID> cargoIds = new ArrayList<>();
             for (CargoEntity cargo : entity.getCargoEntities()) {
@@ -137,13 +141,47 @@ public class ShippingService {
         if (entity.getOrderEntities() != null) {
             List<ResOrder> orderList = new ArrayList<>();
             for (OrderEntity order : entity.getOrderEntities()) {
-                orderList.add(orderService.getResOrder(order, false));
+                orderList.add(orderService.getResOrder(order, true));
             }
             res.setOrderList(orderList);
         }
 
+        if (entity.getCargoEntities() != null) {
+            List<ResCargo> cargoList = new ArrayList<>();
+            for (CargoEntity cargo : entity.getCargoEntities()) {
+                cargoList.add(cargoService.getCargo(cargo));
+            }
+            res.setCargoList(cargoList);
+        }
+
+        if (entity.getDocuments() != null)
+            res.setDocuments(documentService.getDocumentDto(entity.getDocuments()));
+
         return res;
     }
 
+    public HttpEntity<?> removeCargoById(UUID shippingId, UUID cargoId) {
+        ShippingEntity shipping = repository.findById(shippingId)
+                .orElseThrow(() -> new ResourceNotFoundException("Shipping", "Id", shippingId));
+        CargoEntity cargo = cargoRepository.findById(cargoId)
+                .orElseThrow(() -> new ResourceNotFoundException("Cargo", "Id", cargoId));
+        shipping.getCargoEntities().remove(cargo);
+        repository.saveAndFlush(shipping);
+        return ResponseEntity.ok().body(new ApiResponse("Груз удалено успешно", true));
+    }
 
+    public HttpEntity<?> addDocument(DocumentDto dto) {
+        DocumentEntity document = documentService.saveAndUpdate(dto);
+        ShippingEntity entity = repository.findById(dto.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Shipping", "Id", dto.getOwnerId()));
+
+        if (entity.getDocuments() != null) {
+            Set<DocumentEntity> set = new HashSet<>(entity.getDocuments());
+            set.add(document);
+            entity.setDocuments(new ArrayList<>(set));
+        } else
+            entity.setDocuments(Arrays.asList(document));
+
+        return ResponseEntity.ok().body(new ApiResponse("Сохранено успешно", true));
+    }
 }
