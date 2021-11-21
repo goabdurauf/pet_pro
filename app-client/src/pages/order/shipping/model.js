@@ -97,8 +97,23 @@ export default ({
       },
       {
         title: 'Документы',
-        dataIndex: 'documents',
-        key: 'documents',
+        dataIndex: 'docs',
+        key: 'docs',
+        render: (text, record) => {
+          let data = [];
+          if (record.documents.length > 0) {
+            record.documents.forEach(doc => {
+              let title = doc.title + ' (' + doc.date.substring(0, doc.date.indexOf(' ')) + ')';
+              if (doc.attachments.length > 0) {
+                doc.attachments.forEach(att => {
+                  data.push(<div key={att.id}><Link key={att.id} to={att.url}>{title}</Link><br/></div>)
+                })
+              } else
+                data.push(<div key={doc.id}>{title}<br/></div>);
+            })
+          }
+          return data;
+        }
       },
     ]
   },

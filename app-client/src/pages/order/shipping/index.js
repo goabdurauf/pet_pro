@@ -231,7 +231,7 @@ class Shipping extends Component {
     };
     return (
       <div className="order-page">
-        <Card style={{width: '100%'}} bordered={false}>
+        <Card style={{width: '100%'}} bordered={false}>{console.log(itemList)}
           <Tabs onChange={onChange} defaultActiveKey="Shipping">
             <TabPane tab="Заказы" key="/order">Подождите пожалуйста ...</TabPane>
             <TabPane tab="Грузы" key="/order/cargo">Подождите пожалуйста ...</TabPane>

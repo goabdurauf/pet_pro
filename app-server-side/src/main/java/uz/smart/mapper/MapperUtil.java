@@ -2,6 +2,7 @@ package uz.smart.mapper;
 
 import org.mapstruct.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import uz.smart.dto.*;
 import uz.smart.entity.*;
 import uz.smart.exception.ResourceNotFoundException;
@@ -123,6 +124,12 @@ public abstract class MapperUtil {
     public abstract List<AttachmentDto> toAttachmentDto(List<Attachment> attachment);
 
     public abstract AttachmentDto toAttachmentDto(Attachment attachment);
+
+    @AfterMapping
+    void afterToAttachmentDto(@MappingTarget AttachmentDto dto, Attachment entity) {
+        dto.setType(entity.getContentType());
+        dto.setUrl(ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/file/").path(entity.getId().toString()).toUriString());
+    }
 
     // document
 

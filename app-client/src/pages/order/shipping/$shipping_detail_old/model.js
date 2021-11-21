@@ -1,14 +1,12 @@
-import {uploadFile, deleteFile, getDocumentById, getShippingDetailById, deleteCargoFromShippingById,
-  deleteDocumentFromShippingById, addShippingDocument, deleteAttachmentFromDocumentById, addAttachmentToDocument} from '@/services/service'
-import modelExtend from 'dva-model-extend'
-import {tableModel} from 'utils/model'
+import {uploadFile, deleteFile, getShippingById, getShippingDetailById, deleteShippingById, deleteCargoFromShippingById,
+  addShippingDocument} from '@/services/service'
 import {Input, Select, Form, notification} from 'antd'
 import moment from "moment";
 import React from "react";
 import {routerRedux} from "dva/router";
 import {Link} from "umi";
 
-export default modelExtend(tableModel, {
+export default ({
   namespace: 'shippingDetail',
   state: {
     model: '',
@@ -18,12 +16,11 @@ export default modelExtend(tableModel, {
     currentModel: null,
     currentItem: null,
     modalType: 'create',
-    modalWidth: 500,
+    modalWidth: 100,
+    clientList: [],
     cargoDetails: [],
-    documentList: [],
-    documentAttachments: [],
+    shippingAttachments: [],
     isBtnDisabled: false,
-    loadingFile: false,
     visibleColumns : []
   },
   subscriptions: {
@@ -49,7 +46,6 @@ export default modelExtend(tableModel, {
             shippingId: payload.id,
             currentModel: result,
             cargoList: result.cargoList,
-            documentList: result.documents,
             visibleColumns : [
               {
                 title: 'Номер груза',
@@ -195,7 +191,7 @@ export default modelExtend(tableModel, {
           isModalOpen: false,
           isBtnDisabled: false,
           modalType: 'create',
-          modalWidth: 500,
+          modalWidth: 700,
           createTitle: 'Создать документ',
           editTitle: 'Редактировать документа',
           visibleColumns : [
@@ -215,12 +211,16 @@ export default modelExtend(tableModel, {
               title: 'Дата создания',
               dataIndex: 'date',
               key: 'date',
-              render: (text, record) => text && text.substring(0, text.indexOf(' '))
             },
             {
               title: 'Комментарии',
               dataIndex: 'comment',
               key: 'comment',
+            },
+            {
+              title: 'Файлы',
+              dataIndex: 'attachment',
+              key: 'attachment',
             }
           ]
         }
@@ -228,14 +228,12 @@ export default modelExtend(tableModel, {
     },
     * saveDocument({payload}, {call, put, select}) {
       const result = yield call(addShippingDocument, payload);
+      console.log(result)
       if (result.success) {
         yield put({
           type: 'updateState',
-          payload: {
-            documentList: result.list,
-            currentItem: null,
-            isModalOpen: false,
-            isBtnDisabled: false
+          payload:{
+            shippingAttachments: []
           }
         })
         notification.info({
@@ -247,7 +245,7 @@ export default modelExtend(tableModel, {
       } else {
         yield put({
           type: 'updateState',
-          payload: {isBtnDisabled: false}
+          payload: {isBtnDisabled: false,}
         })
         notification.error({
           description: result.message,
@@ -258,14 +256,12 @@ export default modelExtend(tableModel, {
       }
     },
     * getDocumentById({payload}, {call, put, select}) {
-      const result = yield call(getDocumentById, payload.id);
+      const result = yield call(getShippingById, payload.id);
       if (result.success) {
-        result.date = moment(result.date, 'DD.MM.YYYY HH:mm:ss');//zone("+05:00")
         yield put({
           type: 'updateState',
           payload: {
             currentItem: result,
-            documentAttachments: result.attachments,
             isModalOpen: true,
             modalType: 'update'
           }
@@ -280,14 +276,15 @@ export default modelExtend(tableModel, {
       }
     },
     * deleteDocumentById({payload}, {call, put, select}) {
-      const result = yield call(deleteDocumentFromShippingById, payload);
+      const {orderId} = yield select(_ => _.orderDetail);
+      const result = yield call(deleteShippingById, payload.id);
       if (result.success) {
         yield put({
-          type: 'updateState',
-          payload:{documentList: result.list}
+          type: 'queryShipping',
+          payload:{id: orderId}
         })
         notification.info({
-          description: 'Документ удалено успешно',
+          description: result.message,
           placement: 'topRight',
           duration: 3,
           style: {backgroundColor: '#d8ffe9'}
@@ -301,60 +298,49 @@ export default modelExtend(tableModel, {
         });
       }
     },
-    * uploadDocumentAttachment({payload}, {call, put, select}) {
-      const {documentAttachments} = yield select(_ => _.shippingDetail);
-      const result = yield call(addAttachmentToDocument, payload);
-      if (result.success) {
-        yield put({
-          type: 'updateState',
-          payload: {
-            loadingFile: false,
-            documentAttachments: [...documentAttachments, {...result}]
-          }
-        })
-      } else {
-        // notification
-      }
-    },
     * uploadAttachment({payload}, {call, put, select}) {
-      const {documentAttachments} = yield select(_ => _.shippingDetail);
+      const {senderAttachments, receiverAttachments, customFromAttachments, customToAttachments} = yield select(_ => _.orderDetail);
       const result = yield call(uploadFile, payload);
+      console.log(result)
       if (result.success) {
-        yield put({
-          type: 'updateState',
-          payload: {
-            loadingFile: false,
-            documentAttachments: [...documentAttachments, {...result}]
-          }
-        })
-      } else {
-        // notification
-      }
-    },
-    * deleteDocumentAttachment({payload}, {call, put, select}) {
-      const {documentAttachments} = yield select(_ => _.shippingDetail);
-      const result = yield call(deleteAttachmentFromDocumentById, payload);
-      if (result.success) {
-        yield put({
-          type: 'updateState',
-          payload: {
-            documentAttachments: documentAttachments.filter(item => item.id !== payload.id)
-          }
-        })
+        switch (payload.owner) {
+          case 'sender':
+            yield put({type: 'updateState', payload: {senderAttachments: [...senderAttachments, {...result}]}})
+            break;
+          case 'receiver':
+            yield put({type: 'updateState', payload: {receiverAttachments: [...receiverAttachments, {...result}]}})
+            break;
+          case 'customFrom':
+            yield put({type: 'updateState', payload: {customFromAttachments: [...customFromAttachments, {...result}]}})
+            break;
+          case 'customTo':
+            yield put({type: 'updateState', payload: {customToAttachments: [...customToAttachments, {...result}]}})
+            break;
+          default:
+        }
       } else {
         // notification
       }
     },
     * deleteAttachment({payload}, {call, put, select}) {
-      const {documentAttachments} = yield select(_ => _.shippingDetail);
+      const {senderAttachments, receiverAttachments, customFromAttachments, customToAttachments} = yield select(_ => _.orderDetail);
       const result = yield call(deleteFile, payload.id);
       if (result.success) {
-        yield put({
-          type: 'updateState',
-          payload: {
-            documentAttachments: documentAttachments.filter(item => item.id !== payload.id)
-          }
-        })
+        switch (payload.owner) {
+          case 'sender':
+            yield put({type: 'updateState', payload: {senderAttachments: senderAttachments.filter(item => item.id !== payload.id)}})
+            break;
+          case 'receiver':
+            yield put({type: 'updateState', payload: {receiverAttachments: receiverAttachments.filter(item => item.id !== payload.id)}})
+            break;
+          case 'customFrom':
+            yield put({type: 'updateState', payload: {customFromAttachments: customFromAttachments.filter(item => item.id !== payload.id)}})
+            break;
+          case 'customTo':
+            yield put({type: 'updateState', payload: {customToAttachments: customToAttachments.filter(item => item.id !== payload.id)}})
+            break;
+          default:
+        }
       } else {
         // notification
       }

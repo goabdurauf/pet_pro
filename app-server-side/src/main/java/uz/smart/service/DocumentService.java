@@ -5,7 +5,10 @@ package uz.smart.service;
 */
 
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 import uz.smart.dto.AttachmentDto;
 import uz.smart.dto.DocumentDto;
 import uz.smart.entity.Attachment;
@@ -18,6 +21,7 @@ import uz.smart.repository.DocumentRepository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Service @AllArgsConstructor
 public class DocumentService {
@@ -25,6 +29,8 @@ public class DocumentService {
     private final DocumentRepository repository;
     private final AttachmentRepository attachmentRepository;
     private final AttachmentContentRepository attachmentContentRepository;
+
+    private final AttachmentService attachmentService;
 
     private final MapperUtil mapper;
 
@@ -47,6 +53,11 @@ public class DocumentService {
         return entity;
     }
 
+    public DocumentDto getDocumentDto(UUID id) {
+        return getDocumentDto(repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Document", "Id", id)));
+    }
+
     public DocumentDto getDocumentDto(DocumentEntity entity) {
         DocumentDto dto = mapper.toDocumentDto(entity);
         dto.setAttachments(mapper.toAttachmentDto(entity.getAttachments()));
@@ -64,11 +75,26 @@ public class DocumentService {
         return list;
     }
 
+    public AttachmentDto addAttachment(UUID id, MultipartHttpServletRequest request) {
+        DocumentEntity entity = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Document", "Id", id));
+        AttachmentDto attachmentDto = attachmentService.saveFile(request);
+        Attachment attachment = attachmentRepository.findById(attachmentDto.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Document", "attachmentId", attachmentDto.getId()));
+        List<Attachment> docAttachments = new ArrayList<>();
+        if (entity.getAttachments() != null)
+            docAttachments = entity.getAttachments();
+
+        docAttachments.add(attachment);
+        repository.saveAndFlush(entity);
+
+        return attachmentDto;
+    }
+
     public void deleteDocument(DocumentEntity entity) {
         if (entity.getAttachments() != null) {
-            for (Attachment attachment : entity.getAttachments()) {
+           for (Attachment attachment : entity.getAttachments()) {
                 attachmentContentRepository.deleteByAttachment_Id(attachment.getId());
-                attachmentRepository.deleteById(attachment.getId());
             }
         }
         repository.delete(entity);
@@ -80,5 +106,20 @@ public class DocumentService {
                 deleteDocument(entity);
             }
         }
+    }
+
+    public HttpEntity<?> deleteAttachment(UUID docId, UUID attachmentId) {
+        DocumentEntity entity = repository.findById(docId)
+                .orElseThrow(() -> new ResourceNotFoundException("Document", "Id", docId));
+        Attachment attachment = attachmentRepository.findById(attachmentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Document", "attachmentId", attachmentId));
+
+        entity.getAttachments().remove(attachment);
+        entity = repository.saveAndFlush(entity);
+
+        attachmentContentRepository.deleteByAttachment_Id(attachmentId);
+        attachmentRepository.delete(attachment);
+
+        return ResponseEntity.ok("Удалено!");
     }
 }

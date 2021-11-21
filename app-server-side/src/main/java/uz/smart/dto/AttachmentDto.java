@@ -14,4 +14,7 @@ import java.util.UUID;
 public class AttachmentDto {
     private UUID id;
     private String name;
+    private String url;
+    private String type;
+    private long size;
 }

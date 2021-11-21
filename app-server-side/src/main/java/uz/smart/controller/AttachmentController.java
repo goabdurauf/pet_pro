@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
-import uz.smart.payload.ResUploadFile;
+import uz.smart.dto.AttachmentDto;
 import uz.smart.service.AttachmentService;
 
 import javax.servlet.http.HttpServletResponse;
@@ -16,7 +16,7 @@ public class AttachmentController {
     private AttachmentService attachmentService;
 
     @PostMapping
-    public ResUploadFile save(MultipartHttpServletRequest request) {
+    public AttachmentDto save(MultipartHttpServletRequest request) {
         return attachmentService.saveFile(request);
     }
 

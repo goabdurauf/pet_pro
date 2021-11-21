@@ -32,6 +32,7 @@ public class ShippingService {
     private final ListRepository listRepository;
     private final ClientRepository clientRepository;
     private final CargoRepository cargoRepository;
+    private final DocumentRepository documentRepository;
 
     private final OrderService orderService;
     private final CargoService cargoService;
@@ -84,7 +85,13 @@ public class ShippingService {
     }
 
     public HttpEntity<?> deleteShipping(UUID id) {
-        repository.updateById(id);
+        ShippingEntity entity = repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Shipping", "Id", id));
+
+        if (entity.getDocuments() != null) {
+            documentService.deleteAllDocuments(entity.getDocuments());
+        }
+
+        repository.delete(entity);
         return ResponseEntity.ok().body(new ApiResponse("Удалено успешно", true));
     }
 
@@ -170,9 +177,9 @@ public class ShippingService {
         return ResponseEntity.ok().body(new ApiResponse("Груз удалено успешно", true));
     }
 
-    public HttpEntity<?> addDocument(DocumentDto dto) {
+    public List<DocumentDto> addDocument(DocumentDto dto) {
         DocumentEntity document = documentService.saveAndUpdate(dto);
-        ShippingEntity entity = repository.findById(dto.getId())
+        ShippingEntity entity = repository.findById(dto.getOwnerId())
                 .orElseThrow(() -> new ResourceNotFoundException("Shipping", "Id", dto.getOwnerId()));
 
         if (entity.getDocuments() != null) {
@@ -182,6 +189,21 @@ public class ShippingService {
         } else
             entity.setDocuments(Arrays.asList(document));
 
-        return ResponseEntity.ok().body(new ApiResponse("Сохранено успешно", true));
+        entity = repository.saveAndFlush(entity);
+
+        return documentService.getDocumentDto(entity.getDocuments());
+    }
+
+    public List<DocumentDto> removeDocumentById(UUID shippingId, UUID docId) {
+        ShippingEntity entity = repository.findById(shippingId)
+                .orElseThrow(() -> new ResourceNotFoundException("Shipping", "Id", shippingId));
+        DocumentEntity document = documentRepository.findById(docId)
+                .orElseThrow(() -> new ResourceNotFoundException("Shipping", "docId", docId));
+
+        entity.getDocuments().remove(document);
+        entity = repository.saveAndFlush(entity);
+        documentService.deleteDocument(document);
+
+        return documentService.getDocumentDto(entity.getDocuments());
     }
 }

@@ -9,11 +9,11 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import uz.smart.dto.AttachmentDto;
 import uz.smart.entity.Attachment;
 import uz.smart.entity.AttachmentContent;
+import uz.smart.mapper.MapperUtil;
 import uz.smart.payload.ApiResponse;
-import uz.smart.payload.ResUploadFile;
 import uz.smart.repository.AttachmentContentRepository;
 import uz.smart.repository.AttachmentRepository;
 
@@ -29,36 +29,33 @@ public class AttachmentService {
     private final AttachmentContentRepository attachmentContentRepository;
     private final AttachmentRepository attachmentRepository;
 
+    private final MapperUtil mapperUtil;
+
     @Transactional
-    public ResUploadFile saveFile(MultipartHttpServletRequest request) {
+    public AttachmentDto saveFile(MultipartHttpServletRequest request) {
         Iterator<String> itr = request.getFileNames();
         MultipartFile mpf;
-        Attachment image = new Attachment();
-        ResUploadFile uploadFile = new ResUploadFile();
+        Attachment attachment = new Attachment();
 
         while (itr.hasNext()) {
             try {
                 mpf = request.getFile(itr.next());
                 ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-                image.setName(mpf.getOriginalFilename());
-                image.setSize(mpf.getSize());
-                image.setContentType(mpf.getContentType());
+                attachment.setName(mpf.getOriginalFilename());
+                attachment.setSize(mpf.getSize());
+                attachment.setContentType(mpf.getContentType());
                 outputStream.close();
-                image = attachmentRepository.save(image);
+                attachment = attachmentRepository.save(attachment);
 
                 AttachmentContent content = new AttachmentContent();
                 content.setContent(mpf.getBytes());
-                content.setAttachment(image);
+                content.setAttachment(attachment);
                 attachmentContentRepository.save(content);
-
-                uploadFile = new ResUploadFile(image.getId(), image.getName(),
-                        ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/file/").path(image.getId().toString()).toUriString(),
-                        image.getContentType(), image.getSize());
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
-        return uploadFile;
+        return mapperUtil.toAttachmentDto(attachment);
     }
 
     @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)

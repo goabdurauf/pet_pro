@@ -100,7 +100,7 @@ export default ({
                 title: 'Дата заказа',
                 dataIndex: 'date',
                 key: 'date',
-                render: (text, record) => text.substring(0, text.indexOf(' '))
+                render: (text, record) => text && text.substring(0, text.indexOf(' '))
               },
               {
                 title: 'Статус заказа',

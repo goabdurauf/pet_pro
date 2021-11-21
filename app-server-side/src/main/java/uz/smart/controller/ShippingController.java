@@ -7,6 +7,7 @@ package uz.smart.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.web.bind.annotation.*;
+import uz.smart.dto.DocumentDto;
 import uz.smart.dto.ShippingDto;
 import uz.smart.payload.ResShipping;
 import uz.smart.service.ShippingService;
@@ -49,5 +50,15 @@ public class ShippingController {
     public HttpEntity<?> deleteCargoFromShippingById(
             @PathVariable UUID shippingId, @PathVariable UUID cargoId
     ) {return service.removeCargoById(shippingId, cargoId);}
+
+    @PostMapping("/document")
+    public List<DocumentDto> addDocument(@RequestBody DocumentDto dto) {
+        return service.addDocument(dto);
+    }
+
+    @DeleteMapping("/{shippingId}/document/{docId}")
+    public List<DocumentDto> deleteDocumentFromShippingById(
+            @PathVariable UUID shippingId, @PathVariable UUID docId
+    ) {return service.removeDocumentById(shippingId, docId);}
 
 }

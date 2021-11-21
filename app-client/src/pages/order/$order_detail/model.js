@@ -158,7 +158,7 @@ export default ({
                 title: 'Дата погрузки',
                 dataIndex: 'loadDate',
                 key: 'loadDate',
-                render: (text, record) => text.substring(0, text.indexOf(' '))
+                render: (text, record) => text && text.substring(0, text.indexOf(' '))
               },
               {
                 title: 'Разгрузка',
@@ -169,7 +169,7 @@ export default ({
                 title: 'Дата разгрузки',
                 dataIndex: 'unloadDate',
                 key: 'unloadDate',
-                render: (text, record) => text.substring(0, text.indexOf(' '))
+                render: (text, record) => text && text.substring(0, text.indexOf(' '))
               },
               {
                 title: 'Рейсы',
@@ -358,8 +358,8 @@ export default ({
               },
               {
                 title: 'Документы',
-                dataIndex: 'documents',
-                key: 'documents',
+                dataIndex: 'docs',
+                key: 'docs',
               },
             ]
           }

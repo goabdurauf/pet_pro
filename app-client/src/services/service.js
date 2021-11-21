@@ -41,7 +41,13 @@ export function getShippingListByOrderId(id) {return request({url: '/api/shippin
 export function getShippingById(id) {return request({url: '/api/shipping/' + id, method: 'get',})}
 export function getShippingDetailById(id) {return request({url: '/api/shipping/detail/' + id, method: 'get',})}
 export function deleteShippingById(id) {return request({url: '/api/shipping/' + id, method: 'delete',})}
-export function deleteCargoFromShippingById(data) {return request({url: '/api/shipping/' + data.shippingId + '/cargo/' + data.cargoId, method: 'delete',})}
+export function deleteCargoFromShippingById(data) {return request({url: '/api/shipping/' + data.shippingId + '/cargo/' + data.id, method: 'delete'})}
+export function addShippingDocument(data) {return request({url: '/api/shipping/document', method: 'post', data})}
+export function deleteDocumentFromShippingById(data) {return request({url: '/api/shipping/' + data.shippingId + '/document/' + data.id, method: 'delete'})}
+
+export function getDocumentById(id) {return request({url: '/api/document/' + id, method: 'get'})}
+export function deleteAttachmentFromDocumentById(data) {return request({url: '/api/document/' + data.docId + '/attachment/' + data.id, method: 'delete'})}
+export function addAttachmentToDocument(data) {return request({url: '/api/document/' + data.id + '/attachment', method: 'post', data})}
 
 export function saveOrder(data) {return request({url: '/api/order/save', method: 'post', data})}
 export function getOrderList(data) {return request({url: '/api/order/list', method: 'post', data})}

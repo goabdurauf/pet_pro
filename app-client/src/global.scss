@@ -237,6 +237,14 @@ body {
 
         .uploads {
           margin: 20px 50px;
+
+          .ant-upload-select {
+            display: inline;
+
+            .ant-btn {
+              width: 100%;
+            }
+          }
         }
       }
 
