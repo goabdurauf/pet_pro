@@ -106,7 +106,7 @@ export default ({
               let title = doc.title + ' (' + doc.date.substring(0, doc.date.indexOf(' ')) + ')';
               if (doc.attachments.length > 0) {
                 doc.attachments.forEach(att => {
-                  data.push(<div key={att.id}><Link key={att.id} to={att.url}>{title}</Link><br/></div>)
+                  data.push(<div key={att.id}><a href={att.url} target="_blank" rel="noreferrer">{title}</a><br/></div>)
                 })
               } else
                 data.push(<div key={doc.id}>{title}<br/></div>);

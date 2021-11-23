@@ -30,6 +30,13 @@ public class CargoDto {
 
     private List<CargoDetailDto> cargoDetails;
 
+    private UUID docId;
+    private String docTitle;
+    @JsonDeserialize(using = DateTimeDeserializer.class)
+    private Timestamp docDate;
+    private String docCommet;
+    private List<AttachmentDto> docAttachments;
+
     private String senderName;
     private Long senderCountryId;
     private String senderCountryName;
@@ -53,9 +60,4 @@ public class CargoDto {
     private String customToCountryName;
     private String customToCity;
     private String customToOthers;
-
-    private List<AttachmentDto> senderAttachments;
-    private List<AttachmentDto> receiverAttachments;
-    private List<AttachmentDto> customFromAttachments;
-    private List<AttachmentDto> customToAttachments;
 }

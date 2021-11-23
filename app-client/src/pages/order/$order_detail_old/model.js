@@ -1,34 +1,13 @@
-import {
-  getOrderDetailById,
-  saveCargo,
-  getCargoListByOrderId,
-  getCargoById,
-  deleteCargoById,
-  getClientList,
-  getManagers,
-  getListItems,
-  uploadFile,
-  deleteFile,
-  getShippingListByOrderId,
-  getSelectOrders,
-  saveShipping,
-  getShippingById,
-  deleteShippingById,
-  getCarrierList,
-  addAttachmentToDocument,
-  deleteAttachmentFromDocumentById,
-  getCargoDocumentByOrderId,
-  getDocumentById,
-  saveDocument, deleteDocumentFromCargo
+import {getOrderDetailById, saveCargo, getCargoListByOrderId, getCargoById, deleteCargoById, getClientList, getManagers, getListItems, uploadFile, deleteFile,
+  getShippingListByOrderId, getSelectOrders, saveShipping, getShippingById, deleteShippingById, getCarrierList
 } from '@/services/service'
-import modelExtend from 'dva-model-extend'
-import {Image, notification} from 'antd'
+import {Input, Select, Form, notification} from 'antd'
 import moment from "moment";
 import React from "react";
 import {routerRedux} from "dva/router";
-import {tableModel} from "@/utils/model";
+import {Link} from "umi";
 
-export default modelExtend(tableModel, {
+export default ({
   namespace: 'orderDetail',
   state: {
     model: '',
@@ -49,9 +28,11 @@ export default modelExtend(tableModel, {
     currencyList: [],
     shipTypeList: [],
     packageTypeList: [],
-    documentAttachments: [],
+    senderAttachments: [],
+    receiverAttachments: [],
+    customFromAttachments: [],
+    customToAttachments: [],
     isBtnDisabled: false,
-    isLoading: false,
     visibleColumns : []
   },
   subscriptions: {
@@ -95,6 +76,49 @@ export default modelExtend(tableModel, {
             model: 'Cargo',
             itemList: data.list,
             cargoList: data.list,
+            /*
+            cargoDetails: [
+              {
+                weight: <Form.Item key={'weight'} name={'weight'}><Input name={'weight'} placeholder='Вес'/></Form.Item>,
+                capacity: <Form.Item key={'capacity'} name={'capacity'}><Input name={'capacity'} placeholder='Объём'/></Form.Item>,
+                packageTypeId: <Form.Item key={'packageTypeId'} name={'packageTypeId'}><Select name={'packageTypeId'} placeholder='Тип упаковки'>
+                  {packageType.list.map(type => <Select.Option key={type.id} value={type.id}>{type.nameRu}</Select.Option>)}
+                </Select></Form.Item>,
+                packageAmount: <Form.Item key={'packageAmount'} name={'packageAmount'}><Input name={'packageAmount'} placeholder='Количество упаковки'/></Form.Item>
+              },{
+                weight: <Form.Item key={'weight'} name={'weight'}><Input name={'weight'} placeholder='Вес'/></Form.Item>,
+                capacity: <Form.Item key={'capacity'} name={'capacity'}><Input name={'capacity'} placeholder='Объём'/></Form.Item>,
+                packageTypeId: <Form.Item key={'packageTypeId'} name={'packageTypeId'}><Select name={'packageTypeId'} placeholder='Тип упаковки'>
+                  {packageType.list.map(type => <Select.Option key={type.id} value={type.id}>{type.nameRu}</Select.Option>)}
+                </Select></Form.Item>,
+                packageAmount: <Form.Item key={'packageAmount'} name={'packageAmount'}><Input name={'packageAmount'} placeholder='Количество упаковки'/></Form.Item>
+              },
+            ],
+            cargoDetails1: [
+              {
+                weight: <input type="number" className="form-control text-center" name="weight" placeholder="Вес"/>,
+                capacity: <input type="number" className="form-control text-center" name="capacity" placeholder="Объём"/>,
+                packageTypeId: <select name="packageTypeId" placeholder='Тип упаковки'>
+                  {packageType.list.map(type => <option key={type.id} value={type.id}>{type.nameRu}</option>)}
+                </select>,
+                packageAmount: <input type="number" className="form-control text-center" name="packageAmount" placeholder="Количество упаковки"/>,
+              },{
+                weight: <input type="number" className="form-control text-center" name="weight" placeholder="Вес"/>,
+                capacity: <input type="number" className="form-control text-center" name="capacity" placeholder="Объём"/>,
+                packageTypeId: <select name="packageTypeId" placeholder='Тип упаковки'>
+                  {packageType.list.map(type => <option key={type.id} value={type.id}>{type.nameRu}</option>)}
+                </select>,
+                packageAmount: <input type="number" className="form-control text-center" name="packageAmount" placeholder="Количество упаковки"/>,
+              },{
+                weight: <input type="number" className="form-control text-center" name="weight" placeholder="Вес"/>,
+                capacity: <input type="number" className="form-control text-center" name="capacity" placeholder="Объём"/>,
+                packageTypeId: <select name="packageTypeId" placeholder='Тип упаковки'>
+                  {packageType.list.map(type => <option key={type.id} value={type.id}>{type.nameRu}</option>)}
+                </select>,
+                packageAmount: <input type="number" className="form-control text-center" name="packageAmount" placeholder="Количество упаковки"/>,
+              },
+            ],
+            */
             modalWidth: 1200,
             currentItem: {cargoDetails:[{weight:'', capacity:'', packageTypeId:'', packageAmount:''}]},
             isModalOpen: false,
@@ -148,22 +172,10 @@ export default modelExtend(tableModel, {
                 render: (text, record) => text && text.substring(0, text.indexOf(' '))
               },
               {
-                title: 'Файл',
-                dataIndex: 'docImage',
-                key: 'docImage',
-                render: (text, record) => {
-                  let data = [];
-                  record.docAttachments && record.docAttachments.forEach(img => {
-                    data.push(<div key={img.id} style={{textAlign: "center"}}><Image width={60} src={img.url}/></div>)
-                  })
-                  return data;
-                }
-              },
-              {
                 title: 'Рейсы',
                 dataIndex: 'shippingNum',
                 key: 'shippingNum',
-              },
+              }
             ]
           }
         })
@@ -226,14 +238,11 @@ export default modelExtend(tableModel, {
       const result = yield call(getCargoById, payload.id);
       if (result.success) {
         result.loadDate = moment(result.loadDate, 'DD.MM.YYYY HH:mm:ss');//zone("+05:00")
-        result.unloadDate = moment(result.unloadDate, 'DD.MM.YYYY HH:mm:ss');
-        if (result.docDate !== null)
-          result.docDate = moment(result.docDate, 'DD.MM.YYYY HH:mm:ss');
+        result.unloadDate = moment(result.unloadDate, 'DD.MM.YYYY HH:mm:ss');//zone("+05:00")
         yield put({
           type: 'updateState',
           payload: {
             currentItem: result,
-            documentAttachments: result.docAttachments !== null ? result.docAttachments : [],
             isModalOpen: true,
             modalType: 'update'
           }
@@ -346,7 +355,12 @@ export default modelExtend(tableModel, {
                 title: 'Номер транспорта',
                 dataIndex: 'shippingNum',
                 key: 'shippingNum',
-              }
+              },
+              {
+                title: 'Документы',
+                dataIndex: 'docs',
+                key: 'docs',
+              },
             ]
           }
         })
@@ -429,173 +443,49 @@ export default modelExtend(tableModel, {
         });
       }
     },
-    * queryDocument({payload}, {call, put, select}) {
-      const {orderId} = yield select(_ => _.orderDetail);
-      let data = yield call(getCargoDocumentByOrderId, orderId);
-      if (data.success) {
-        yield put({
-          type: 'updateState',
-          payload: {
-            model: 'Document',
-            itemList: data.list,
-            currentItem: null,
-            isModalOpen: false,
-            isBtnDisabled: false,
-            modalWidth: 500,
-            createTitle: 'Создать документ',
-            editTitle: 'Редактировать документа',
-            visibleColumns : [
-              {
-                title: '№',
-                dataIndex: 'nomer',
-                key: 'nomer',
-                align: 'center',
-                render: (value, item, index) => index+1
-              },
-              {
-                title: 'Название документа',
-                dataIndex: 'title',
-                key: 'title',
-              },
-              {
-                title: 'Дата создания',
-                dataIndex: 'date',
-                key: 'date',
-                render: (text, record) => text && text.substring(0, text.indexOf(' '))
-              },
-              {
-                title: 'Комментарии',
-                dataIndex: 'comment',
-                key: 'comment',
-              }
-            ]
-          }
-        })
-      }
-    },
-    * getDocumentById({payload}, {call, put, select}) {
-      const result = yield call(getDocumentById, payload.id);
-      if (result.success) {
-        result.date = moment(result.date, 'DD.MM.YYYY HH:mm:ss');//zone("+05:00")
-        yield put({
-          type: 'updateState',
-          payload: {
-            currentItem: result,
-            documentAttachments: result.attachments,
-            isModalOpen: true,
-            modalType: 'update'
-          }
-        })
-      } else {
-        notification.error({
-          description: result.message,
-          placement: 'topRight',
-          duration: 3,
-          style: {backgroundColor: '#ffd9d9'}
-        });
-      }
-    },
-    * saveDocument({payload}, {call, put, select}) {
-      const result = yield call(saveDocument, payload);
-      if (result.success) {
-        yield put({
-          type: 'queryDocument'
-        })
-        notification.info({
-          description: 'Документ сохранен успешно',
-          placement: 'topRight',
-          duration: 3,
-          style: {backgroundColor: '#d8ffe9'}
-        });
-      } else {
-        yield put({
-          type: 'updateState',
-          payload: {isBtnDisabled: false}
-        })
-        notification.error({
-          description: result.message,
-          placement: 'topRight',
-          duration: 3,
-          style: {backgroundColor: '#ffd9d9'}
-        });
-      }
-    },
-    * deleteDocumentById({payload}, {call, put, select}) {
-      const result = yield call(deleteDocumentFromCargo, payload);
-      if (result.success) {
-        yield put({
-          type: 'updateState',
-          payload:{itemList: result.list}
-        })
-        notification.info({
-          description: 'Документ удалено успешно',
-          placement: 'topRight',
-          duration: 3,
-          style: {backgroundColor: '#d8ffe9'}
-        });
-      } else {
-        notification.error({
-          description: result.message,
-          placement: 'topRight',
-          duration: 3,
-          style: {backgroundColor: '#ffd9d9'}
-        });
-      }
-    },
     * uploadAttachment({payload}, {call, put, select}) {
-      const {documentAttachments} = yield select(_ => _.orderDetail);
+      const {senderAttachments, receiverAttachments, customFromAttachments, customToAttachments} = yield select(_ => _.orderDetail);
       const result = yield call(uploadFile, payload);
+      console.log(result)
       if (result.success) {
-        yield put({
-          type: 'updateState',
-          payload: {
-            isLoading: false,
-            documentAttachments: [...documentAttachments, {...result}]
-          }
-        })
-      } else {
-        // notification
-      }
-    },
-    * uploadDocumentAttachment({payload}, {call, put, select}) {
-      const {documentAttachments} = yield select(_ => _.orderDetail);
-      const result = yield call(addAttachmentToDocument, payload);
-      if (result.success) {
-        yield put({
-          type: 'updateState',
-          payload: {
-            isLoading: false,
-            documentAttachments: [...documentAttachments, {...result}]
-          }
-        })
+        switch (payload.owner) {
+          case 'sender':
+            yield put({type: 'updateState', payload: {senderAttachments: [...senderAttachments, {...result}]}})
+            break;
+          case 'receiver':
+            yield put({type: 'updateState', payload: {receiverAttachments: [...receiverAttachments, {...result}]}})
+            break;
+          case 'customFrom':
+            yield put({type: 'updateState', payload: {customFromAttachments: [...customFromAttachments, {...result}]}})
+            break;
+          case 'customTo':
+            yield put({type: 'updateState', payload: {customToAttachments: [...customToAttachments, {...result}]}})
+            break;
+          default:
+        }
       } else {
         // notification
       }
     },
     * deleteAttachment({payload}, {call, put, select}) {
-      const {documentAttachments} = yield select(_ => _.orderDetail);
+      const {senderAttachments, receiverAttachments, customFromAttachments, customToAttachments} = yield select(_ => _.orderDetail);
       const result = yield call(deleteFile, payload.id);
       if (result.success) {
-        yield put({
-          type: 'updateState',
-          payload: {
-            documentAttachments: documentAttachments.filter(item => item.id !== payload.id)
-          }
-        })
-      } else {
-        // notification
-      }
-    },
-    * deleteDocumentAttachment({payload}, {call, put, select}) {
-      const {documentAttachments} = yield select(_ => _.orderDetail);
-      const result = yield call(deleteAttachmentFromDocumentById, payload);
-      if (result.success) {
-        yield put({
-          type: 'updateState',
-          payload: {
-            documentAttachments: documentAttachments.filter(item => item.id !== payload.id)
-          }
-        })
+        switch (payload.owner) {
+          case 'sender':
+            yield put({type: 'updateState', payload: {senderAttachments: senderAttachments.filter(item => item.id !== payload.id)}})
+            break;
+          case 'receiver':
+            yield put({type: 'updateState', payload: {receiverAttachments: receiverAttachments.filter(item => item.id !== payload.id)}})
+            break;
+          case 'customFrom':
+            yield put({type: 'updateState', payload: {customFromAttachments: customFromAttachments.filter(item => item.id !== payload.id)}})
+            break;
+          case 'customTo':
+            yield put({type: 'updateState', payload: {customToAttachments: customToAttachments.filter(item => item.id !== payload.id)}})
+            break;
+          default:
+        }
       } else {
         // notification
       }

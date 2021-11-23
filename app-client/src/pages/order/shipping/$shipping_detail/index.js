@@ -6,9 +6,7 @@ import {DeleteOutlined, FormOutlined, PlusOutlined} from "@ant-design/icons";
 import Modal from './modal'
 import {Button} from "reactstrap";
 
-const ShippingDetail = ({
-                 location, dispatch, shippingDetail, loading,
-               }) => {
+const ShippingDetail = ({dispatch, shippingDetail}) => {
 
   const {model, shippingId, isModalOpen, loadingFile, cargoList, currentModel, currentItem, modalType, modalWidth, createTitle, editTitle, visibleColumns,
     isBtnDisabled, documentList, documentAttachments} = shippingDetail;
@@ -228,9 +226,7 @@ const ShippingDetail = ({
 
 ShippingDetail.propTypes = {
   shippingDetail: PropTypes.object,
-  location: PropTypes.object,
-  dispatch: PropTypes.func,
-  loading: PropTypes.object,
+  dispatch: PropTypes.func
 };
 
-export default connect(({shippingDetail, loading}) => ({shippingDetail, loading}))(ShippingDetail)
+export default connect(({shippingDetail}) => ({shippingDetail}))(ShippingDetail)

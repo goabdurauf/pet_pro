@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
+import uz.smart.entity.CargoEntity;
 import uz.smart.entity.OrderEntity;
 import uz.smart.entity.ShippingEntity;
 
@@ -29,6 +30,8 @@ public interface ShippingRepository extends JpaRepository<ShippingEntity, UUID> 
     List<ShippingEntity> getAllShipping();
 
     List<ShippingEntity> getAllByOrderEntitiesInAndStateGreaterThan(List<OrderEntity> orderEntities, int state);
+
+    Optional<ShippingEntity> getByCargoEntitiesIn(List<CargoEntity> cargoEntities);
 
     Optional<ShippingEntity> getFirstByOrderByCreatedAtDesc();
 }

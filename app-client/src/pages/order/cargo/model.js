@@ -1,12 +1,13 @@
 import {
-  deleteCargoById,
+  addAttachmentToDocument, deleteAttachmentFromDocumentById,
+  deleteCargoById, deleteFile,
   getCargoById,
   getCargoList,
   getCarrierList,
   getClientList,
   getListItems,
   getManagers,
-  saveCargo
+  saveCargo, uploadFile
 } from '@/services/service'
 import {Link} from "umi";
 import {notification} from "antd";
@@ -19,6 +20,9 @@ export default ({
     itemList: [],
     currentItem: null,
     isModalOpen: false,
+    isBtnDisabled: false,
+    isLoading: false,
+    documentAttachments: [],
     countryList: [],
     packageTypeList: [],
     visibleColumns : [
@@ -59,6 +63,21 @@ export default ({
         title: 'Разгрузка',
         dataIndex: 'receiverCountryName',
         key: 'receiverCountryName',
+      },
+      {
+        title: 'Документы',
+        dataIndex: 'docs',
+        key: 'docs',
+        render: (text, record) => {
+          let data = [];
+          let title = record.docTitle !== null ? record.docTitle : '';
+          if(record.docDate !== null)
+            title += ' (' + record.docDate.substring(0, record.docDate.indexOf(' ')) + ')';
+          record.docAttachments && record.docAttachments.forEach(doc => {
+            data.push(<div key={doc.id}><a href={doc.url} target="_blank" rel="noreferrer">{title}</a><br/></div>)
+          })
+          return data;
+        }
       }
     ]
   },
@@ -87,7 +106,9 @@ export default ({
         yield put({
           type: 'updateState',
           payload: {
-            itemList: data.list
+            itemList: data.list,
+            isBtnDisabled: false,
+            isModalOpen: false
           }
         })
       }
@@ -121,7 +142,7 @@ export default ({
       } else {
         yield put({
           type: 'updateState',
-          payload: {isBtnDisabled: false,}
+          payload: {isBtnDisabled: false}
         })
         notification.error({
           description: result.message,
@@ -136,10 +157,13 @@ export default ({
       if (result.success) {
         result.loadDate = moment(result.loadDate, 'DD.MM.YYYY HH:mm:ss');//zone("+05:00")
         result.unloadDate = moment(result.unloadDate, 'DD.MM.YYYY HH:mm:ss');//zone("+05:00")
+        if (result.docDate !== null)
+          result.docDate = moment(result.docDate, 'DD.MM.YYYY HH:mm:ss');
         yield put({
           type: 'updateState',
           payload: {
             currentItem: result,
+            documentAttachments: result.docAttachments !== null ? result.docAttachments : [],
             isModalOpen: true
           }
         })
@@ -173,6 +197,50 @@ export default ({
         });
       }
     },
+    * uploadAttachment({payload}, {call, put, select}) {
+      const {documentAttachments} = yield select(_ => _.cargo);
+      const result = yield call(uploadFile, payload);
+      if (result.success) {
+        yield put({
+          type: 'updateState',
+          payload: {
+            isLoading: false,
+            documentAttachments: [...documentAttachments, {...result}]
+          }
+        })
+      } else {
+        // notification
+      }
+    },
+    * deleteAttachment({payload}, {call, put, select}) {
+      const {documentAttachments} = yield select(_ => _.cargo);
+      const result = yield call(deleteFile, payload.id);
+      if (result.success) {
+        yield put({
+          type: 'updateState',
+          payload: {
+            documentAttachments: documentAttachments.filter(item => item.id !== payload.id)
+          }
+        })
+      } else {
+        // notification
+      }
+    },
+    * deleteDocumentAttachment({payload}, {call, put, select}) {
+      const {documentAttachments} = yield select(_ => _.cargo);
+      const result = yield call(deleteAttachmentFromDocumentById, payload);
+      if (result.success) {
+        yield put({
+          type: 'updateState',
+          payload: {
+            documentAttachments: documentAttachments.filter(item => item.id !== payload.id)
+          }
+        })
+      } else {
+        // notification
+      }
+    },
+
     * pushToPage({payload}, {call, put, select}) {
       yield put(routerRedux.push(payload.key));
     }

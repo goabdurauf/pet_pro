@@ -59,9 +59,14 @@ public class DocumentService {
     }
 
     public DocumentDto getDocumentDto(DocumentEntity entity) {
-        DocumentDto dto = mapper.toDocumentDto(entity);
-        dto.setAttachments(mapper.toAttachmentDto(entity.getAttachments()));
-        return dto;
+        if (entity != null) {
+            DocumentDto dto = mapper.toDocumentDto(entity);
+            if (entity.getAttachments() != null)
+                dto.setAttachments(mapper.toAttachmentDto(entity.getAttachments()));
+
+            return dto;
+        } else
+            return null;
     }
 
     public List<DocumentDto> getDocumentDto(List<DocumentEntity> entities) {

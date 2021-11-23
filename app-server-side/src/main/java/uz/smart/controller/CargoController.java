@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.web.bind.annotation.*;
 import uz.smart.dto.CargoDto;
+import uz.smart.dto.DocumentDto;
 import uz.smart.payload.ResCargo;
 import uz.smart.service.CargoService;
 
@@ -35,5 +36,13 @@ public class CargoController {
 
     @GetMapping("/order/{id}")
     public List<ResCargo> getListByOrder(@PathVariable UUID id) { return service.getCargoListByOrderId(id); }
+
+    @GetMapping("/document/{orderId}")
+    public List<DocumentDto> getDocumentListByOrder(@PathVariable UUID orderId) { return service.getCargoDocumentsByOrderId(orderId); }
+
+    @DeleteMapping("/{orderId}/document/{docId}")
+    public List<DocumentDto> deleteDocumentFromCargo(@PathVariable UUID orderId, @PathVariable UUID docId){
+        return service.removeDocumentByOrderId(orderId, docId);
+    }
 
 }

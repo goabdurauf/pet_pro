@@ -8,9 +8,11 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import uz.smart.dto.AttachmentDto;
 import uz.smart.dto.CargoDetailDto;
 import uz.smart.dto.CargoDto;
+import uz.smart.dto.DocumentDto;
 import uz.smart.entity.*;
 import uz.smart.exception.ResourceNotFoundException;
 import uz.smart.mapper.MapperUtil;
@@ -19,9 +21,8 @@ import uz.smart.payload.ResCargo;
 import uz.smart.payload.ResOrder;
 import uz.smart.repository.*;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -32,6 +33,10 @@ public class CargoService {
     private final ListRepository listRepository;
     private final AttachmentRepository attachmentRepository;
     private final OrderRepository orderRepository;
+    private final DocumentRepository documentRepository;
+    private final ShippingRepository shippingRepository;
+
+    private final DocumentService documentService;
 
     private final MapperUtil mapper;
 
@@ -92,40 +97,22 @@ public class CargoService {
         }
         entity.setCargoDetails(cargoDetails);
 
-        List<Attachment> senderAttachmentList = new ArrayList<>();
-        List<Attachment> receiverAttachmentList = new ArrayList<>();
-        List<Attachment> customFromAttachmentList = new ArrayList<>();
-        List<Attachment> customToAttachmentList = new ArrayList<>();
+        if (StringUtils.hasText(dto.getDocTitle())) {
+            DocumentEntity document = dto.getDocId() == null
+                    ? mapper.toDocumentEntity(new DocumentDto(null, dto.getDocTitle(), dto.getDocDate(), dto.getDocCommet()), new DocumentEntity())
+                    : mapper.toDocumentEntity(new DocumentDto(dto.getDocId(), dto.getDocTitle(), dto.getDocDate(), dto.getDocCommet()),
+                        documentRepository.findById(dto.getDocId()).orElseThrow(() -> new ResourceNotFoundException("Cargo", "documentId", dto.getDocId())));
 
-        if (dto.getSenderAttachments() != null) {
-            for (AttachmentDto attachmentDto : dto.getSenderAttachments()) {
-                senderAttachmentList.add(attachmentRepository.findById(attachmentDto.getId())
-                        .orElseThrow(() -> new ResourceNotFoundException("Cargo", "attachmentId", attachmentDto.getId())));
+            if (dto.getDocAttachments() != null && dto.getDocAttachments().size() > 0) {
+                Set<UUID> list = dto.getDocAttachments().stream().map(AttachmentDto::getId).collect(Collectors.toSet());
+                List<Attachment> attachmentList = attachmentRepository.findAllByIdIn(new ArrayList<>(list));
+                document.setAttachments(attachmentList);
             }
-        }
-        if (dto.getReceiverAttachments() != null) {
-            for (AttachmentDto attachmentDto : dto.getReceiverAttachments()) {
-                receiverAttachmentList.add(attachmentRepository.findById(attachmentDto.getId())
-                        .orElseThrow(() -> new ResourceNotFoundException("Cargo", "attachmentId", attachmentDto.getId())));
-            }
-        }
-        if (dto.getCustomFromAttachments() != null) {
-            for (AttachmentDto attachmentDto : dto.getCustomFromAttachments()) {
-                customFromAttachmentList.add(attachmentRepository.findById(attachmentDto.getId())
-                        .orElseThrow(() -> new ResourceNotFoundException("Cargo", "attachmentId", attachmentDto.getId())));
-            }
-        }
-        if (dto.getCustomToAttachments() != null) {
-            for (AttachmentDto attachmentDto : dto.getCustomToAttachments()) {
-                customToAttachmentList.add(attachmentRepository.findById(attachmentDto.getId())
-                        .orElseThrow(() -> new ResourceNotFoundException("Cargo", "attachmentId", attachmentDto.getId())));
-            }
-        }
 
-        entity.setSenderAttachments(senderAttachmentList);
-        entity.setReceiverAttachments(receiverAttachmentList);
-        entity.setCustomFromAttachments(customFromAttachmentList);
-        entity.setCustomToAttachments(customToAttachmentList);
+            document = documentRepository.save(document);
+
+            entity.setDocument(document);
+        }
 
         repository.save(entity);
 
@@ -133,7 +120,21 @@ public class CargoService {
     }
 
     public HttpEntity<?> deleteCargo(UUID id) {
-        repository.updateById(id);
+        CargoEntity cargoEntity = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Cargo", "Id", id));
+        ShippingEntity shippingEntity = shippingRepository.getByCargoEntitiesIn(Arrays.asList(cargoEntity)).orElse(null);
+        if (shippingEntity != null){
+            shippingEntity.getCargoEntities().remove(cargoEntity);
+            shippingRepository.saveAndFlush(shippingEntity);
+        }
+        if (cargoEntity.getDocument() != null){
+            DocumentEntity document = documentRepository.findById(cargoEntity.getDocument().getId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Document", "Id", id));
+            cargoEntity.setDocument(null);
+            cargoEntity = repository.saveAndFlush(cargoEntity);
+            documentService.deleteDocument(document);
+        }
+        repository.delete(cargoEntity);
         return ResponseEntity.ok().body(new ApiResponse("Удалено успешно", true));
     }
 
@@ -146,6 +147,19 @@ public class CargoService {
 
     public List<ResCargo> getCargoListByOrderId(UUID orderId) {
         return getCargoList(repository.getAllByOrder_IdAndStateGreaterThanOrderByCreatedAt(orderId, 0));
+    }
+
+    public List<DocumentDto> getCargoDocumentsByOrderId(UUID orderId) {
+        List<DocumentDto> documentList = new ArrayList<>();
+        List<CargoEntity> cargoList = repository.getAllByOrder_IdAndStateGreaterThanOrderByCreatedAt(orderId, 0);
+        if (cargoList == null || cargoList.size() == 0)
+            return documentList;
+        for (CargoEntity cargo : cargoList) {
+            DocumentDto documentDto = documentService.getDocumentDto(cargo.getDocument());
+            if (documentDto != null)
+                documentList.add(documentDto);
+        }
+        return documentList;
     }
 
     public List<ResCargo> getCargoList() {
@@ -170,12 +184,29 @@ public class CargoService {
         ResCargo dto = mapper.toResCargo(entity);
         dto.setOrderId(entity.getOrder().getId());
         dto.setCargoDetails(mapper.toCargoDetailDto(entity.getCargoDetails()));
-        dto.setSenderAttachments(mapper.toAttachmentDto(entity.getSenderAttachments()));
-        dto.setReceiverAttachments(mapper.toAttachmentDto(entity.getReceiverAttachments()));
-        dto.setCustomFromAttachments(mapper.toAttachmentDto(entity.getCustomFromAttachments()));
-        dto.setCustomToAttachments(mapper.toAttachmentDto(entity.getCustomToAttachments()));
+        if (entity.getDocument() != null) {
+            DocumentEntity document = entity.getDocument();
+            dto.setDocId(document.getId());
+            dto.setDocTitle(document.getTitle());
+            dto.setDocDate(document.getDate());
+            dto.setDocCommet(document.getComment());
+            dto.setDocAttachments(mapper.toAttachmentDto(document.getAttachments()));
+        }
 
         return dto;
+    }
+
+    public List<DocumentDto> removeDocumentByOrderId(UUID orderId, UUID docId) {
+        CargoEntity entity = repository.findByDocument_Id(docId)
+                .orElseThrow(() -> new ResourceNotFoundException("Cargo", "docId", docId));
+        DocumentEntity document = documentRepository.findById(docId)
+                .orElseThrow(() -> new ResourceNotFoundException("Document", "Id", docId));
+
+        entity.setDocument(null);
+        repository.saveAndFlush(entity);
+        documentService.deleteDocument(document);
+
+        return getCargoDocumentsByOrderId(orderId);
     }
 
 }

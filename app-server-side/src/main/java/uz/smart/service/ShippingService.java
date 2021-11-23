@@ -21,6 +21,7 @@ import uz.smart.repository.*;
 import uz.smart.utils.CommonUtils;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service @AllArgsConstructor
 public class ShippingService {
@@ -87,8 +88,12 @@ public class ShippingService {
     public HttpEntity<?> deleteShipping(UUID id) {
         ShippingEntity entity = repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Shipping", "Id", id));
 
-        if (entity.getDocuments() != null) {
-            documentService.deleteAllDocuments(entity.getDocuments());
+        if (entity.getDocuments() != null && entity.getDocuments().size() > 0) {
+            List<DocumentEntity> documentList = entity.getDocuments().stream().map(document -> documentRepository.findById(document.getId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Shipping", "documentId", document.getId()))).collect(Collectors.toList());
+            entity.setDocuments(null);
+            entity = repository.saveAndFlush(entity);
+            documentService.deleteAllDocuments(documentList);
         }
 
         repository.delete(entity);

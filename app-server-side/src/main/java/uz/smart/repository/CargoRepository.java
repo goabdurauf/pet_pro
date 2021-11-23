@@ -29,4 +29,5 @@ public interface CargoRepository extends JpaRepository<CargoEntity, UUID> {
 
     List<CargoEntity> getAllByOrder_IdAndStateGreaterThanOrderByCreatedAt(UUID order_id, int state);
 
+    Optional<CargoEntity> findByDocument_Id(UUID documentId);
 }

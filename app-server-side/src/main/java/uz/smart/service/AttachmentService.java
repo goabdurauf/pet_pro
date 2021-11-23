@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import uz.smart.dto.AttachmentDto;
 import uz.smart.entity.Attachment;
 import uz.smart.entity.AttachmentContent;
@@ -62,9 +63,11 @@ public class AttachmentService {
     public void getFile(HttpServletResponse response, String id) {
         try {
             AttachmentContent file = attachmentContentRepository.getByAttachment(attachmentRepository.getOne(UUID.fromString(id)));
-            response.setContentType(file.getAttachment().getContentType());
+            if (file != null) {
+                response.setContentType(file.getAttachment().getContentType());
 //            response.setHeader("Content-disposition", "attachment; filename=\"" + file.getAttachment().getOriginalName() + "\"");
-            FileCopyUtils.copy(file.getContent(), response.getOutputStream());
+                FileCopyUtils.copy(file.getContent(), response.getOutputStream());
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }

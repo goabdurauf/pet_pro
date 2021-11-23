@@ -36,8 +36,8 @@ public class CargoEntity extends BaseEntity {
     private String senderCity;
     private String senderOthers;
 
-    @OneToMany(fetch = FetchType.LAZY)
-    private List<Attachment> senderAttachments;
+    @OneToOne(fetch = FetchType.LAZY)
+    private DocumentEntity document;
 
     private String receiverName;
     private Long receiverCountryId;

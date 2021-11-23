@@ -1,6 +1,10 @@
  done - open order detail after order creating
- - reyslarni ichini ham ochish
+ done - reyslarni ichini ham ochish
 
 - bug in adding cargo detail in edit modes
-- bug in button disable and file upload
-- bug in shipping date, hour and minut saving as 0
+done - bug in button disable and file upload
+done - bug in shipping date, hour and minut saving as 0
+
+
+Modal example
+https://github.com/8iq/nodejs-hackathon-boilerplate-starter-kit/blob/c82e514305bbe4ae77854c8242bc04b1a9736a43/apps/_example05app/containers/FormList.js#L213

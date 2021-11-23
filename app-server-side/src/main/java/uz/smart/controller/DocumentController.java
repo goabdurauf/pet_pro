@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import uz.smart.dto.AttachmentDto;
 import uz.smart.dto.DocumentDto;
+import uz.smart.entity.DocumentEntity;
 import uz.smart.service.DocumentService;
 
 import java.util.UUID;
@@ -24,6 +25,11 @@ public class DocumentController {
     @GetMapping("/{id}")
     public DocumentDto get(@PathVariable UUID id) {
         return service.getDocumentDto(id);
+    }
+
+    @PostMapping("/add")
+    public DocumentEntity saveOrUpdate(@RequestBody DocumentDto dto) {
+        return service.saveAndUpdate(dto);
     }
 
     @PostMapping("/{id}/attachment")

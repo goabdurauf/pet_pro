@@ -21,4 +21,11 @@ public class DocumentDto {
     private String comment;
 
     private List<AttachmentDto> attachments;
+
+    public DocumentDto(UUID id, String title, Timestamp date, String comment) {
+        this.id = id;
+        this.title = title;
+        this.date = date;
+        this.comment = comment;
+    }
 }
