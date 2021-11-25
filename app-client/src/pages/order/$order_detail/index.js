@@ -6,7 +6,7 @@ import CargoModal from './modals/cargoModal'
 import ShippingModal from './modals/shippingModal'
 import DocumentModal from '../shipping/$shipping_detail/modal'
 import {Button} from "reactstrap";
-import {DeleteOutlined, FormOutlined, PlusOutlined} from "@ant-design/icons";
+import {DeleteOutlined, FormOutlined, PlusOutlined, CopyOutlined} from "@ant-design/icons";
 import 'moment/locale/ru';
 
 const OrderDetail = ({dispatch, orderDetail}) => {
@@ -94,38 +94,49 @@ const OrderDetail = ({dispatch, orderDetail}) => {
       if (modalType !== 'create')
         values = {...values, id: currentItem.id, docId: currentItem.docId}
 
-      if (values.loadDate !== undefined && values.loadDate !== '')
+      if (values.loadDate !== null && values.loadDate !== undefined && values.loadDate !== '')
         values.loadDate = values.loadDate.format('DD.MM.YYYY HH:mm');
 
-      if (values.loadSendDate !== undefined && values.loadSendDate !== '')
+      if (values.loadSendDate !== null && values.loadSendDate !== undefined && values.loadSendDate !== '')
         values.loadSendDate = values.loadSendDate.format('DD.MM.YYYY HH:mm');
 
-      if (values.docDate !== undefined && values.docDate !== '')
+      if (values.docDate !== null && values.docDate !== undefined && values.docDate !== '')
         values.docDate = values.docDate.format('DD.MM.YYYY HH:mm');
 
-      if (values.date !== undefined && values.date !== '')
+      if (values.date !== null && values.date !== undefined && values.date !== '')
         values.date = values.date.format('DD.MM.YYYY HH:mm:ss');
 
-      if (values.customArrivalDate !== undefined && values.customArrivalDate !== '')
+      if (values.customArrivalDate !== null && values.customArrivalDate !== undefined && values.customArrivalDate !== '')
         values.customArrivalDate = values.customArrivalDate.format('DD.MM.YYYY HH:mm');
 
-      if (values.customSendDate !== undefined && values.customSendDate !== '')
+      if (values.customSendDate !== null && values.customSendDate !== undefined && values.customSendDate !== '')
         values.customSendDate = values.customSendDate.format('DD.MM.YYYY HH:mm');
 
-      if (values.unloadArrivalDate !== undefined && values.unloadArrivalDate !== '')
+      if (values.unloadArrivalDate !== null && values.unloadArrivalDate !== undefined && values.unloadArrivalDate !== '')
         values.unloadArrivalDate = values.unloadArrivalDate.format('DD.MM.YYYY HH:mm');
 
-      if (values.unloadDate !== undefined && values.unloadDate !== '')
+      if (values.unloadDate !== null && values.unloadDate !== undefined && values.unloadDate !== '')
         values.unloadDate = values.unloadDate.format('DD.MM.YYYY HH:mm');
 
-      dispatch({
-        type: 'orderDetail/save' + model,
-        payload: {
-          ...values,
-          orderId,
-          docAttachments: documentAttachments
-        }
-      })
+      if (modalType === 'clone') {
+        dispatch({
+          type: 'orderDetail/cloneCargo',
+          payload: {
+            ...values,
+            orderId,
+            docAttachments: documentAttachments
+          }
+        })
+      } else {
+        dispatch({
+          type: 'orderDetail/save' + model,
+          payload: {
+            ...values,
+            orderId,
+            docAttachments: documentAttachments
+          }
+        })
+      }
     }
     const handleDocumentSubmit = (values) => {
       dispatch({
@@ -155,6 +166,7 @@ const OrderDetail = ({dispatch, orderDetail}) => {
         align: 'center',
         render: (text, record) => (
           <Space size="middle">
+            {model === 'Cargo' && <CopyOutlined onClick={() => handleClone(record.id)}/>}
             <FormOutlined onClick={() => handleEdit(record.id)}/>
             <Popconfirm title="Удалить?" onConfirm={() => handleDelete(record.id)}
                         okText="Да" cancelText="Нет">
@@ -164,7 +176,23 @@ const OrderDetail = ({dispatch, orderDetail}) => {
         )
       }
     ];
+    const handleClone = (id) => {
+      dispatch({
+        type: 'orderDetail/updateState',
+        payload: {modalType: 'clone'}
+      })
+      dispatch({
+        type: 'orderDetail/get' + model + 'ById',
+        payload: {id}
+      })
+    };
     const handleEdit = (id) => {
+      if (model === 'Cargo'){
+        dispatch({
+          type: 'orderDetail/updateState',
+          payload: {modalType: 'update'}
+        })
+      }
       dispatch({
         type: 'orderDetail/get' + model + 'ById',
         payload: {id}

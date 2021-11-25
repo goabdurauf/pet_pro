@@ -25,6 +25,9 @@ public class CargoController {
     @PostMapping("/save")
     public HttpEntity<?> save(@RequestBody CargoDto dto) { return service.saveAndUpdate(dto); }
 
+    @PostMapping("/clone")
+    public HttpEntity<?> clone(@RequestBody CargoDto dto) { return service.cloneCargo(dto); }
+
     @DeleteMapping("/{id}")
     public HttpEntity<?> delete(@PathVariable UUID id) { return service.deleteCargo(id); }
 

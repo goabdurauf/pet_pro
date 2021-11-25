@@ -61,6 +61,7 @@ export function uploadFile(data) {return request({url: '/api/file', method: 'pos
 export function deleteFile(id) {return request({url: '/api/file/' + id, method: 'delete'})}
 
 export function saveCargo(data) {return request({url: '/api/cargo/save', method: 'post', data})}
+export function cloneCargo(data) {return request({url: '/api/cargo/clone', method: 'post', data})}
 export function getCargoList() {return request({url: '/api/cargo/list', method: 'get',})}
 export function getCargoListByOrderId(id) {return request({url: '/api/cargo/order/' + id, method: 'get',})}
 export function getCargoDocumentByOrderId(id) {return request({url: '/api/cargo/document/' + id, method: 'get',})}

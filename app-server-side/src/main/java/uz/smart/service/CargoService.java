@@ -32,6 +32,7 @@ public class CargoService {
     private final CargoDetailRepository detailRepository;
     private final ListRepository listRepository;
     private final AttachmentRepository attachmentRepository;
+    private final AttachmentContentRepository attachmentContentRepository;
     private final OrderRepository orderRepository;
     private final DocumentRepository documentRepository;
     private final ShippingRepository shippingRepository;
@@ -116,8 +117,53 @@ public class CargoService {
 
         repository.save(entity);
 
+
         return ResponseEntity.ok().body(new ApiResponse("Сохранено успешно", true));
     }
+
+    public HttpEntity<?> cloneCargo(CargoDto dto) {
+        for (CargoDetailDto detailDto : dto.getCargoDetails()) {
+            CargoDetailEntity detailEntity = detailRepository.findById(detailDto.getId())
+                    .orElseThrow(() -> new ResourceNotFoundException("CargoDetail", "Id", detailDto.getId()));
+            if (detailEntity.getWeight().subtract(detailDto.getWeight()).floatValue() <= 0)
+                return ResponseEntity.ok().body(new ApiResponse("Новая значения веса не должно быть равно и больше от старое значение.", false));
+            if (detailEntity.getCapacity().subtract(detailDto.getCapacity()).floatValue() <= 0)
+                return ResponseEntity.ok().body(new ApiResponse("Новая значения объёма не должно быть равно и больше от старое значение.", false));
+            if (detailEntity.getPackageAmount().subtract(detailDto.getPackageAmount()).floatValue() <= 0)
+                return ResponseEntity.ok().body(new ApiResponse("Новая значения упаковки не должно быть равно и больше от старое значение.", false));
+        }
+        for (CargoDetailDto detailDto : dto.getCargoDetails()) {
+            CargoDetailEntity detailEntity = detailRepository.findById(detailDto.getId())
+                    .orElseThrow(() -> new ResourceNotFoundException("CargoDetail", "Id", detailDto.getId()));
+            detailEntity.setWeight(detailEntity.getWeight().subtract(detailDto.getWeight()));
+            detailEntity.setCapacity(detailEntity.getCapacity().subtract(detailDto.getCapacity()));
+            detailEntity.setPackageAmount(detailEntity.getPackageAmount().subtract(detailDto.getPackageAmount()));
+            detailRepository.saveAndFlush(detailEntity);
+            detailDto.setId(null);
+        }
+
+        dto.setId(null);
+        dto.setDocId(null);
+        if (dto.getDocAttachments() != null && dto.getDocAttachments().size() > 0) {
+            List<AttachmentDto> list = new ArrayList<>();
+            for (AttachmentDto attachmentDto : dto.getDocAttachments()) {
+                Attachment attachment = attachmentRepository.findById(attachmentDto.getId())
+                        .orElseThrow(() -> new ResourceNotFoundException("Attachment", "Id", attachmentDto.getId()));
+                AttachmentContent attachmentContent = attachmentContentRepository.findByAttachment(attachment)
+                        .orElseThrow(() -> new ResourceNotFoundException("Attachment Content", "attachment id", attachmentDto.getId()));
+
+                Attachment newAtt = new Attachment(attachment.getName(), attachment.getContentType(), attachment.getSize());
+                newAtt = attachmentRepository.saveAndFlush(newAtt);
+                AttachmentContent newCont = new AttachmentContent(attachmentContent.getContent(), newAtt);
+                attachmentContentRepository.saveAndFlush(newCont);
+                list.add(mapper.toAttachmentDto(newAtt));
+            }
+            dto.setDocAttachments(list);
+        }
+
+        return saveAndUpdate(dto);
+    }
+
 
     public HttpEntity<?> deleteCargo(UUID id) {
         CargoEntity cargoEntity = repository.findById(id)

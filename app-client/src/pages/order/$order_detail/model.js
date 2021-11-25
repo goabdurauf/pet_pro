@@ -19,7 +19,7 @@ import {
   deleteAttachmentFromDocumentById,
   getCargoDocumentByOrderId,
   getDocumentById,
-  saveDocument, deleteDocumentFromCargo
+  saveDocument, deleteDocumentFromCargo, cloneCargo
 } from '@/services/service'
 import modelExtend from 'dva-model-extend'
 import {Image, notification} from 'antd'
@@ -222,6 +222,33 @@ export default modelExtend(tableModel, {
         });
       }
     },
+    * cloneCargo({payload}, {call, put, select}) {
+      const {orderId} = yield select(_ => _.orderDetail);
+      const result = yield call(cloneCargo, payload);
+      if (result.success) {
+        yield put({
+          type: 'queryCargo',
+          payload:{id: orderId}
+        })
+        notification.info({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#d8ffe9'}
+        });
+      } else {
+        yield put({
+          type: 'updateState',
+          payload: {isBtnDisabled: false,}
+        })
+        notification.error({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#ffd9d9'}
+        });
+      }
+    },
     * getCargoById({payload}, {call, put, select}) {
       const result = yield call(getCargoById, payload.id);
       if (result.success) {
@@ -235,7 +262,7 @@ export default modelExtend(tableModel, {
             currentItem: result,
             documentAttachments: result.docAttachments !== null ? result.docAttachments : [],
             isModalOpen: true,
-            modalType: 'update'
+            // modalType: 'update'
           }
         })
       } else {

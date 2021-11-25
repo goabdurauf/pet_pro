@@ -27,7 +27,7 @@ public class CargoEntity extends BaseEntity {
     private Timestamp unloadDate;
     private String comment;
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
+    @OneToMany(fetch = FetchType.LAZY)
     private List<CargoDetailEntity> cargoDetails;
 
     private String senderName;
