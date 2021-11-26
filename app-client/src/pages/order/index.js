@@ -3,7 +3,6 @@ import {Card, Row, Col, Tabs, Form, Input, Select, Space, Popconfirm, Table, Dat
 import {connect} from "react-redux";
 import {DeleteOutlined, FormOutlined, PlusOutlined} from "@ant-design/icons";
 import {Button, Label} from "reactstrap";
-import {routerRedux} from "dva/router";
 const { TabPane } = Tabs;
 const FormItem = Form.Item;
 

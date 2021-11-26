@@ -4,7 +4,7 @@ package uz.smart.service;
     Created by Ilhom Ahmadjonov on 08.11.2021. 
 */
 
-import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -19,27 +19,39 @@ import uz.smart.mapper.MapperUtil;
 import uz.smart.payload.ApiResponse;
 import uz.smart.payload.ResCargo;
 import uz.smart.payload.ResOrder;
+import uz.smart.payload.ResShipping;
 import uz.smart.repository.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
-@AllArgsConstructor
 public class CargoService {
 
-    private final CargoRepository repository;
-    private final CargoDetailRepository detailRepository;
-    private final ListRepository listRepository;
-    private final AttachmentRepository attachmentRepository;
-    private final AttachmentContentRepository attachmentContentRepository;
-    private final OrderRepository orderRepository;
-    private final DocumentRepository documentRepository;
-    private final ShippingRepository shippingRepository;
-
-    private final DocumentService documentService;
-
-    private final MapperUtil mapper;
+    @Autowired
+    CargoRepository repository;
+    @Autowired
+    CargoDetailRepository detailRepository;
+    @Autowired
+    ListRepository listRepository;
+    @Autowired
+    AttachmentRepository attachmentRepository;
+    @Autowired
+    AttachmentContentRepository attachmentContentRepository;
+    @Autowired
+    OrderRepository orderRepository;
+    @Autowired
+    DocumentRepository documentRepository;
+    @Autowired
+    ShippingRepository shippingRepository;
+    @Autowired
+    DocumentService documentService;
+    @Autowired
+    OrderService orderService;
+    @Autowired
+    ShippingServiceImpl shippingService;
+    @Autowired
+    MapperUtil mapper;
 
     public HttpEntity<?> saveAndUpdate(CargoDto dto) {
         CargoEntity entity = dto.getId() == null
@@ -217,9 +229,17 @@ public class CargoService {
         List<ResCargo> list = new ArrayList<>();
         for (CargoEntity entity : entityList) {
             ResCargo resCargo = getCargo(entity);
-            ResOrder resOrder = mapper.toResOrder(entity.getOrder());
+            ResOrder resOrder = orderService.getResOrder(entity.getOrder(), true);
             resCargo.setOrderNum(resOrder.getNum());
             resCargo.setClientName(resOrder.getClientName());
+
+            ShippingEntity shippingEntity = shippingRepository.getByCargoEntitiesIn(Arrays.asList(entity)).orElse(null);
+            if (shippingEntity != null) {
+                ResShipping resShipping = shippingService.getResShipping(shippingEntity, false);
+                resCargo.setCarrierName(resShipping.getCarrierName());
+                resCargo.setShippingNum(resShipping.getNum());
+            }
+
             list.add(resCargo);
         }
 

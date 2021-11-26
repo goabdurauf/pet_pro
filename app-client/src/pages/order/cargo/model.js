@@ -1,18 +1,16 @@
 import {
-  addAttachmentToDocument, deleteAttachmentFromDocumentById,
+  deleteAttachmentFromDocumentById,
   deleteCargoById, deleteFile,
   getCargoById,
   getCargoList,
-  getCarrierList,
-  getClientList,
   getListItems,
-  getManagers,
   saveCargo, uploadFile
 } from '@/services/service'
 import {Link} from "umi";
 import {notification} from "antd";
 import moment from "moment";
 import {routerRedux} from "dva/router";
+import React from "react";
 
 export default ({
   namespace: 'cargo',
@@ -24,6 +22,7 @@ export default ({
     isLoading: false,
     documentAttachments: [],
     countryList: [],
+    selectedRowKeys: [],
     packageTypeList: [],
     visibleColumns : [
       {
@@ -63,6 +62,33 @@ export default ({
         title: 'Разгрузка',
         dataIndex: 'receiverCountryName',
         key: 'receiverCountryName',
+      },
+      {
+        title: 'Название груза',
+        dataIndex: 'name',
+        key: 'name',
+      },
+      {
+        title: 'Параметры груза',
+        dataIndex: 'cargoDetails',
+        key: 'cargoDetails',
+        render: (text, record) => {
+          let data = [];
+          record.cargoDetails && record.cargoDetails.forEach(detail => {
+            data.push(<div key={detail.id}>Вес: {detail.weight}; Объём: {detail.capacity}; Кол-во уп.: {detail.packageAmount}</div>)
+          })
+          return data;
+        }
+      },
+      {
+        title: 'Перевозчик',
+        dataIndex: 'carrierName',
+        key: 'carrierName',
+      },
+      {
+        title: 'Рейс',
+        dataIndex: 'shippingNum',
+        key: 'shippingNum',
       },
       {
         title: 'Документы',

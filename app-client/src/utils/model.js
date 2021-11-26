@@ -47,21 +47,10 @@ export const tableModel = modelExtend(pageModel, {
     languages: [],
   },
   effects: {
-    * queryModel({payload={}}, {call, put, select}) {
-      console.log('queryModel called')
-
-
-    },
 
   },
 
   reducers: {
-    updateState(state, {payload}) {
-      return {
-        ...state,
-        ...payload,
-      }
-    }
   }
 });
 

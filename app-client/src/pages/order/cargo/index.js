@@ -7,9 +7,18 @@ const { TabPane } = Tabs;
 
 @connect(({cargo, app}) => ({cargo, app}))
 class Cargo extends Component {
+
+  onRowSelect = selectedRowKeys => {
+    const {dispatch} = this.props;
+    dispatch({
+      type: 'cargo/updateState',
+      payload: {selectedRowKeys}
+    })
+  };
+
   render() {
     const {cargo, dispatch} = this.props;
-    const {itemList, currentItem, isModalOpen, isBtnDisabled, isLoading,  countryList, packageTypeList, documentAttachments, visibleColumns} = cargo;
+    const {itemList, currentItem, isModalOpen, isBtnDisabled, isLoading,  countryList, packageTypeList, documentAttachments, selectedRowKeys, visibleColumns} = cargo;
 
     const onChange = (key) => {
       if (key !== 'Cargo') {
@@ -122,14 +131,20 @@ class Cargo extends Component {
         }
       }
     }
+    const rowSelection = {
+      selectedRowKeys,
+      onChange: this.onRowSelect,
+    };
 
+    // rowSelection={rowSelection}
     return (
       <div className="order-page">
         <Card style={{width: '100%'}} bordered={false}>
           <Tabs onChange={onChange} defaultActiveKey="Cargo">
             <TabPane tab="Заказы" key="/order">Подождите пожалуйста ...</TabPane>
             <TabPane tab="Грузы" key="Cargo">
-              <Table columns={columns} dataSource={itemList} bordered size="middle" rowKey={record => record.id} pagination={{position: ["bottomCenter"]}}/>
+              <Table  columns={columns} dataSource={itemList} bordered size="middle"
+                     rowKey={record => record.id} pagination={{position: ["bottomCenter"]}}/>
             </TabPane>
             <TabPane tab="Рейсы" key="/order/shipping">Подождите пожалуйста ...</TabPane>
           </Tabs>

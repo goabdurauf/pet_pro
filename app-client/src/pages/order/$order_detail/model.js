@@ -37,8 +37,6 @@ export default modelExtend(tableModel, {
     itemList: [],
     cargoList: [],
     currentModel: null,
-    currentItem: null,
-    modalType: 'create',
     modalWidth: 100,
     managerList: [],
     clientList: [],
@@ -631,12 +629,4 @@ export default modelExtend(tableModel, {
       yield put(routerRedux.push(payload.key));
     }
   },
-  reducers: {
-    updateState(state, {payload}) {
-      return {
-        ...state,
-        ...payload,
-      }
-    }
-  }
 })

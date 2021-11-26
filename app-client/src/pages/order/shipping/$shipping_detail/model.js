@@ -2,11 +2,10 @@ import {uploadFile, deleteFile, getDocumentById, getShippingDetailById, deleteCa
   deleteDocumentFromShippingById, addShippingDocument, deleteAttachmentFromDocumentById, addAttachmentToDocument} from '@/services/service'
 import modelExtend from 'dva-model-extend'
 import {tableModel} from 'utils/model'
-import {Input, Select, Form, notification} from 'antd'
+import {notification} from 'antd'
 import moment from "moment";
 import React from "react";
 import {routerRedux} from "dva/router";
-import {Link} from "umi";
 
 export default modelExtend(tableModel, {
   namespace: 'shippingDetail',
@@ -16,8 +15,6 @@ export default modelExtend(tableModel, {
     isModalOpen: false,
     cargoList: [],
     currentModel: null,
-    currentItem: null,
-    modalType: 'create',
     modalWidth: 500,
     cargoDetails: [],
     documentList: [],
@@ -361,14 +358,6 @@ export default modelExtend(tableModel, {
     },
     * pushToPage({payload}, {call, put, select}) {
       yield put(routerRedux.push(payload.key));
-    }
-  },
-  reducers: {
-    updateState(state, {payload}) {
-      return {
-        ...state,
-        ...payload,
-      }
     }
   }
 })
