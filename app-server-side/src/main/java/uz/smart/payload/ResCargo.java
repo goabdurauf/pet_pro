@@ -18,5 +18,7 @@ public class ResCargo extends CargoDto {
     private String clientName;
     private String carrierName;
     private String shippingNum;
+    private Long statusId;
+    private String statusName;
 
 }

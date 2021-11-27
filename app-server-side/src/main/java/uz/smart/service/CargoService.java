@@ -9,10 +9,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
-import uz.smart.dto.AttachmentDto;
-import uz.smart.dto.CargoDetailDto;
-import uz.smart.dto.CargoDto;
-import uz.smart.dto.DocumentDto;
+import uz.smart.dto.*;
 import uz.smart.entity.*;
 import uz.smart.exception.ResourceNotFoundException;
 import uz.smart.mapper.MapperUtil;
@@ -273,6 +270,21 @@ public class CargoService {
         documentService.deleteDocument(document);
 
         return getCargoDocumentsByOrderId(orderId);
+    }
+
+    public HttpEntity<?> setStatus(CargoStatusDto dto) {
+        if (dto.getCargoIdList().size() == 0)
+            return ResponseEntity.ok().body(new ApiResponse("Выберите хоть одного груза", false));
+
+        ListEntity listEntity = listRepository.getListItemWithId(dto.getStatusId())
+                .orElseThrow(() -> new ResourceNotFoundException("Cargo", "Id", dto.getStatusId()));
+        List<CargoEntity> list = repository.findAllById(dto.getCargoIdList());
+        for (CargoEntity entity : list) {
+            entity.setStatusId(listEntity.getId());
+            entity.setStatusName(listEntity.getNameRu());
+        }
+        repository.saveAll(list);
+        return ResponseEntity.ok().body(new ApiResponse("Статусы " + list.size() + " груза изменено успешно", true));
     }
 
 }

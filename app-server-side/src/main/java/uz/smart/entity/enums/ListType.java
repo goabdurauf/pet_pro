@@ -11,7 +11,8 @@ public enum ListType
     Currency        (4),
     ShippingType    (5),
     OrderStatus     (6),
-    PackageType     (7)
+    PackageType     (7),
+    CargoStatus     (8)
     ;
 
     private final int code;

@@ -4,7 +4,7 @@ import {
   getCargoById,
   getCargoList,
   getListItems,
-  saveCargo, uploadFile
+  saveCargo, uploadFile, setCargoStatus
 } from '@/services/service'
 import {Link} from "umi";
 import {notification} from "antd";
@@ -17,13 +17,16 @@ export default ({
   state: {
     itemList: [],
     currentItem: null,
+    currentModal: 'Cargo',
     isModalOpen: false,
     isBtnDisabled: false,
     isLoading: false,
+    selectedStatusId: null,
     documentAttachments: [],
     countryList: [],
     selectedRowKeys: [],
     packageTypeList: [],
+    cargoStatusList: [],
     visibleColumns : [
       {
         title: 'Номер заказа',
@@ -62,6 +65,11 @@ export default ({
         title: 'Разгрузка',
         dataIndex: 'receiverCountryName',
         key: 'receiverCountryName',
+      },
+      {
+        title: 'Статус груза',
+        dataIndex: 'statusName',
+        key: 'statusName',
       },
       {
         title: 'Название груза',
@@ -134,7 +142,8 @@ export default ({
           payload: {
             itemList: data.list,
             isBtnDisabled: false,
-            isModalOpen: false
+            isModalOpen: false,
+            selectedRowKeys: []
           }
         })
       }
@@ -142,13 +151,15 @@ export default ({
     * getAdditionals({payload}, {call, put, select}) {
       let country = yield call(getListItems, 2);
       let packageType = yield call(getListItems, 7);
+      let cargoStatus = yield call(getListItems, 8);
 
       if (country.success && packageType.success) {
         yield put({
           type: 'updateState',
           payload: {
             countryList: country.list,
-            packageTypeList: packageType.list
+            packageTypeList: packageType.list,
+            cargoStatusList: cargoStatus.list
           }
         })
       }
@@ -190,7 +201,8 @@ export default ({
           payload: {
             currentItem: result,
             documentAttachments: result.docAttachments !== null ? result.docAttachments : [],
-            isModalOpen: true
+            isModalOpen: true,
+            currentModal: 'Cargo'
           }
         })
       } else {
@@ -266,7 +278,27 @@ export default ({
         // notification
       }
     },
-
+    * changeCargoStatus({payload}, {call, put, select}) {
+      const result = yield call(setCargoStatus, payload);
+      if (result.success) {
+        yield put({
+          type: 'queryCargo'
+        })
+        notification.info({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#d8ffe9'}
+        });
+      } else {
+        notification.error({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#ffd9d9'}
+        });
+      }
+    },
     * pushToPage({payload}, {call, put, select}) {
       yield put(routerRedux.push(payload.key));
     }

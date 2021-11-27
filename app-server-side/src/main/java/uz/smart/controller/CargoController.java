@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.web.bind.annotation.*;
 import uz.smart.dto.CargoDto;
+import uz.smart.dto.CargoStatusDto;
 import uz.smart.dto.DocumentDto;
 import uz.smart.payload.ResCargo;
 import uz.smart.service.CargoService;
@@ -27,6 +28,9 @@ public class CargoController {
 
     @PostMapping("/clone")
     public HttpEntity<?> clone(@RequestBody CargoDto dto) { return service.cloneCargo(dto); }
+
+    @PostMapping("/status")
+    public HttpEntity<?> setStatus(@RequestBody CargoStatusDto dto) { return service.setStatus(dto); }
 
     @DeleteMapping("/{id}")
     public HttpEntity<?> delete(@PathVariable UUID id) { return service.deleteCargo(id); }

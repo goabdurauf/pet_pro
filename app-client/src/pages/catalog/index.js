@@ -128,6 +128,15 @@ class Catalog extends Component {
             obj: <Input placeholder='Название'/>
           }
         ];
+        case 'CargoStatus': return [
+          {
+            label: 'Название',
+            name: 'nameRu',
+            width: 24,
+            rules: [{required: true, message: 'Этот поля не должно быть пустое',},],
+            obj: <Input placeholder='Название'/>
+          }
+        ];
 
         default: return [
           {
@@ -256,6 +265,7 @@ class Catalog extends Component {
             <TabPane tab="Тип транспорта" key="ShippingType"><TabBody /></TabPane>
             <TabPane tab="Статус заказа" key="OrderStatus"><TabBody /></TabPane>
             <TabPane tab="Тип упаковки" key="PackageType"><TabBody /></TabPane>
+            <TabPane tab="Статус груза" key="CargoStatus"><TabBody /></TabPane>
 
 
           </Tabs>

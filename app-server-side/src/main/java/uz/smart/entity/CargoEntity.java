@@ -26,6 +26,8 @@ public class CargoEntity extends BaseEntity {
     private Timestamp loadDate;
     private Timestamp unloadDate;
     private String comment;
+    private Long statusId;
+    private String statusName;
 
     @OneToMany(fetch = FetchType.LAZY)
     private List<CargoDetailEntity> cargoDetails;
