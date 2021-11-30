@@ -108,7 +108,7 @@ export default ({
           if(record.docDate !== null)
             title += ' (' + record.docDate.substring(0, record.docDate.indexOf(' ')) + ')';
           record.docAttachments && record.docAttachments.forEach(doc => {
-            data.push(<div key={doc.id}><a href={doc.url} target="_blank" rel="noreferrer">{title}</a><br/></div>)
+            data.push(<div key={doc.id}><a href={doc.url} target="_blank" rel="noreferrer">{title  + (doc.docType !== null ? ' - ' + doc.docType : '')}</a><br/></div>)
           })
           return data;
         }

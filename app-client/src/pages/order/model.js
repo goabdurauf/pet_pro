@@ -113,6 +113,48 @@ export default ({
                 key: 'clientName',
               },
               {
+                title: 'Номер транспорта',
+                dataIndex: 'transportNum',
+                key: 'transportNum',
+                render: (text, record) => {
+                  let data = [];
+                  if (record.shippingList.length > 0) {
+                    record.shippingList.forEach(shipping => {
+                      data.push(<div key={shipping.id}>{shipping.shippingNum}<br/></div>);
+                    })
+                  }
+                  return data;
+                }
+              },
+              {
+                title: 'Перевозчик',
+                dataIndex: 'carrierName',
+                key: 'carrierName',
+                render: (text, record) => {
+                  let data = [];
+                  if (record.shippingList.length > 0) {
+                    record.shippingList.forEach(shipping => {
+                      data.push(<div key={shipping.id}>{shipping.carrierName}<br/></div>);
+                    })
+                  }
+                  return data;
+                }
+              },
+              {
+                title: 'Номер рейса',
+                dataIndex: 'shippingNum',
+                key: 'shippingNum',
+                render: (text, record) => {
+                  let data = [];
+                  if (record.shippingList.length > 0) {
+                    record.shippingList.forEach(shipping => {
+                      data.push(<div key={shipping.id}>{shipping.num}<br/></div>);
+                    })
+                  }
+                  return data;
+                }
+              },
+              {
                 title: 'Менеджер',
                 dataIndex: 'managerName',
                 key: 'managerName',
@@ -171,143 +213,6 @@ export default ({
       if (result.success) {
         yield put({
           type: 'queryOrder'
-        })
-        notification.info({
-          description: result.message,
-          placement: 'topRight',
-          duration: 3,
-          style: {backgroundColor: '#d8ffe9'}
-        });
-      } else {
-        notification.error({
-          description: result.message,
-          placement: 'topRight',
-          duration: 3,
-          style: {backgroundColor: '#ffd9d9'}
-        });
-      }
-    },
-    * queryShipping({payload}, {call, put, select}) {
-      let data = yield call(getShippingList);
-      let orders = yield call(getSelectOrders);
-
-      if (data.success) {
-        yield put({
-          type: 'updateState',
-          payload: {
-            model: 'Shipping',
-            itemList: data.list,
-            currentItem: {num: '', managerId: '', price: '', rate: 1, final: 0},
-            isModalOpen: false,
-            isBtnDisabled: false,
-            selectOrderList: orders.object,
-            modalType: 'create',
-            modalWidth: 700,
-            createTitle: 'Создать рейс',
-            editTitle: 'Редактировать рейса',
-            visibleColumns : [
-              {
-                title: '№',
-                dataIndex: 'nomer',
-                key: 'nomer',
-                align: 'center',
-                render: (value, item, index) => index+1
-              },
-              {
-                title: 'Номер рейса',
-                dataIndex: 'num',
-                key: 'num',
-              },
-              {
-                title: 'Номер заказа',
-                dataIndex: 'orderNum',
-                key: 'orderNum',
-              },
-              {
-                title: 'Менеджер',
-                dataIndex: 'managerName',
-                key: 'managerName',
-              },
-              {
-                title: 'Перевозчик',
-                dataIndex: 'carrierName',
-                key: 'carrierName',
-              },
-              {
-                title: 'Валюта',
-                dataIndex: 'currencyName',
-                key: 'currencyName',
-              },
-              {
-                title: 'Цена',
-                dataIndex: 'finalPrice',
-                key: 'finalPrice',
-              },
-              {
-                title: 'Тип транспорта',
-                dataIndex: 'shippingTypeName',
-                key: 'shippingTypeName',
-              },
-              {
-                title: 'Номер транспорта',
-                dataIndex: 'shippingNum',
-                key: 'shippingNum',
-              },
-            ]
-          }
-        })
-      }
-    },
-    * saveShipping({payload}, {call, put, select}) {
-      const result = yield call(saveShipping, payload);
-      if (result.success) {
-        yield put({
-          type: 'queryShipping'
-        })
-        notification.info({
-          description: result.message,
-          placement: 'topRight',
-          duration: 3,
-          style: {backgroundColor: '#d8ffe9'}
-        });
-      } else {
-        yield put({
-          type: 'updateState',
-          payload: {isBtnDisabled: false,}
-        })
-        notification.error({
-          description: result.message,
-          placement: 'topRight',
-          duration: 3,
-          style: {backgroundColor: '#ffd9d9'}
-        });
-      }
-    },
-    * getShippingById({payload}, {call, put, select}) {
-      const result = yield call(getShippingById, payload.id);
-      if (result.success) {
-        yield put({
-          type: 'updateState',
-          payload: {
-            currentItem: result,
-            isModalOpen: true,
-            modalType: 'update'
-          }
-        })
-      } else {
-        notification.error({
-          description: result.message,
-          placement: 'topRight',
-          duration: 3,
-          style: {backgroundColor: '#ffd9d9'}
-        });
-      }
-    },
-    * deleteShippingById({payload}, {call, put, select}) {
-      const result = yield call(deleteShippingById, payload.id);
-      if (result.success) {
-        yield put({
-          type: 'queryShipping'
         })
         notification.info({
           description: result.message,

@@ -10,6 +10,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 @Data @NoArgsConstructor @AllArgsConstructor
@@ -24,6 +25,7 @@ public class ResOrder {
     private String managerName;
     private Long statusId;
     private String statusName;
+    private List<ResShipping> shippingList;
 
     public ResOrder(UUID id, String num) {
         this.id = id;

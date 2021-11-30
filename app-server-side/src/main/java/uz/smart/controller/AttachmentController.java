@@ -21,8 +21,11 @@ public class AttachmentController {
     }
 
     @GetMapping("/{id}")
-    public void getFile(HttpServletResponse response, @PathVariable String id) {
-        attachmentService.getFile(response, id);
+    public void getFile(
+            HttpServletResponse response, @PathVariable String id,
+            @RequestParam(name = "original", defaultValue = "true", required = false) boolean original
+            ) {
+        attachmentService.getFile(response, id, original);
     }
 
     @DeleteMapping("/{id}")

@@ -10,7 +10,7 @@
   "dependencies": {
     "@ant-design/icons": "^4.7.0",
     "@availity/reactstrap-validation-select": "^5.3.9",
-    "antd": "^4.3.1",
+    "antd": "^4.11.0",
     "availity-reactstrap-validation": "^2.6.1",
     "axios": "^0.19.2",
     "bootstrap": "^4.4.1",

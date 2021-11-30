@@ -16,5 +16,6 @@ public class AttachmentDto {
     private String name;
     private String url;
     private String type;
+    private String docType;
     private long size;
 }

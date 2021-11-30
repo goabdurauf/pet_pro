@@ -9,8 +9,8 @@ import uz.smart.entity.User;
 import uz.smart.repository.RoleRepository;
 import uz.smart.repository.UserRepository;
 
-import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 
 @Component
 public class DataLoader implements CommandLineRunner {
@@ -32,7 +32,7 @@ public class DataLoader implements CommandLineRunner {
             userRepository.save(new User(
                     "Super admin", "admin", null,
                     passwordEncoder.encode("Logistika"),
-                    new HashSet<>(roleRepository.findAllById(Arrays.asList(10)))
+                    new HashSet<>(roleRepository.findAllById(List.of(10)))
             ));
 
         }

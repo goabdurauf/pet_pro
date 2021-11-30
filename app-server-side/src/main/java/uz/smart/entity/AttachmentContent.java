@@ -17,7 +17,13 @@ import javax.persistence.OneToOne;
 public class AttachmentContent extends AbsEntity {
 
     private byte[] content;
+    private byte[] compressed;
 
     @OneToOne(fetch = FetchType.LAZY, optional = false)
     private Attachment attachment;
+
+    public AttachmentContent(byte[] content, Attachment attachment) {
+        this.content = content;
+        this.attachment = attachment;
+    }
 }

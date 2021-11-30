@@ -18,7 +18,6 @@ import uz.smart.security.CurrentUser;
 import uz.smart.service.UserService;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -75,7 +74,7 @@ public class UserController {
 
     @GetMapping("/manager")
     public List<CustomUser> getManagers() {
-        return repository.getAllByRolesIsIn(new ArrayList<>(Arrays.asList(roleRepository.getOne(20))));
+        return repository.getAllByRolesIsIn(new ArrayList<>(List.of(roleRepository.getOne(20))));
     }
 /*
     @PostMapping("/admin")
@@ -88,7 +87,7 @@ public class UserController {
     public List<CustomUser> getCashiersList(@CurrentUser User user) {
         return userRepository.getAllByIdIsNotAndRolesIsInAndHeaderIsNotNull(
                 user.getId(),
-                new ArrayList<>(Arrays.asList(roleRepository.getOne(30), roleRepository.getOne(40))));
+                new ArrayList<>(List.of(roleRepository.getOne(30), roleRepository.getOne(40))));
     }
 
     @GetMapping("/status")

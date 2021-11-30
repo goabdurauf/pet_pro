@@ -1,22 +1,21 @@
 package uz.smart.service;
 
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import uz.smart.dto.UserDto;
 import uz.smart.entity.User;
 import uz.smart.exception.ResourceNotFoundException;
 import uz.smart.payload.ApiResponse;
-import uz.smart.dto.UserDto;
 import uz.smart.repository.RoleRepository;
 import uz.smart.repository.UserRepository;
 
-import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 
 @Service
 @AllArgsConstructor
@@ -41,7 +40,7 @@ public class UserService {
         if (req.getId() == null || StringUtils.hasText(req.getPassword())){
             user.setPassword(passwordEncoder.encode(req.getPassword()));
         }
-        user.setRoles(new HashSet<>(Arrays.asList(roleRepository.findById(req.getRole())
+        user.setRoles(new HashSet<>(List.of(roleRepository.findById(req.getRole())
                 .orElseThrow(() -> new ResourceNotFoundException("User", "role", req.getRole())))));
 
         repository.saveAndFlush(user);

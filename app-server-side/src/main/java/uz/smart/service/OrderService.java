@@ -4,7 +4,7 @@ package uz.smart.service;
     Created by Ilhom Ahmadjonov on 31.10.2021.
 */
 
-import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
@@ -22,20 +22,27 @@ import uz.smart.payload.ResPageable;
 import uz.smart.repository.*;
 import uz.smart.utils.CommonUtils;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
-@Service @AllArgsConstructor
+@Service
 public class OrderService {
 
-    private final UserRepository userRepository;
-    private final ClientRepository clientRepository;
-    private final OrderRepository repository;
-    private final ListRepository listRepository;
-    private final CargoRepository cargoRepository;
-    private final MapperUtil mapper;
+    @Autowired
+    UserRepository userRepository;
+    @Autowired
+    ClientRepository clientRepository;
+    @Autowired
+    OrderRepository repository;
+    @Autowired
+    ListRepository listRepository;
+    @Autowired
+    CargoRepository cargoRepository;
+    @Autowired
+    ShippingRepository shippingRepository;
+    @Autowired
+    MapperUtil mapper;
+    @Autowired
+    ShippingService shippingService;
 
     public HttpEntity<?> saveAndUpdate(OrderDto dto){
         OrderEntity entity = dto.getId() == null
@@ -110,6 +117,8 @@ public class OrderService {
             ClientEntity client = clientRepository.findById(entity.getClientId())
                     .orElseThrow(() -> new ResourceNotFoundException("Client", "clientId", entity.getClientId()));
             resOrder.setClientName(client.getName());
+            List<ShippingEntity> shippingList = shippingRepository.getAllByOrderEntitiesInAndStateGreaterThan(List.of(entity), 0);
+            resOrder.setShippingList(shippingService.getShippingList(shippingList, false));
         }
         return resOrder;
     }

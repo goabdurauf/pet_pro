@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import uz.smart.dto.DocumentDto;
 import uz.smart.dto.ShippingDto;
 import uz.smart.payload.ResShipping;
-import uz.smart.service.ShippingServiceImpl;
+import uz.smart.service.ShippingService;
 
 import java.util.List;
 import java.util.UUID;
@@ -20,7 +20,7 @@ import java.util.UUID;
 public class ShippingController {
 
     @Autowired
-    ShippingServiceImpl service;
+    ShippingService service;
 
     @PostMapping("/save")
     public HttpEntity<?> save(@RequestBody ShippingDto dto) {

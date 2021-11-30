@@ -20,5 +20,6 @@ public class Attachment extends AbsEntity {
     @Column(nullable = false)
     private String contentType;
 
+    private String docType;
     private long size;
 }

@@ -146,13 +146,32 @@ export default modelExtend(tableModel, {
                 render: (text, record) => text && text.substring(0, text.indexOf(' '))
               },
               {
-                title: 'Файл',
+                title: 'Рисунки',
                 dataIndex: 'docImage',
                 key: 'docImage',
                 render: (text, record) => {
                   let data = [];
                   record.docAttachments && record.docAttachments.forEach(img => {
-                    data.push(<div key={img.id} style={{textAlign: "center"}}><Image width={60} src={img.url}/></div>)
+                    if (img.docType !== null && img.docType === "Rasm") {
+                      data.push(
+                        <div key={img.id} style={{textAlign: "center"}}>
+                          <Image width={60} src={img.url + '?original=false'} preview={{src: img.url}}/>
+                        </div>)
+                    }
+                  })
+                  return data;
+                }
+              },
+              {
+                title: 'Файлы',
+                dataIndex: 'docFile',
+                key: 'docFile',
+                render: (text, record) => {
+                  let data = [];
+                  record.docAttachments && record.docAttachments.forEach(file => {
+                    if (file.docType === null || file.docType !== "Rasm") {
+                      data.push(<div key={file.id}><a href={file.url} target="_blank" rel="noreferrer">{record.docTitle + (file.docType !== null ? ' - ' + file.docType : '')}</a><br/></div>)
+                    }
                   })
                   return data;
                 }

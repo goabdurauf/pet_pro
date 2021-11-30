@@ -46,7 +46,7 @@ public class CargoService {
     @Autowired
     OrderService orderService;
     @Autowired
-    ShippingServiceImpl shippingService;
+    ShippingService shippingService;
     @Autowired
     MapperUtil mapper;
 
@@ -161,7 +161,7 @@ public class CargoService {
                 AttachmentContent attachmentContent = attachmentContentRepository.findByAttachment(attachment)
                         .orElseThrow(() -> new ResourceNotFoundException("Attachment Content", "attachment id", attachmentDto.getId()));
 
-                Attachment newAtt = new Attachment(attachment.getName(), attachment.getContentType(), attachment.getSize());
+                Attachment newAtt = new Attachment(attachment.getName(), attachment.getContentType(), attachment.getDocType(), attachment.getSize());
                 newAtt = attachmentRepository.saveAndFlush(newAtt);
                 AttachmentContent newCont = new AttachmentContent(attachmentContent.getContent(), newAtt);
                 attachmentContentRepository.saveAndFlush(newCont);
@@ -177,7 +177,7 @@ public class CargoService {
     public HttpEntity<?> deleteCargo(UUID id) {
         CargoEntity cargoEntity = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Cargo", "Id", id));
-        ShippingEntity shippingEntity = shippingRepository.getByCargoEntitiesIn(Arrays.asList(cargoEntity)).orElse(null);
+        ShippingEntity shippingEntity = shippingRepository.getByCargoEntitiesIn(List.of(cargoEntity)).orElse(null);
         if (shippingEntity != null){
             shippingEntity.getCargoEntities().remove(cargoEntity);
             shippingRepository.saveAndFlush(shippingEntity);
@@ -230,7 +230,7 @@ public class CargoService {
             resCargo.setOrderNum(resOrder.getNum());
             resCargo.setClientName(resOrder.getClientName());
 
-            ShippingEntity shippingEntity = shippingRepository.getByCargoEntitiesIn(Arrays.asList(entity)).orElse(null);
+            ShippingEntity shippingEntity = shippingRepository.getByCargoEntitiesIn(List.of(entity)).orElse(null);
             if (shippingEntity != null) {
                 ResShipping resShipping = shippingService.getResShipping(shippingEntity, false);
                 resCargo.setCarrierName(resShipping.getCarrierName());

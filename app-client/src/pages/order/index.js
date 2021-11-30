@@ -1,8 +1,9 @@
 import React, {Component} from 'react';
 import {Card, Row, Col, Tabs, Form, Input, Select, Space, Popconfirm, Table, DatePicker, Modal} from 'antd';
 import {connect} from "react-redux";
-import {DeleteOutlined, FormOutlined, PlusOutlined} from "@ant-design/icons";
+import {DeleteOutlined, FormOutlined, PlusOutlined, SearchOutlined} from "@ant-design/icons";
 import {Button, Label} from "reactstrap";
+import SearchModal from './modal'
 const { TabPane } = Tabs;
 const FormItem = Form.Item;
 
@@ -13,46 +14,48 @@ class Order extends Component {
     const {model, isModalOpen, itemList, currentItem, modalType, managerList, clientList, carrierList, currencyList, shipTypeList, orderStatusList, selectOrderList,
       modalWidth, createTitle, editTitle, visibleColumns} = order;
 
-    const getFormItems = () => {
-      switch (model) {
-        case 'Order': return [
-          {
-            label: "Клиент",
-            name: 'clientId',
-            width: 12,
-            rules: [{required: true, message: 'Выберите клиента',},],
-            obj: <Select placeholder='клиент'>
-              {clientList.map(client => <Select.Option key={client.id} value={client.id}>{client.name}</Select.Option>)}
-            </Select>
-          },{
-            label: "Дата",
-            name: 'date',
-            width: 12,
-            rules: [{required: true, message: 'Этот поля не должно быть пустое',},],
-            obj: <DatePicker format={'DD.MM.YYYY'}/>
-          }, {
-            label: "Менеджер",
-            name: 'managerId',
-            width: 12,
-            rules: [{required: true, message: 'Выберите менеджера',},],
-            obj: <Select placeholder='менеджер'>
-              {managerList.map(manager => <Select.Option key={manager.id} value={manager.id}>{manager.fullName}</Select.Option>)}
-            </Select>
-          }, {
-            label: "Статус",
-            name: 'statusId',
-            width: 12,
-            rules: [{required: true, message: 'Выберите статус заказа',},],
-            obj: <Select placeholder='статус'>
-              {orderStatusList.map(status => <Select.Option key={status.id} value={status.id}>{status.nameRu}</Select.Option>)}
-            </Select>
-          }
-        ];
-        case 'Cargo': return [];
-
-        default: return [];
+    const orderItems = [
+      {
+        label: "Клиент",
+        name: 'clientId',
+        width: 12,
+        rules: [{required: true, message: 'Выберите клиента',},],
+        obj: <Select placeholder='клиент'>
+          {clientList.map(client => <Select.Option key={client.id} value={client.id}>{client.name}</Select.Option>)}
+        </Select>
+      },{
+        label: "Дата",
+        name: 'date',
+        width: 12,
+        rules: [{required: true, message: 'Этот поля не должно быть пустое',},],
+        obj: <DatePicker format={'DD.MM.YYYY'}/>
+      }, {
+        label: "Менеджер",
+        name: 'managerId',
+        width: 12,
+        rules: [{required: true, message: 'Выберите менеджера',},],
+        obj: <Select placeholder='менеджер'>
+          {managerList.map(manager => <Select.Option key={manager.id} value={manager.id}>{manager.fullName}</Select.Option>)}
+        </Select>
+      }, {
+        label: "Статус",
+        name: 'statusId',
+        width: 12,
+        rules: [{required: true, message: 'Выберите статус заказа',},],
+        obj: <Select placeholder='статус'>
+          {orderStatusList.map(status => <Select.Option key={status.id} value={status.id}>{status.nameRu}</Select.Option>)}
+        </Select>
       }
-    }
+    ];
+    const searchItems =  [
+      {
+        label: "Клиент",
+        name: 'clientId',
+        width: 12,
+        rules: [{required: true, message: 'Выберите клиента',},],
+        obj: <Input  />
+      },
+    ];
 
     const onChange = (key) => {
       if (key !== 'Order')
@@ -85,6 +88,15 @@ class Order extends Component {
           currentItem: model === 'Shipping' ? {rate:1} : null,
           modalType: 'create',
           isBtnDisabled: false
+        }
+      })
+    };
+    const openSearchModal = () => {
+      dispatch({
+        type: 'order/updateState',
+        payload: {
+          isModalOpen: !isModalOpen,
+          modalType: 'search',
         }
       })
     };
@@ -136,8 +148,8 @@ class Order extends Component {
       return <div>
         <Row>
           <Col span={4} offset={20}>
-            <Button className="float-right" outline color="primary" size="sm"
-                    onClick={openModal}><PlusOutlined/> Добавить</Button>
+            {/*<Button className="float-left" outline color="primary" size="sm" onClick={openSearchModal}><SearchOutlined/></Button>*/}
+            <Button className="float-right" outline color="primary" size="sm" onClick={openModal}><PlusOutlined/> Добавить</Button>
           </Col>
         </Row>
         <Table columns={columns} dataSource={itemList} bordered size="middle" rowKey={record => record.id}
@@ -145,90 +157,6 @@ class Order extends Component {
       </div>;
     }
 
-    const ShippingModal = () => {
-      const [form] = Form.useForm();
-      const getPrice = (event) => {
-        let price = event.target.value;
-        let rate = document.getElementById("rate").value;
-        form.setFieldsValue({finalPrice: price * rate})
-      }
-      const getRate = (event) => {
-        let price = document.getElementById("price").value;
-        let rate = event.target.value;
-        form.setFieldsValue({finalPrice: price * rate})
-      }
-      const onOk = () => {
-        form.submit();
-      };
-      return (
-        <Modal {...modalProps} onOk={onOk} okText={"Добавить"} cancelText={"Отмена"}>
-          <Form form={form} initialValues={currentItem !== null ? currentItem : ''}>
-            <Row>
-              <Col span={8}><Label>Номер</Label>
-                <FormItem key={'num'} name={'num'} rules={[{required: true, message: 'Этот поля не должно быть пустое'}]}>
-                  <Input placeholder='номер рейса' />
-                </FormItem>
-              </Col>
-              <Col span={8}><Label>Менеджер</Label>
-                <FormItem key={'managerId'} name={'managerId'} rules={[{required: true, message: 'Выберите менеджера'}]}>
-                  <Select placeholder='менеджер'>
-                    {managerList.map(manager => <Select.Option key={manager.id} value={manager.id}>{manager.fullName}</Select.Option>)}
-                  </Select>
-                </FormItem>
-              </Col>
-              <Col span={8}><Label>Перевозчик</Label>
-                <FormItem key={'carrierId'} name={'carrierId'} rules={[{required: true, message: 'Выберите перевозчика'}]}>
-                  <Select placeholder='перевозчик'>
-                    {carrierList.map(carrier => <Select.Option key={carrier.id} value={carrier.id}>{carrier.name}</Select.Option>)}
-                  </Select>
-                </FormItem>
-              </Col>
-              <Col span={6}><Label>Цена</Label>
-                <FormItem key={'price'} name={'price'} rules={[{required: true, message: 'Введите цену'}]}>
-                  <Input placeholder='цена' onChange={getPrice} />
-                </FormItem>
-              </Col>
-              <Col span={6}><Label>Валюта</Label>
-                <FormItem key={'currencyId'} name={'currencyId'} rules={[{required: true, message: 'Выберите валюту'}]}>
-                  <Select placeholder='валюта'>
-                    {currencyList.map(currency => <Select.Option key={currency.id} value={currency.id}>{currency.nameRu}</Select.Option>)}
-                  </Select>
-                </FormItem>
-              </Col>
-              <Col span={6}><Label>Курс</Label>
-                <FormItem key={'rate'} name={'rate'} rules={[{required: true, message: 'Введите курса'}]} >
-                  <Input placeholder='курс' onChange={getRate} />
-                </FormItem>
-              </Col>
-              <Col span={6}><Label>Конечное цена</Label>
-                <FormItem key={'finalPrice'} name={'finalPrice'} rules={[{required: true, message: 'Введите конечную цену'}]}>
-                  <Input placeholder='конечное цена' />
-                </FormItem>
-              </Col>
-              <Col span={8}><Label>Тип транспорта</Label>
-                <FormItem key={'shippingTypeId'} name={'shippingTypeId'} rules={[{required: true, message: 'Выберите тип транспорта'}]}>
-                  <Select placeholder='тип транспорта'>
-                    {shipTypeList.map(type => <Select.Option key={type.id} value={type.id}>{type.nameRu}</Select.Option>)}
-                  </Select>
-                </FormItem>
-              </Col>
-              <Col span={8}><Label>Номер транспорта</Label>
-                <FormItem key={'shippingNum'} name={'shippingNum'} rules={[{required: true, message: 'Введите номер транспорта'}]}>
-                  <Input placeholder='номер транспорта' />
-                </FormItem>
-              </Col>
-              <Col span={8}><Label>Заказ</Label>
-                <FormItem key={'orderId'} name={'orderId'} rules={[{required: true, message: 'Выберите заказа'}]}>
-                  <Select placeholder='заказ'>
-                    {selectOrderList.map(order => <Select.Option key={order.id} value={order.id}>{order.num}</Select.Option>)}
-                  </Select>
-                </FormItem>
-              </Col>
-            </Row>
-          </Form>
-        </Modal>
-      );
-    };
     const ModalForm = () => {
       const [form] = Form.useForm();
       const onOk = () => {
@@ -237,7 +165,7 @@ class Order extends Component {
       return (
         <Modal {...modalProps} onOk={onOk} okText={"Добавить"} cancelText={"Отмена"}>
           <Form form={form} initialValues={currentItem !== null ? currentItem : ''}>
-            <Row> {getFormItems().map((item) =>
+            <Row> {orderItems.map((item) =>
               <Col span={item.width} key={item.name}>
                 <Label>{item.label}</Label>
                 <FormItem key={item.name} name={item.name} rules={item.rules}>
@@ -257,7 +185,11 @@ class Order extends Component {
             <TabPane tab="Грузы" key="/order/cargo">Подождите пожалуйста ...</TabPane>
             <TabPane tab="Рейсы" key="/order/shipping">Подождите пожалуйста ...</TabPane>
           </Tabs>
-          <Form.Provider onFormFinish={handleSubmit}>{model === 'Shipping' ? <ShippingModal/> : <ModalForm/>}</Form.Provider>
+          {isModalOpen && modalType !== 'search' &&
+            <Form.Provider onFormFinish={handleSubmit}><ModalForm/></Form.Provider>}
+          {isModalOpen && modalType === 'search' &&
+            <SearchModal {...modalProps} formItems={searchItems} />
+          }
         </Card>
       </div>
     );
