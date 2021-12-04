@@ -18,9 +18,9 @@ public class OrderSelectDto {
     private UUID key;
     private List<OrderSelectDto> children;
 
-    public OrderSelectDto(String title, UUID value, UUID key) {
+    public OrderSelectDto(String title, UUID value) {
         this.title = title;
         this.value = value;
-        this.key = key;
+        this.key = value;
     }
 }

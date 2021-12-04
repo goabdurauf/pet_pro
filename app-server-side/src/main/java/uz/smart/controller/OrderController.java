@@ -6,12 +6,17 @@ package uz.smart.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import uz.smart.dto.OrderDto;
+import uz.smart.dto.OrderSelectDto;
 import uz.smart.payload.ReqSearch;
 import uz.smart.payload.ResOrder;
+import uz.smart.payload.ResPageable;
 import uz.smart.service.OrderService;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -44,6 +49,8 @@ public class OrderController {
 
     @GetMapping("/select")
     public HttpEntity<?> getForSelect() {
-        return service.getOrdersForSelect();
+        List<OrderSelectDto> result = service.getOrdersForSelect(null);
+
+        return ResponseEntity.status(HttpStatus.OK).body(new ResPageable(result, 0, 0));
     }
 }

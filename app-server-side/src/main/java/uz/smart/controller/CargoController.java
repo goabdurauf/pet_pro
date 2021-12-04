@@ -11,6 +11,7 @@ import uz.smart.dto.CargoDto;
 import uz.smart.dto.CargoStatusDto;
 import uz.smart.dto.DocumentDto;
 import uz.smart.payload.ResCargo;
+import uz.smart.payload.ResDocument;
 import uz.smart.service.CargoService;
 
 import java.util.List;
@@ -32,6 +33,9 @@ public class CargoController {
     @PostMapping("/status")
     public HttpEntity<?> setStatus(@RequestBody CargoStatusDto dto) { return service.setStatus(dto); }
 
+    @PostMapping("/document")
+    public List<ResDocument> addDocument(@RequestBody DocumentDto dto){ return service.addDocument(dto);}
+
     @DeleteMapping("/{id}")
     public HttpEntity<?> delete(@PathVariable UUID id) { return service.deleteCargo(id); }
 
@@ -44,12 +48,18 @@ public class CargoController {
     @GetMapping("/order/{id}")
     public List<ResCargo> getListByOrder(@PathVariable UUID id) { return service.getCargoListByOrderId(id); }
 
-    @GetMapping("/document/{orderId}")
-    public List<DocumentDto> getDocumentListByOrder(@PathVariable UUID orderId) { return service.getCargoDocumentsByOrderId(orderId); }
+    @GetMapping("/select/order/{id}")
+    public List<ResCargo> getSelectListByOrder(@PathVariable UUID id) { return service.getCargoListForSelectByOrderId(id); }
 
-    @DeleteMapping("/{orderId}/document/{docId}")
-    public List<DocumentDto> deleteDocumentFromCargo(@PathVariable UUID orderId, @PathVariable UUID docId){
-        return service.removeDocumentByOrderId(orderId, docId);
+    @GetMapping("/document/{orderId}")
+    public List<ResDocument> getDocumentListByOrder(@PathVariable UUID orderId) { return service.getCargoDocumentsByOrderId(orderId); }
+
+    @GetMapping("/doc/{docId}")
+    public DocumentDto getCargoDocument(@PathVariable UUID docId) { return service.getCargoDocument(docId); }
+
+    @DeleteMapping("/{id}/document/{docId}")
+    public List<ResDocument> deleteDocumentFromCargo(@PathVariable UUID id, @PathVariable UUID docId){
+        return service.removeDocumentFromCargo(id, docId);
     }
 
 }

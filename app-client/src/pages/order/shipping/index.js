@@ -54,15 +54,7 @@ class Shipping extends Component {
       })
     };
     const openModal = () => {
-      dispatch({
-        type: 'shipping/updateState',
-        payload: {
-          isModalOpen: !isModalOpen,
-          currentItem: {rate:1},
-          modalType: 'create',
-          isBtnDisabled: false
-        }
-      })
+      dispatch({type: 'shipping/openModal'})
     };
     const columns = [
       ...visibleColumns,

@@ -8,15 +8,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 import uz.smart.dto.*;
 import uz.smart.entity.*;
+import uz.smart.entity.template.AbsEntity;
 import uz.smart.exception.ResourceNotFoundException;
 import uz.smart.mapper.MapperUtil;
-import uz.smart.payload.ApiResponse;
-import uz.smart.payload.ResCargo;
-import uz.smart.payload.ResOrder;
-import uz.smart.payload.ResShipping;
+import uz.smart.payload.*;
 import uz.smart.repository.*;
 
 import java.util.*;
@@ -49,6 +46,8 @@ public class CargoService {
     ShippingService shippingService;
     @Autowired
     MapperUtil mapper;
+
+    private CargoEntity lastEntity;
 
     public HttpEntity<?> saveAndUpdate(CargoDto dto) {
         CargoEntity entity = dto.getId() == null
@@ -90,6 +89,9 @@ public class CargoService {
                     .orElseThrow(() -> new ResourceNotFoundException("List", "customToCountryId", dto.getCustomToCountryId()));
             entity.setCustomToCountryName(customToCountry.getNameRu());
         }
+        entity.setCargoDetails(null);
+        entity = repository.saveAndFlush(entity);
+
         List<CargoDetailEntity> cargoDetails = new ArrayList<>();
         if (dto.getCargoDetails() != null) {
             for (CargoDetailDto detailDto : dto.getCargoDetails()) {
@@ -101,33 +103,28 @@ public class CargoService {
                         .orElseThrow(() -> new ResourceNotFoundException("List", "packegeTypeId", detailDto.getPackageTypeId()));
                 detailEntity.setPackageTypeName(packegeType.getNameRu());
 
-                detailEntity = detailRepository.saveAndFlush(detailEntity);
+                detailEntity = detailRepository.save(detailEntity);
                 cargoDetails.add(detailEntity);
             }
         }
         entity.setCargoDetails(cargoDetails);
 
-        if (StringUtils.hasText(dto.getDocTitle())) {
-            DocumentEntity document = dto.getDocId() == null
-                    ? mapper.toDocumentEntity(new DocumentDto(null, dto.getDocTitle(), dto.getDocDate(), dto.getDocCommet()), new DocumentEntity())
-                    : mapper.toDocumentEntity(new DocumentDto(dto.getDocId(), dto.getDocTitle(), dto.getDocDate(), dto.getDocCommet()),
-                        documentRepository.findById(dto.getDocId()).orElseThrow(() -> new ResourceNotFoundException("Cargo", "documentId", dto.getDocId())));
-
-            if (dto.getDocAttachments() != null && dto.getDocAttachments().size() > 0) {
-                Set<UUID> list = dto.getDocAttachments().stream().map(AttachmentDto::getId).collect(Collectors.toSet());
-                List<Attachment> attachmentList = attachmentRepository.findAllByIdIn(new ArrayList<>(list));
-                document.setAttachments(attachmentList);
-            }
-
-            document = documentRepository.save(document);
-
-            entity.setDocument(document);
-        }
-
-        repository.save(entity);
-
+        lastEntity = repository.saveAndFlush(entity);
 
         return ResponseEntity.ok().body(new ApiResponse("Сохранено успешно", true));
+    }
+
+    public List<ResDocument> addDocument(DocumentDto dto) {
+        CargoEntity entity = repository.findById(dto.getOwnerId())
+                .orElseThrow(() -> new ResourceNotFoundException("Cargo", "Id", dto.getOwnerId()));
+        DocumentEntity document = documentService.saveAndUpdate(dto);
+
+        if (dto.getId() == null) {
+            entity.getDocumentList().add(document);
+            repository.saveAndFlush(entity);
+        }
+
+        return getCargoDocumentsByOrderId(entity.getOrder().getId());
     }
 
     public HttpEntity<?> cloneCargo(CargoDto dto) {
@@ -151,43 +148,57 @@ public class CargoService {
             detailDto.setId(null);
         }
 
+        List<DocumentEntity> oldDocuments = repository.findById(dto.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Cargo", "Id", dto.getId())).getDocumentList();
+
         dto.setId(null);
-        dto.setDocId(null);
-        if (dto.getDocAttachments() != null && dto.getDocAttachments().size() > 0) {
-            List<AttachmentDto> list = new ArrayList<>();
-            for (AttachmentDto attachmentDto : dto.getDocAttachments()) {
-                Attachment attachment = attachmentRepository.findById(attachmentDto.getId())
-                        .orElseThrow(() -> new ResourceNotFoundException("Attachment", "Id", attachmentDto.getId()));
-                AttachmentContent attachmentContent = attachmentContentRepository.findByAttachment(attachment)
-                        .orElseThrow(() -> new ResourceNotFoundException("Attachment Content", "attachment id", attachmentDto.getId()));
+        HttpEntity<?> response = saveAndUpdate(dto);
 
-                Attachment newAtt = new Attachment(attachment.getName(), attachment.getContentType(), attachment.getDocType(), attachment.getSize());
-                newAtt = attachmentRepository.saveAndFlush(newAtt);
-                AttachmentContent newCont = new AttachmentContent(attachmentContent.getContent(), newAtt);
-                attachmentContentRepository.saveAndFlush(newCont);
-                list.add(mapper.toAttachmentDto(newAtt));
+        List<DocumentEntity> documentEntityList = new ArrayList<>();
+        if (oldDocuments != null && oldDocuments.size() > 0) {
+            for (DocumentEntity oldDoc : oldDocuments) {
+                DocumentEntity document = new DocumentEntity(oldDoc.getTitle(), oldDoc.getDate(), oldDoc.getComment());
+                if (oldDoc.getAttachments() != null && oldDoc.getAttachments().size() > 0) {
+                    List<Attachment> list = new ArrayList<>();
+                    for (Attachment attachment : oldDoc.getAttachments()) {
+                        AttachmentContent attachmentContent = attachmentContentRepository.findByAttachment(attachment)
+                                .orElseThrow(() -> new ResourceNotFoundException("Attachment Content", "attachment id", attachment.getId()));
+
+                        Attachment newAtt = new Attachment(attachment.getName(), attachment.getContentType(), attachment.getDocType(), attachment.getSize());
+                        newAtt = attachmentRepository.saveAndFlush(newAtt);
+                        AttachmentContent newCont = new AttachmentContent(attachmentContent.getContent(), newAtt);
+                        attachmentContentRepository.saveAndFlush(newCont);
+                        list.add(newAtt);
+                    }
+                    document.setAttachments(list);
+                }
+                documentEntityList.add(documentRepository.saveAndFlush(document));
             }
-            dto.setDocAttachments(list);
         }
+        lastEntity.setDocumentList(documentEntityList);
+        repository.saveAndFlush(lastEntity);
 
-        return saveAndUpdate(dto);
+        return response;
     }
-
 
     public HttpEntity<?> deleteCargo(UUID id) {
         CargoEntity cargoEntity = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Cargo", "Id", id));
+        return deleteCargo(cargoEntity);
+    }
+
+    public HttpEntity<?> deleteCargo(CargoEntity cargoEntity) {
         ShippingEntity shippingEntity = shippingRepository.getByCargoEntitiesIn(List.of(cargoEntity)).orElse(null);
         if (shippingEntity != null){
             shippingEntity.getCargoEntities().remove(cargoEntity);
             shippingRepository.saveAndFlush(shippingEntity);
         }
-        if (cargoEntity.getDocument() != null){
-            DocumentEntity document = documentRepository.findById(cargoEntity.getDocument().getId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Document", "Id", id));
-            cargoEntity.setDocument(null);
+        if (cargoEntity.getDocumentList() != null && cargoEntity.getDocumentList().size() > 0){
+            List<UUID> docIdList = cargoEntity.getDocumentList().stream().map(AbsEntity::getId).collect(Collectors.toList());
+            List<DocumentEntity> documentList = documentRepository.findAllByIdIn(docIdList);
+            cargoEntity.setDocumentList(null);
             cargoEntity = repository.saveAndFlush(cargoEntity);
-            documentService.deleteDocument(document);
+            documentService.deleteAllDocuments(documentList);
         }
         repository.delete(cargoEntity);
         return ResponseEntity.ok().body(new ApiResponse("Удалено успешно", true));
@@ -204,17 +215,46 @@ public class CargoService {
         return getCargoList(repository.getAllByOrder_IdAndStateGreaterThanOrderByCreatedAt(orderId, 0));
     }
 
-    public List<DocumentDto> getCargoDocumentsByOrderId(UUID orderId) {
-        List<DocumentDto> documentList = new ArrayList<>();
+    public List<ResCargo> getCargoListForSelectByOrderId(UUID orderId) {
+        List<ResCargo> list = new ArrayList<>();
+        List<CargoEntity> entityList = repository.getAllByOrder_IdAndStateGreaterThanOrderByCreatedAt(orderId, 0);
+        for (CargoEntity cargo : entityList) {
+            list.add(new ResCargo(cargo.getId(), cargo.getName(), cargo.getNum()));
+        }
+
+        return list;
+    }
+
+    public List<ResDocument> getCargoDocumentsByOrderId(UUID orderId) {
+        List<ResDocument> documentList = new ArrayList<>();
         List<CargoEntity> cargoList = repository.getAllByOrder_IdAndStateGreaterThanOrderByCreatedAt(orderId, 0);
         if (cargoList == null || cargoList.size() == 0)
             return documentList;
         for (CargoEntity cargo : cargoList) {
-            DocumentDto documentDto = documentService.getDocumentDto(cargo.getDocument());
-            if (documentDto != null)
-                documentList.add(documentDto);
+            for (DocumentEntity document : cargo.getDocumentList()) {
+                DocumentDto documentDto = documentService.getDocumentDto(document);
+                documentList.add(new ResDocument(
+                        documentDto.getId(),
+                        cargo.getId(),
+                        documentDto.getTitle(),
+                        documentDto.getDate(),
+                        documentDto.getComment(),
+                        documentDto.getAttachments(),
+                        cargo.getName(),
+                        cargo.getNum()
+                ));
+            }
         }
         return documentList;
+    }
+
+    public DocumentDto getCargoDocument(UUID docId) {
+        DocumentEntity documentEntity = documentRepository.findById(docId)
+                .orElseThrow(() -> new ResourceNotFoundException("Document", "Id", docId));
+        DocumentDto dto = documentService.getDocumentDto(documentEntity);
+        repository.findByDocumentListIn(List.of(documentEntity)).ifPresent(cargoEntity -> dto.setOwnerId(cargoEntity.getId()));
+
+        return dto;
     }
 
     public List<ResCargo> getCargoList() {
@@ -246,30 +286,25 @@ public class CargoService {
     public ResCargo getCargo(CargoEntity entity) {
         ResCargo dto = mapper.toResCargo(entity);
         dto.setOrderId(entity.getOrder().getId());
-        dto.setCargoDetails(mapper.toCargoDetailDto(entity.getCargoDetails()));
-        if (entity.getDocument() != null) {
-            DocumentEntity document = entity.getDocument();
-            dto.setDocId(document.getId());
-            dto.setDocTitle(document.getTitle());
-            dto.setDocDate(document.getDate());
-            dto.setDocCommet(document.getComment());
-            dto.setDocAttachments(mapper.toAttachmentDto(document.getAttachments()));
+        dto.setCargoDetails(mapper.toCargoDetailDto(new ArrayList<>(new TreeSet<>(entity.getCargoDetails()))));
+        if (entity.getDocumentList() != null && entity.getDocumentList().size() > 0) {
+            dto.setDocumentList(documentService.getDocumentDto(entity.getDocumentList()));
         }
 
         return dto;
     }
 
-    public List<DocumentDto> removeDocumentByOrderId(UUID orderId, UUID docId) {
-        CargoEntity entity = repository.findByDocument_Id(docId)
-                .orElseThrow(() -> new ResourceNotFoundException("Cargo", "docId", docId));
+    public List<ResDocument> removeDocumentFromCargo(UUID id, UUID docId) {
+        CargoEntity entity = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Cargo", "id", id));
         DocumentEntity document = documentRepository.findById(docId)
                 .orElseThrow(() -> new ResourceNotFoundException("Document", "Id", docId));
 
-        entity.setDocument(null);
+        entity.getDocumentList().remove(document);
         repository.saveAndFlush(entity);
         documentService.deleteDocument(document);
 
-        return getCargoDocumentsByOrderId(orderId);
+        return getCargoDocumentsByOrderId(entity.getOrder().getId());
     }
 
     public HttpEntity<?> setStatus(CargoStatusDto dto) {

@@ -18,11 +18,6 @@ import java.util.UUID;
 
 public interface OrderRepository extends JpaRepository<OrderEntity, UUID> {
 
-    @Transactional
-    @Modifying
-    @Query("delete from orders where id = :id")
-    void updateById(UUID id);
-
     @Query("select o from orders o where o.state > 0 and o.id = :id")
     Optional<OrderEntity> getOrderById(UUID id);
 

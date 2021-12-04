@@ -18,8 +18,7 @@ import {
   addAttachmentToDocument,
   deleteAttachmentFromDocumentById,
   getCargoDocumentByOrderId,
-  getDocumentById,
-  saveDocument, deleteDocumentFromCargo, cloneCargo
+  deleteDocumentFromCargo, cloneCargo, getSelectOrderCargos, addCargoDocument, getCargoDocument
 } from '@/services/service'
 import modelExtend from 'dva-model-extend'
 import {Image, notification} from 'antd'
@@ -36,6 +35,7 @@ export default modelExtend(tableModel, {
     isModalOpen: false,
     itemList: [],
     cargoList: [],
+    cargoSelectList: [],
     currentModel: null,
     modalWidth: 100,
     managerList: [],
@@ -151,13 +151,15 @@ export default modelExtend(tableModel, {
                 key: 'docImage',
                 render: (text, record) => {
                   let data = [];
-                  record.docAttachments && record.docAttachments.forEach(img => {
-                    if (img.docType !== null && img.docType === "Rasm") {
-                      data.push(
-                        <div key={img.id} style={{textAlign: "center"}}>
-                          <Image width={60} src={img.url + '?original=false'} preview={{src: img.url}}/>
-                        </div>)
-                    }
+                  record.documentList && record.documentList.forEach(doc => {
+                    doc.attachments && doc.attachments.forEach(img => {
+                      if (img.docType !== null && img.docType === "Rasm") {
+                        data.push(
+                          <div key={img.id} style={{textAlign: "center"}}>
+                            <Image width={60} src={img.url + '?original=false'} preview={{src: img.url}}/>
+                          </div>)
+                      }
+                    })
                   })
                   return data;
                 }
@@ -168,10 +170,15 @@ export default modelExtend(tableModel, {
                 key: 'docFile',
                 render: (text, record) => {
                   let data = [];
-                  record.docAttachments && record.docAttachments.forEach(file => {
-                    if (file.docType === null || file.docType !== "Rasm") {
-                      data.push(<div key={file.id}><a href={file.url} target="_blank" rel="noreferrer">{record.docTitle + (file.docType !== null ? ' - ' + file.docType : '')}</a><br/></div>)
-                    }
+                  record.documentList && record.documentList.forEach(doc => {
+                    doc.attachments && doc.attachments.forEach(file => {
+                      if (file.docType === null || file.docType !== "Rasm") {
+                        data.push(
+                          <div key={file.id}>
+                            <a href={file.url} target="_blank" rel="noreferrer">{doc.title + (file.docType !== null ? ' - ' + file.docType : '')}</a><br/>
+                          </div>)
+                      }
+                    })
                   })
                   return data;
                 }
@@ -476,16 +483,19 @@ export default modelExtend(tableModel, {
     * queryDocument({payload}, {call, put, select}) {
       const {orderId} = yield select(_ => _.orderDetail);
       let data = yield call(getCargoDocumentByOrderId, orderId);
+      let cargos = yield call(getSelectOrderCargos, orderId);
       if (data.success) {
         yield put({
           type: 'updateState',
           payload: {
             model: 'Document',
             itemList: data.list,
+            cargoSelectList: cargos.list,
             currentItem: null,
             isModalOpen: false,
             isBtnDisabled: false,
-            modalWidth: 500,
+            modalType: 'create',
+            modalWidth: 600,
             createTitle: 'Создать документ',
             editTitle: 'Редактировать документа',
             visibleColumns : [
@@ -511,6 +521,12 @@ export default modelExtend(tableModel, {
                 title: 'Комментарии',
                 dataIndex: 'comment',
                 key: 'comment',
+              },
+              {
+                title: 'Груз',
+                dataIndex: 'cargo',
+                key: 'cargo',
+                render: (text, record) => record.ownerNum + ' - ' + record.ownerName
               }
             ]
           }
@@ -518,7 +534,7 @@ export default modelExtend(tableModel, {
       }
     },
     * getDocumentById({payload}, {call, put, select}) {
-      const result = yield call(getDocumentById, payload.id);
+      const result = yield call(getCargoDocument, payload.id);
       if (result.success) {
         result.date = moment(result.date, 'DD.MM.YYYY HH:mm:ss');//zone("+05:00")
         yield put({
@@ -540,10 +556,16 @@ export default modelExtend(tableModel, {
       }
     },
     * saveDocument({payload}, {call, put, select}) {
-      const result = yield call(saveDocument, payload);
+      const result = yield call(addCargoDocument, payload);
       if (result.success) {
         yield put({
-          type: 'queryDocument'
+          type: 'updateState',
+          payload: {
+            itemList: result.list,
+            currentItem: null,
+            isModalOpen: false,
+            isBtnDisabled: false
+          }
         })
         notification.info({
           description: 'Документ сохранен успешно',

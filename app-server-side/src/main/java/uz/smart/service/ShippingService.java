@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import uz.smart.dto.DocumentDto;
 import uz.smart.dto.ShippingDto;
 import uz.smart.entity.*;
+import uz.smart.entity.template.AbsEntity;
 import uz.smart.exception.ResourceNotFoundException;
 import uz.smart.mapper.MapperUtil;
 import uz.smart.payload.ApiResponse;
@@ -66,17 +67,23 @@ public class ShippingService {
                 entity.setNum(CommonUtils.generateNextNum("R", opt.get().getNum()));
         }
 
+        entity = repository.saveAndFlush(entity);
+
         Set<OrderEntity> orderEntities = new HashSet<>();
         if (dto.getOrderId() != null) {
             orderEntities.add(orderRepository.findById(dto.getOrderId())
                     .orElseThrow(() -> new ResourceNotFoundException("Shipping", "orderId", dto.getOrderId())));
         }
 
+        setCargoShippingToNull(entity);
+
         if (dto.getCargoList() != null) {
             List<CargoEntity> cargoEntities = new ArrayList<>();
             for (UUID id : dto.getCargoList()) {
                 CargoEntity cargoEntity = cargoRepository.findById(id)
                         .orElseThrow(() -> new ResourceNotFoundException("Shipping", "cargoId", id));
+                cargoEntity.setShipping(entity);
+                cargoEntity = cargoRepository.saveAndFlush(cargoEntity);
                 orderEntities.add(cargoEntity.getOrder());
                 cargoEntities.add(cargoEntity);
             }
@@ -106,9 +113,19 @@ public class ShippingService {
             entity = repository.saveAndFlush(entity);
             documentService.deleteAllDocuments(documentList);
         }
+        setCargoShippingToNull(entity);
 
         repository.delete(entity);
         return ResponseEntity.ok().body(new ApiResponse("Удалено успешно", true));
+    }
+
+    private void setCargoShippingToNull(ShippingEntity entity) {
+        if (entity.getCargoEntities() != null && entity.getCargoEntities().size() > 0) {
+            for (CargoEntity cargo : entity.getCargoEntities()) {
+                cargo.setShipping(null);
+                cargoRepository.saveAndFlush(cargo);
+            }
+        }
     }
 
     public ShippingDto getShipping(UUID id) {
@@ -116,12 +133,11 @@ public class ShippingService {
                 .orElseThrow(() -> new ResourceNotFoundException("Shipping", "id", id));
         ShippingDto dto = mapper.toShippingDto(entity);
         if (entity.getCargoEntities() != null) {
-            List<UUID> cargoIds = new ArrayList<>();
-            for (CargoEntity cargo : entity.getCargoEntities()) {
-                cargoIds.add(cargo.getId());
-            }
-            dto.setCargoList(cargoIds);
+            dto.setCargoList(entity.getCargoEntities().stream().map(AbsEntity::getId).collect(Collectors.toList()));
         }
+
+        dto.setOrderSelect(orderService.getOrdersForSelect(entity));
+
         return dto;
     }
 

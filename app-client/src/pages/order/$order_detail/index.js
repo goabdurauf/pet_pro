@@ -4,14 +4,14 @@ import {connect} from 'dva'
 import {Card, Row, Col, Select, Tabs, Space, Popconfirm, Table} from 'antd';
 import CargoModal from './modals/cargoModal'
 import ShippingModal from './modals/shippingModal'
-import DocumentModal from '../shipping/$shipping_detail/modal'
+import DocumentModal from './modals/documentModal'
 import {Button} from "reactstrap";
 import {DeleteOutlined, FormOutlined, PlusOutlined, CopyOutlined} from "@ant-design/icons";
 import 'moment/locale/ru';
 
 const OrderDetail = ({dispatch, orderDetail}) => {
       const {model, orderId, isModalOpen, isLoading, isBtnDisabled, itemList, cargoList, currentModel, currentItem, modalType, modalWidth, countryList, orderStatusList,
-        managerList, createTitle, editTitle, visibleColumns,
+        managerList, createTitle, editTitle, visibleColumns, cargoSelectList,
         documentAttachments, packageTypeList, carrierList, currencyList, shipTypeList} = orderDetail;
 
     const openModal = () => {
@@ -50,7 +50,7 @@ const OrderDetail = ({dispatch, orderDetail}) => {
     }
     const uploadChange = (options) => {
       if (options.file.status === 'removed'){
-        if (modalType === 'create' || currentItem.docId === null) {
+        if (modalType === 'create') {
           dispatch({
             type: 'orderDetail/deleteAttachment',
             payload: {
@@ -61,24 +61,13 @@ const OrderDetail = ({dispatch, orderDetail}) => {
           dispatch({
             type: 'orderDetail/deleteDocumentAttachment',
             payload: {
-              docId: currentItem.docId,
+              docId: currentItem.id,
               id: options.file.id
             }
           })
         }
       }
     }
-    const uploadDocumentChange = (options) => {
-    if (options.file.status === 'removed'){
-      dispatch({
-        type: 'orderDetail/deleteDocumentAttachment',
-        payload: {
-          docId: currentItem.id,
-          id: options.file.id
-        }
-      })
-    }
-  }
     const backToOrders = (key) => {
       dispatch({
         type: 'orderDetail/pushToPage',
@@ -144,6 +133,9 @@ const OrderDetail = ({dispatch, orderDetail}) => {
         payload: {isBtnDisabled: true}
       })
 
+      if (modalType !== 'create')
+        values = {...values, id: currentItem.id}
+
       if (values.date !== undefined && values.date !== '')
         values.date = values.date.format('DD.MM.YYYY HH:mm:ss');
 
@@ -151,7 +143,6 @@ const OrderDetail = ({dispatch, orderDetail}) => {
         type: 'orderDetail/save' + model,
         payload: {
           ...values,
-          id: currentItem.id,
           attachments: documentAttachments
         }
       })
@@ -287,6 +278,11 @@ const OrderDetail = ({dispatch, orderDetail}) => {
                       <Tabs.TabPane tab="Финансы" key="Finance">
                       </Tabs.TabPane>
                       <Tabs.TabPane tab="Документы" key="Document">
+                        <Row>
+                          <Col span={4} offset={20}>
+                            <Button className="float-right" outline color="primary" size="sm" onClick={openModal}><PlusOutlined/> Добавить</Button>
+                          </Col>
+                        </Row>
                         <Table columns={columns} dataSource={itemList} bordered size="middle" rowKey={record => record.id}
                                pagination={false}/>
                       </Tabs.TabPane>
@@ -306,8 +302,7 @@ const OrderDetail = ({dispatch, orderDetail}) => {
           <CargoModal
             {...modalProps}
             handleSubmit={handleSubmit} isBtnDisabled={isBtnDisabled} currentItem={currentItem} countryList={countryList}
-            customRequest={customRequest} uploadChange={uploadChange} isLoading={isLoading} packageTypeList={packageTypeList}
-            documentAttachments={documentAttachments}
+            isLoading={isLoading} packageTypeList={packageTypeList} documentAttachments={documentAttachments}
           />}
           {isModalOpen && model === 'Shipping' &&
           <ShippingModal
@@ -318,9 +313,9 @@ const OrderDetail = ({dispatch, orderDetail}) => {
 
           {isModalOpen && model === 'Document' &&
           <DocumentModal
-            {...modalProps}
+            {...modalProps} cargoSelectList={cargoSelectList}
             isBtnDisabled={isBtnDisabled} loadingFile={isLoading} handleSubmit={handleDocumentSubmit} currentItem={currentItem}
-            documentAttachments={documentAttachments} customRequest={customRequest} uploadChange={uploadDocumentChange}/>}
+            documentAttachments={documentAttachments} customRequest={customRequest} uploadChange={uploadChange}/>}
 
         </Card>
       </div>

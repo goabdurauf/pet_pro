@@ -30,13 +30,6 @@ public class CargoDto {
 
     private List<CargoDetailDto> cargoDetails;
 
-    private UUID docId;
-    private String docTitle;
-    @JsonDeserialize(using = DateTimeDeserializer.class)
-    private Timestamp docDate;
-    private String docCommet;
-    private List<AttachmentDto> docAttachments;
-
     private String senderName;
     private Long senderCountryId;
     private String senderCountryName;

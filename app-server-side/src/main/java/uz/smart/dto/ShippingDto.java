@@ -28,6 +28,7 @@ public class ShippingDto {
     private String shippingNum;
     private UUID orderId;
     private List<UUID> cargoList;
+    private List<OrderSelectDto> orderSelect;
 
     @JsonDeserialize(using = DateTimeDeserializer.class)
     private Timestamp loadDate;

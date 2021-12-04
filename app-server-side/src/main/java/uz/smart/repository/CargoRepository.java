@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
 import uz.smart.entity.CargoEntity;
+import uz.smart.entity.DocumentEntity;
 
 import java.util.List;
 import java.util.Optional;
@@ -28,6 +29,7 @@ public interface CargoRepository extends JpaRepository<CargoEntity, UUID> {
     List<CargoEntity> getAllCargos();
 
     List<CargoEntity> getAllByOrder_IdAndStateGreaterThanOrderByCreatedAt(UUID order_id, int state);
+    List<CargoEntity> getAllByShippingIsNullOrderByCreatedAt();
 
-    Optional<CargoEntity> findByDocument_Id(UUID documentId);
+    Optional<CargoEntity> findByDocumentListIn(List<DocumentEntity> documentList);
 }

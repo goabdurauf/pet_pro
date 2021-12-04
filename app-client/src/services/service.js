@@ -68,6 +68,9 @@ export function getCargoListByOrderId(id) {return request({url: '/api/cargo/orde
 export function getCargoDocumentByOrderId(id) {return request({url: '/api/cargo/document/' + id, method: 'get',})}
 export function getCargoById(id) {return request({url: '/api/cargo/' + id, method: 'get',})}
 export function deleteCargoById(id) {return request({url: '/api/cargo/' + id, method: 'delete',})}
+export function addCargoDocument(data) {return request({url: '/api/cargo/document', method: 'post', data})}
+export function getSelectOrderCargos(id) {return request({url: '/api/cargo/select/order/' + id, method: 'get'})}
+export function getCargoDocument(id) {return request({url: '/api/cargo/doc/' + id, method: 'get'})}
 export function deleteDocumentFromCargo(data) {return request({url: '/api/cargo/' + data.orderId + '/document/' + data.id, method: 'delete',})}
 
 

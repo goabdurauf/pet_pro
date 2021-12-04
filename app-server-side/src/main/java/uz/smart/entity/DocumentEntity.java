@@ -25,4 +25,10 @@ public class DocumentEntity extends BaseEntity {
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Attachment> attachments;
+
+    public DocumentEntity(String title, Timestamp date, String comment) {
+        this.title = title;
+        this.date = date;
+        this.comment = comment;
+    }
 }

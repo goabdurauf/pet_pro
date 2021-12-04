@@ -22,6 +22,12 @@ export default ({
     isBtnDisabled: false,
     isLoading: false,
     selectedStatusId: null,
+    pagination: {
+      current: 1,
+      pageSize: 10,
+      position: ["bottomCenter"]
+    },
+    isTableLoading: false,
     documentAttachments: [],
     countryList: [],
     selectedRowKeys: [],
@@ -104,11 +110,14 @@ export default ({
         key: 'docs',
         render: (text, record) => {
           let data = [];
-          let title = record.docTitle !== null ? record.docTitle : '';
-          if(record.docDate !== null)
-            title += ' (' + record.docDate.substring(0, record.docDate.indexOf(' ')) + ')';
-          record.docAttachments && record.docAttachments.forEach(doc => {
-            data.push(<div key={doc.id}><a href={doc.url} target="_blank" rel="noreferrer">{title  + (doc.docType !== null ? ' - ' + doc.docType : '')}</a><br/></div>)
+          record.documentList && record.documentList.forEach(doc => {
+            let title = doc.title + ' (' + doc.date.substring(0, doc.date.indexOf(' ')) + ')';
+            if (doc.attachments !== null && doc.attachments.length > 0) {
+              doc.attachments.forEach(att => {
+                data.push(<div key={att.id}><a href={att.url} target="_blank" rel="noreferrer">{title  + (att.docType !== null ? ' - ' + att.docType : '')}</a><br/></div>)
+              })
+            } else
+              data.push(<div key={doc.id}>{title}<br/></div>)
           })
           return data;
         }

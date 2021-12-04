@@ -2,7 +2,7 @@ import {uploadFile, deleteFile, getDocumentById, getShippingDetailById, deleteCa
   deleteDocumentFromShippingById, addShippingDocument, deleteAttachmentFromDocumentById, addAttachmentToDocument} from '@/services/service'
 import modelExtend from 'dva-model-extend'
 import {tableModel} from 'utils/model'
-import {notification} from 'antd'
+import {Image, notification} from 'antd'
 import moment from "moment";
 import React from "react";
 import {routerRedux} from "dva/router";
@@ -218,6 +218,40 @@ export default modelExtend(tableModel, {
               title: 'Комментарии',
               dataIndex: 'comment',
               key: 'comment',
+            },
+            {
+              title: 'Рисунки',
+              dataIndex: 'docImage',
+              key: 'docImage',
+              render: (text, record) => {
+                let data = [];
+                  record.attachments && record.attachments.forEach(img => {
+                    if (img.docType !== null && img.docType === "Rasm") {
+                      data.push(
+                        <div key={img.id} style={{textAlign: "center"}}>
+                          <Image width={60} src={img.url + '?original=false'} preview={{src: img.url}}/>
+                        </div>)
+                    }
+                  })
+                return data;
+              }
+            },
+            {
+              title: 'Файлы',
+              dataIndex: 'docFile',
+              key: 'docFile',
+              render: (text, record) => {
+                let data = [];
+                  record.attachments && record.attachments.forEach(file => {
+                    if (file.docType === null || file.docType !== "Rasm") {
+                      data.push(
+                        <div key={file.id}>
+                          <a href={file.url} target="_blank" rel="noreferrer">{record.title + (file.docType !== null ? ' - ' + file.docType : '')}</a><br/>
+                        </div>)
+                    }
+                  })
+                return data;
+              }
             }
           ]
         }

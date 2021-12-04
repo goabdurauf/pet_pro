@@ -9,6 +9,10 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import uz.smart.dto.CargoDto;
+import uz.smart.dto.DocumentDto;
+
+import java.util.List;
+import java.util.UUID;
 
 @EqualsAndHashCode(callSuper = true)
 @Data @NoArgsConstructor @AllArgsConstructor
@@ -20,5 +24,11 @@ public class ResCargo extends CargoDto {
     private String shippingNum;
     private Long statusId;
     private String statusName;
+    private List<DocumentDto> documentList;
 
+    public ResCargo(UUID id, String name, String num) {
+        super.setId(id);
+        super.setName(name);
+        this.num = num;
+    }
 }

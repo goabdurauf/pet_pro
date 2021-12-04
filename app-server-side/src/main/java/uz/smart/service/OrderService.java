@@ -43,6 +43,8 @@ public class OrderService {
     MapperUtil mapper;
     @Autowired
     ShippingService shippingService;
+    @Autowired
+    CargoService cargoService;
 
     public HttpEntity<?> saveAndUpdate(OrderDto dto){
         OrderEntity entity = dto.getId() == null
@@ -67,7 +69,16 @@ public class OrderService {
     }
 
     public HttpEntity<?> deleteOrder(UUID id) {
-        repository.updateById(id);
+        OrderEntity entity = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Order", "Id", id));
+        List<CargoEntity> cargoEntityList = cargoRepository.getAllByOrder_IdAndStateGreaterThanOrderByCreatedAt(id, 0);
+        if (cargoEntityList != null && cargoEntityList.size() > 0){
+            for (CargoEntity cargoEntity : cargoEntityList) {
+                cargoService.deleteCargo(cargoEntity);
+            }
+        }
+
+        repository.delete(entity);
         return ResponseEntity.ok().body(new ApiResponse("Удалено успешно", true));
     }
 
@@ -81,22 +92,36 @@ public class OrderService {
         return ResponseEntity.status(HttpStatus.OK).body(new ResPageable(getResOrderList(page.getContent(), true), page.getTotalElements(), req.getPage()));
     }
 
-    public HttpEntity<?> getOrdersForSelect() {
-        Page<OrderEntity> page = repository.getAllOrders(CommonUtils.getPageable(0, 15));
+    public List<OrderSelectDto> getOrdersForSelect(ShippingEntity shipping) {
         List<OrderSelectDto> dtoList = new ArrayList<>();
-        for (OrderEntity order : page.getContent()) {
-            OrderSelectDto dto = new OrderSelectDto(order.getNum(), order.getId(), order.getId());
-            List<CargoEntity> cargoList = cargoRepository.getAllByOrder_IdAndStateGreaterThanOrderByCreatedAt(order.getId(), 0);
-            if (cargoList.size() > 0) {
-                List<OrderSelectDto> childList = new ArrayList<>();
-                for (CargoEntity cargo : cargoList) {
-                    childList.add(new OrderSelectDto(cargo.getNum(), cargo.getId(), cargo.getId()));
-                }
-                dto.setChildren(childList);
-                dtoList.add(dto);
-            }
+        List<CargoEntity> cargoList = cargoRepository.getAllByShippingIsNullOrderByCreatedAt();
+
+        if (shipping != null && shipping.getCargoEntities() != null && shipping.getCargoEntities().size() > 0){
+            cargoList.addAll(shipping.getCargoEntities());
         }
-        return ResponseEntity.status(HttpStatus.OK).body(new ResPageable(dtoList, 0, 0));
+
+        for (CargoEntity cargoEntity : cargoList) {
+            OrderSelectDto selectDto = new OrderSelectDto(cargoEntity.getOrder().getNum(), cargoEntity.getOrder().getId());
+            selectDto.setChildren(List.of(new OrderSelectDto(cargoEntity.getNum(), cargoEntity.getId())));
+            dtoList.add(selectDto);
+        }
+
+        List<OrderSelectDto> result = new ArrayList<>();
+        for (OrderSelectDto select : dtoList) {
+            boolean isAdd = true;
+            for (OrderSelectDto res : result) {
+                if (res.getKey().equals(select.getKey())){
+                    List<OrderSelectDto> tmp = new ArrayList<>(res.getChildren());
+                    tmp.add(select.getChildren().get(0));
+                    res.setChildren(tmp);
+                    isAdd = false;
+                }
+            }
+            if (isAdd)
+                result.add(select);
+        }
+
+        return result;
     }
 
     private List<ResOrder> getResOrderList(List<OrderEntity> entities, boolean hasDetail) {

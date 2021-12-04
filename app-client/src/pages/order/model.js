@@ -1,5 +1,5 @@
-import {saveOrder, getOrderList, getSelectOrders, getOrderById, deleteOrderById, getClientList, getManagers, getListItems,
-        saveShipping, getShippingList, getShippingById, deleteShippingById, getCarrierList} from '@/services/service'
+import {saveOrder, getOrderList, getOrderById, deleteOrderById, getClientList, getManagers, getListItems,
+        getCarrierList} from '@/services/service'
 import {notification} from 'antd'
 import moment from "moment";
 import {Link} from "umi";

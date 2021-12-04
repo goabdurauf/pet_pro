@@ -19,7 +19,7 @@ class Cargo extends Component {
   render() {
     const {cargo, dispatch} = this.props;
     const {itemList, currentItem, currentModal, selectedStatusId, isModalOpen, isBtnDisabled, isLoading,  countryList, packageTypeList, documentAttachments,
-      selectedRowKeys, cargoStatusList, visibleColumns} = cargo;
+      isTableLoading, pagination, selectedRowKeys, cargoStatusList, visibleColumns} = cargo;
 
     const onChange = (key) => {
       if (key !== 'Cargo') {
@@ -177,6 +177,9 @@ class Cargo extends Component {
           }
         })
     }
+    const handleTableChange = (pagination) => {
+      console.log(pagination)
+    }
 
     return (
       <div className="cargo-page">
@@ -192,7 +195,8 @@ class Cargo extends Component {
                 </Col>
               </Row>
               <Table rowSelection={rowSelection} columns={columns} dataSource={itemList} bordered size="middle"
-                     rowKey={record => record.id} pagination={{position: ["bottomCenter"]}}/>
+                     rowKey={record => record.id} pagination={pagination} loading={isTableLoading}
+                     onChange={handleTableChange}/>
             </TabPane>
             <TabPane tab="Рейсы" key="/order/shipping">Подождите пожалуйста ...</TabPane>
           </Tabs>

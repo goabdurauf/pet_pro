@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import {Card, Row, Col, Tabs, Form, Input, Select, Space, Popconfirm, Table, DatePicker, Modal} from 'antd';
 import {connect} from "react-redux";
-import {DeleteOutlined, FormOutlined, PlusOutlined, SearchOutlined} from "@ant-design/icons";
+import {DeleteOutlined, FormOutlined, PlusOutlined} from "@ant-design/icons";
 import {Button, Label} from "reactstrap";
 import SearchModal from './modal'
 const { TabPane } = Tabs;
@@ -11,7 +11,7 @@ const FormItem = Form.Item;
 class Order extends Component {
   render() {
     const {order, dispatch} = this.props;
-    const {model, isModalOpen, itemList, currentItem, modalType, managerList, clientList, carrierList, currencyList, shipTypeList, orderStatusList, selectOrderList,
+    const {model, isModalOpen, itemList, currentItem, modalType, managerList, clientList, orderStatusList,
       modalWidth, createTitle, editTitle, visibleColumns} = order;
 
     const orderItems = [
@@ -91,6 +91,7 @@ class Order extends Component {
         }
       })
     };
+    /*
     const openSearchModal = () => {
       dispatch({
         type: 'order/updateState',
@@ -100,6 +101,7 @@ class Order extends Component {
         }
       })
     };
+    */
     const columns = [
       ...visibleColumns,
       {

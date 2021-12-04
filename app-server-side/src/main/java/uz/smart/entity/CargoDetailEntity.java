@@ -14,7 +14,7 @@ import java.math.BigDecimal;
 
 @Data @NoArgsConstructor @AllArgsConstructor
 @Entity(name = "cargo_detail")
-public class CargoDetailEntity extends BaseEntity {
+public class CargoDetailEntity extends BaseEntity implements Comparable<CargoDetailEntity> {
 
     private BigDecimal weight;
     private BigDecimal capacity;
@@ -22,4 +22,8 @@ public class CargoDetailEntity extends BaseEntity {
     private Long packageTypeId;
     private String packageTypeName;
 
+    @Override
+    public int compareTo(CargoDetailEntity other) {
+        return this.getCreatedAt().compareTo(other.getCreatedAt());
+    }
 }

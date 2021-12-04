@@ -1,12 +1,12 @@
 import React from 'react'
-import {Col, DatePicker, Form, Input, Modal, Row, Select, Typography, Upload, Button} from 'antd'
-import {MinusCircleOutlined, PlusOutlined, UploadOutlined} from '@ant-design/icons';
+import {Col, DatePicker, Form, Input, Modal, Row, Select, Typography} from 'antd'
+import {MinusCircleOutlined, PlusOutlined} from '@ant-design/icons';
 import {Label} from "reactstrap";
 import 'moment/locale/ru';
 import locale from 'antd/es/date-picker/locale/ru_RU';
 import PropTypes from "prop-types";
 
-const modal = ({ currentItem, isBtnDisabled, handleSubmit, customRequest, uploadChange, isLoading, packageTypeList, countryList, documentAttachments,
+const modal = ({ currentItem, isBtnDisabled, handleSubmit, isLoading, packageTypeList, countryList, documentAttachments,
                  ...modalProps }) => {
   const [form] = Form.useForm()
   function handleFormSubmit (values) {
@@ -93,29 +93,6 @@ const modal = ({ currentItem, isBtnDisabled, handleSubmit, customRequest, upload
               ))
             }
           </Form.List>
-        </Col>
-      </Row>
-      <Row>
-        <Col span={18} key={'cargoDoc'} id={'cargoDoc'}>
-          <Typography.Title level={5}>Документ</Typography.Title>
-          <Row>
-            <Col span={8} key={'docTitle'}><Label>Название</Label>
-              <Form.Item key={'docTitle'} name={'docTitle'}><Input placeholder='название'/></Form.Item>
-            </Col>
-            <Col span={8} key={'docDate'}><Label>Дата</Label>
-              <Form.Item key={'docDate'} name={'docDate'}><DatePicker format={'DD.MM.YYYY'} locale={locale}/></Form.Item>
-            </Col>
-            <Col span={8} key={'docCommet'}><Label>Комментарии</Label>
-              <Form.Item key={'docCommet'} name={'docCommet'}><Input placeholder='комментарии'/></Form.Item>
-            </Col>
-          </Row>
-        </Col>
-        <Col span={6} key={'cargoDocAttachment'} id={'cargoDocAttachment'}>
-          <div className={'uploads uploads-cargo'}>
-            <Upload fileList={documentAttachments} onChange={uploadChange} customRequest={customRequest}>
-              <Button icon={<UploadOutlined />} loading={isLoading}>Закрепить файл</Button>
-            </Upload>
-          </div>
         </Col>
       </Row>
       <Row>
@@ -207,8 +184,6 @@ const modal = ({ currentItem, isBtnDisabled, handleSubmit, customRequest, upload
 modal.propTypes = {
   currentItem: PropTypes.object,
   handleSubmit: PropTypes.func,
-  customRequest: PropTypes.func,
-  uploadChange: PropTypes.func,
 };
 
 export default (modal);

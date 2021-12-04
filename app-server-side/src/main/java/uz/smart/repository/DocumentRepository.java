@@ -7,7 +7,9 @@ package uz.smart.repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import uz.smart.entity.DocumentEntity;
 
+import java.util.List;
 import java.util.UUID;
 
 public interface DocumentRepository extends JpaRepository<DocumentEntity, UUID> {
+    List<DocumentEntity> findAllByIdIn(List<UUID> id);
 }

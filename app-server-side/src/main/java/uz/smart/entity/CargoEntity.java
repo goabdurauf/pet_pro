@@ -20,6 +20,9 @@ public class CargoEntity extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     private OrderEntity order;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    private ShippingEntity shipping;
+
     private String name;
     private String num;
     private String code;
@@ -38,8 +41,8 @@ public class CargoEntity extends BaseEntity {
     private String senderCity;
     private String senderOthers;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    private DocumentEntity document;
+    @OneToMany(fetch = FetchType.LAZY)
+    private List<DocumentEntity> documentList;
 
     private String receiverName;
     private Long receiverCountryId;
@@ -47,17 +50,11 @@ public class CargoEntity extends BaseEntity {
     private String receiverCity;
     private String receiverOthers;
 
-    @OneToMany(fetch = FetchType.LAZY)
-    private List<Attachment> receiverAttachments;
-
     private String customFromName;
     private Long customFromCountryId;
     private String customFromCountryName;
     private String customFromCity;
     private String customFromOthers;
-
-    @OneToMany(fetch = FetchType.LAZY)
-    private List<Attachment> customFromAttachments;
 
     private String customToName;
     private Long customToCountryId;
@@ -65,7 +62,15 @@ public class CargoEntity extends BaseEntity {
     private String customToCity;
     private String customToOthers;
 
+/*
+    @OneToMany(fetch = FetchType.LAZY)
+    private List<Attachment> customFromAttachments;
+
+    @OneToMany(fetch = FetchType.LAZY)
+    private List<Attachment> receiverAttachments;
+
     @OneToMany(fetch = FetchType.LAZY)
     private List<Attachment> customToAttachments;
+*/
 
 }

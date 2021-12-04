@@ -137,7 +137,6 @@ export default ({
       let carrier = yield call(getCarrierList);
       let currency = yield call(getListItems, 4);
       let shipType = yield call(getListItems, 5);
-      let orders = yield call(getSelectOrders);
 
       if (manager.success) {
         yield put({
@@ -146,8 +145,7 @@ export default ({
             managerList: manager.list,
             carrierList: carrier.list,
             currencyList: currency.list,
-            shipTypeList: shipType.list,
-            selectOrderList: orders.object
+            shipTypeList: shipType.list
           }
         })
       }
@@ -208,7 +206,8 @@ export default ({
           payload: {
             currentItem: result,
             isModalOpen: true,
-            modalType: 'update'
+            modalType: 'update',
+            selectOrderList: result.orderSelect
           }
         })
       } else {
@@ -243,7 +242,21 @@ export default ({
     },
     * pushToPage({payload}, {call, put, select}) {
       yield put(routerRedux.push(payload.key));
-    }
+    },
+    * openModal({payload}, {call, put, select}) {
+      let orders = yield call(getSelectOrders);
+      yield put({
+        type: 'updateState',
+        payload: {
+          isModalOpen: true,
+          currentItem: {rate:1},
+          modalType: 'create',
+          isBtnDisabled: false,
+          selectOrderList: orders.object
+        }
+      })
+    },
+
 
   },
   reducers: {

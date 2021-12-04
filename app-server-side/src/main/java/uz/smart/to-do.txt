@@ -1,9 +1,14 @@
- done - open order detail after order creating
- done - reyslarni ichini ham ochish
+done - open order detail after order creating
+done - reyslarni ichini ham ochish
 
-- bug in adding cargo detail in edit modes
 done - bug in button disable and file upload
 done - bug in shipping date, hour and minut saving as 0
+done - select orders in shipping that not connected to any shipping
+done - bug in adding cargo detail in edit modes
+
+
+
+- search and pagination in order, cargo and shipping pages
 
 
 Modal example
