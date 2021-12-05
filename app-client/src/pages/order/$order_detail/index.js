@@ -11,7 +11,7 @@ import 'moment/locale/ru';
 
 const OrderDetail = ({dispatch, orderDetail}) => {
       const {model, orderId, isModalOpen, isLoading, isBtnDisabled, itemList, cargoList, currentModel, currentItem, modalType, modalWidth, countryList, orderStatusList,
-        managerList, createTitle, editTitle, visibleColumns, cargoSelectList,
+        managerList, createTitle, editTitle, visibleColumns, cargoSelectList, cargoRegTypeList,
         documentAttachments, packageTypeList, carrierList, currencyList, shipTypeList} = orderDetail;
 
     const openModal = () => {
@@ -212,7 +212,8 @@ const OrderDetail = ({dispatch, orderDetail}) => {
     return (
       <div className="order-page">
         <Card style={{width: '100%'}} bordered={false}>
-          <Tabs onChange={backToOrders}>
+          <Tabs onChange={backToOrders} defaultActiveKey="/order">
+            <Tabs.TabPane tab="Запросы" key="/order/request">Подождите пожалуйста ...</Tabs.TabPane>
             <Tabs.TabPane tab="Заказы" key="/order">
               <Row className="order-detail-page">
                 <Col span={5}>
@@ -296,13 +297,14 @@ const OrderDetail = ({dispatch, orderDetail}) => {
             </Tabs.TabPane>
             <Tabs.TabPane tab="Грузы" key="/order/cargo">Подождите пожалуйста ...</Tabs.TabPane>
             <Tabs.TabPane tab="Рейсы" key="/order/shipping">Подождите пожалуйста ...</Tabs.TabPane>
+            <Tabs.TabPane tab="Отслеживание" key="/order/tracking">Подождите пожалуйста ...</Tabs.TabPane>
           </Tabs>
 
           {isModalOpen && model === 'Cargo' &&
           <CargoModal
             {...modalProps}
-            handleSubmit={handleSubmit} isBtnDisabled={isBtnDisabled} currentItem={currentItem} countryList={countryList}
-            isLoading={isLoading} packageTypeList={packageTypeList} documentAttachments={documentAttachments}
+            handleSubmit={handleSubmit} isBtnDisabled={isBtnDisabled} currentItem={currentItem} countryList={countryList} modalType={modalType}
+            isLoading={isLoading} packageTypeList={packageTypeList} documentAttachments={documentAttachments} cargoRegTypeList={cargoRegTypeList}
           />}
           {isModalOpen && model === 'Shipping' &&
           <ShippingModal

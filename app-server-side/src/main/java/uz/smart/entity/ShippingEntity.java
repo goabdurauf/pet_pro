@@ -19,6 +19,7 @@ import java.util.UUID;
 @Entity(name = "shipping")
 public class ShippingEntity extends BaseEntity {
     private String num;
+    private String shippingNum;
     private UUID managerId;
     private UUID carrierId;
     private long currencyId;
@@ -27,8 +28,6 @@ public class ShippingEntity extends BaseEntity {
     private BigDecimal rate;
     private BigDecimal finalPrice;
     private long shippingTypeId;
-    private String shippingTypeName;
-    private String shippingNum;
 
     private Timestamp loadDate;
     private String loadStation;

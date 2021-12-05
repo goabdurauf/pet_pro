@@ -19,7 +19,7 @@ class Cargo extends Component {
   render() {
     const {cargo, dispatch} = this.props;
     const {itemList, currentItem, currentModal, selectedStatusId, isModalOpen, isBtnDisabled, isLoading,  countryList, packageTypeList, documentAttachments,
-      isTableLoading, pagination, selectedRowKeys, cargoStatusList, visibleColumns} = cargo;
+      modalType, isTableLoading, pagination, selectedRowKeys, cargoStatusList, cargoRegTypeList, visibleColumns} = cargo;
 
     const onChange = (key) => {
       if (key !== 'Cargo') {
@@ -185,6 +185,7 @@ class Cargo extends Component {
       <div className="cargo-page">
         <Card style={{width: '100%'}} bordered={false}>
           <Tabs onChange={onChange} defaultActiveKey="Cargo">
+            <TabPane tab="Запросы" key="/order/request">Подождите пожалуйста ...</TabPane>
             <TabPane tab="Заказы" key="/order">Подождите пожалуйста ...</TabPane>
             <TabPane tab="Грузы" key="Cargo">
               <Row>
@@ -199,6 +200,7 @@ class Cargo extends Component {
                      onChange={handleTableChange}/>
             </TabPane>
             <TabPane tab="Рейсы" key="/order/shipping">Подождите пожалуйста ...</TabPane>
+            <TabPane tab="Отслеживание" key="/order/tracking">Подождите пожалуйста ...</TabPane>
           </Tabs>
 
           {isModalOpen && currentModal === 'Cargo' &&
@@ -206,7 +208,7 @@ class Cargo extends Component {
             {...modalProps}
             handleSubmit={handleSubmit} isBtnDisabled={isBtnDisabled} currentItem={currentItem} countryList={countryList}
             customRequest={customRequest} uploadChange={uploadChange} isLoading={isLoading} packageTypeList={packageTypeList}
-            documentAttachments={documentAttachments}
+            documentAttachments={documentAttachments} modalType={modalType} cargoRegTypeList={cargoRegTypeList}
           />}
 
           {isModalOpen && currentModal === 'Confirm' &&

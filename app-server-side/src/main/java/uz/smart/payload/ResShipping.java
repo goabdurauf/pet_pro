@@ -18,6 +18,7 @@ import java.util.UUID;
 public class ResShipping {
     private UUID id;
     private String num;
+    private String shippingNum;
     private String managerName;
     private String carrierName;
     private String currencyName;
@@ -25,7 +26,9 @@ public class ResShipping {
     private BigDecimal rate;
     private BigDecimal finalPrice;
     private String shippingTypeName;
-    private String shippingNum;
+    private BigDecimal shippingTypeCapacity;
+    private BigDecimal shippingTypeWeight;
+    private String shippingTypeSize;
 
     private Timestamp loadDate;
     private String loadStation;

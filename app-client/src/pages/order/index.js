@@ -182,10 +182,12 @@ class Order extends Component {
     return (
       <div className="order-page">
         <Card style={{width: '100%'}} bordered={false}>
-          <Tabs onChange={onChange}>
+          <Tabs onChange={onChange} defaultActiveKey="Order">
+            <TabPane tab="Запросы" key="/order/request">Подождите пожалуйста ...</TabPane>
             <TabPane tab="Заказы" key="Order"><TabBody /></TabPane>
             <TabPane tab="Грузы" key="/order/cargo">Подождите пожалуйста ...</TabPane>
             <TabPane tab="Рейсы" key="/order/shipping">Подождите пожалуйста ...</TabPane>
+            <TabPane tab="Отслеживание" key="/order/tracking">Подождите пожалуйста ...</TabPane>
           </Tabs>
           {isModalOpen && modalType !== 'search' &&
             <Form.Provider onFormFinish={handleSubmit}><ModalForm/></Form.Provider>}

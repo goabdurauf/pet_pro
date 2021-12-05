@@ -31,6 +31,8 @@ public class CargoEntity extends BaseEntity {
     private String comment;
     private Long statusId;
     private String statusName;
+    private Long regTypeId;
+    private String regTypeName;
 
     @OneToMany(fetch = FetchType.LAZY)
     private List<CargoDetailEntity> cargoDetails;

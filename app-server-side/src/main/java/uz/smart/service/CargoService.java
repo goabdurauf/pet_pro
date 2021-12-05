@@ -89,6 +89,11 @@ public class CargoService {
                     .orElseThrow(() -> new ResourceNotFoundException("List", "customToCountryId", dto.getCustomToCountryId()));
             entity.setCustomToCountryName(customToCountry.getNameRu());
         }
+        if (dto.getRegTypeId() != null) {
+            ListEntity regType = listRepository.findById(dto.getRegTypeId())
+                    .orElseThrow(() -> new ResourceNotFoundException("List", "cargoRegTypeId", dto.getRegTypeId()));
+            entity.setRegTypeName(regType.getNameRu());
+        }
         entity.setCargoDetails(null);
         entity = repository.saveAndFlush(entity);
 

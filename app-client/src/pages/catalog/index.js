@@ -108,7 +108,29 @@ class Catalog extends Component {
             width: 24,
             rules: [{required: true, message: 'Этот поля не должно быть пустое',},],
             obj: <Input placeholder='Название'/>
-          }
+          },
+          {
+            label: 'Объём',
+            name: 'num01',
+            width: 7,
+            rules: [{required: true, message: 'Введите',},],
+            obj: <Input placeholder='Объём'/>
+          },
+          {
+            label: 'Вес',
+            name: 'num02',
+            width: 7,
+            rules: [{required: true, message: 'Введите',},],
+            obj: <Input placeholder='Вес'/>
+          },
+          {
+            label: 'Размер (L * H * W)',
+            name: 'val01',
+            width: 10,
+            rules: [{required: true, message: 'Введите',},],
+            obj: <Input placeholder='Размер'/>
+          },
+
         ];
         case 'OrderStatus': return [
           {
@@ -266,6 +288,7 @@ class Catalog extends Component {
             <TabPane tab="Статус заказа" key="OrderStatus"><TabBody /></TabPane>
             <TabPane tab="Тип упаковки" key="PackageType"><TabBody /></TabPane>
             <TabPane tab="Статус груза" key="CargoStatus"><TabBody /></TabPane>
+            <TabPane tab="Тип оформление груза" key="CargoRegType"><TabBody /></TabPane>
 
 
           </Tabs>

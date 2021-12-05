@@ -18,6 +18,7 @@ export default ({
     itemList: [],
     currentItem: null,
     currentModal: 'Cargo',
+    modalType: 'update',
     isModalOpen: false,
     isBtnDisabled: false,
     isLoading: false,
@@ -33,6 +34,7 @@ export default ({
     selectedRowKeys: [],
     packageTypeList: [],
     cargoStatusList: [],
+    cargoRegTypeList: [],
     visibleColumns : [
       {
         title: 'Номер заказа',
@@ -161,6 +163,7 @@ export default ({
       let country = yield call(getListItems, 2);
       let packageType = yield call(getListItems, 7);
       let cargoStatus = yield call(getListItems, 8);
+      let cargoRegType = yield call(getListItems, 9);
 
       if (country.success && packageType.success) {
         yield put({
@@ -168,7 +171,8 @@ export default ({
           payload: {
             countryList: country.list,
             packageTypeList: packageType.list,
-            cargoStatusList: cargoStatus.list
+            cargoStatusList: cargoStatus.list,
+            cargoRegTypeList: cargoRegType.list
           }
         })
       }

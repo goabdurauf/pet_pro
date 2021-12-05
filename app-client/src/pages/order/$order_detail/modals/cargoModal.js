@@ -6,7 +6,7 @@ import 'moment/locale/ru';
 import locale from 'antd/es/date-picker/locale/ru_RU';
 import PropTypes from "prop-types";
 
-const modal = ({ currentItem, isBtnDisabled, handleSubmit, isLoading, packageTypeList, countryList, documentAttachments,
+const modal = ({ currentItem, isBtnDisabled, handleSubmit, isLoading, packageTypeList, countryList, documentAttachments, cargoRegTypeList, modalType,
                  ...modalProps }) => {
   const [form] = Form.useForm()
   function handleFormSubmit (values) {
@@ -19,30 +19,68 @@ const modal = ({ currentItem, isBtnDisabled, handleSubmit, isLoading, packageTyp
     // if (onFormValuesChange) onFormValuesChange(changedValues, allValues)
   }
 
+  const getWeight = () => {
+    let weight = '(';
+    let comma = '';
+    currentItem.cargoDetails && currentItem.cargoDetails.forEach(detail => {
+      weight += comma + detail.weight;
+      comma = ', ';
+    })
+    return weight + ')'
+  }
+  const getCapacity = () => {
+    let capacity = '(';
+    let comma = '';
+    currentItem.cargoDetails && currentItem.cargoDetails.forEach(detail => {
+      capacity += comma + detail.capacity;
+      comma = ', ';
+    })
+    return capacity + ')'
+  }
+  const getPackageAmount = () => {
+    let packageAmount = '(';
+    let comma = '';
+    currentItem.cargoDetails && currentItem.cargoDetails.forEach(detail => {
+      packageAmount += comma + detail.packageAmount;
+      comma = ', ';
+    })
+    return packageAmount + ')'
+  }
+
   return (<Modal {...modalProps} okButtonProps={{disabled: isBtnDisabled}} onOk={handleSave} okText={"Добавить"} cancelText={"Отмена"}>
     <Form form={form} initialValues={currentItem !== null ? currentItem : ''} onFinish={handleFormSubmit} onValuesChange={handleChangeForm}>
       <Row>
-        <Col span={5} key={'name'}><Label>Название груза</Label>
+        <Col span={6} key={'name'}><Label>Название груза</Label>
           <Form.Item key={'name'} name={'name'} rules={[{required: true, message: 'Введите название груза'}]}>
             <Input placeholder='название груза'/>
           </Form.Item>
         </Col>
-        <Col span={5} key={'code'}><Label>Таможенный код</Label>
-          <Form.Item key={'code'} name={'code'} rules={[{required: true, message: 'Введите таможенный код'}]}>
-            <Input placeholder='таможенный код'/>
+        <Col span={6} key={'code'}><Label>HS CODE</Label>
+          <Form.Item key={'code'} name={'code'} rules={[{required: true, message: 'Введите HS CODE'}]}>
+            <Input placeholder='HS CODE'/>
           </Form.Item>
         </Col>
-        <Col span={4} key={'loadDate'}><Label>Дата погрузки</Label>
+        <Col span={6} key={'loadDate'}><Label>Дата погрузки</Label>
           <Form.Item key={'loadDate'} name={'loadDate'} rules={[{required: true, message: 'Выберите дату'}]}>
             <DatePicker format={'DD.MM.YYYY'} locale={locale}/>
           </Form.Item>
         </Col>
-        <Col span={4} key={'unloadDate'}><Label>Дата разгрузки</Label>
+        <Col span={6} key={'unloadDate'}><Label>Дата разгрузки</Label>
           <Form.Item key={'unloadDate'} name={'unloadDate'} rules={[{required: true, message: 'Выберите дату'}]}>
             <DatePicker format={'DD.MM.YYYY'} locale={locale}/>
           </Form.Item>
         </Col>
-        <Col span={6} key={'заметки'}><Label>Заметки</Label>
+      </Row>
+      <Row>
+        <Col span={6} key={'regTypeId'}><Label>Тип оформление груза</Label>
+          <Form.Item key={'regTypeId'} name={'regTypeId'} rules={[{required: false, message: 'Выберите тип оформление груза'}]}>
+            <Select placeholder='тип оформление груза' showSearch
+                    filterOption={(input, option) => option.children.toLocaleLowerCase().indexOf(input.toLocaleLowerCase()) >= 0 }>
+              {cargoRegTypeList && cargoRegTypeList.map(regType => <Select.Option key={regType.id} value={regType.id}>{regType.nameRu}</Select.Option>)}
+            </Select>
+          </Form.Item>
+        </Col>
+        <Col span={6} key={'comment'}><Label>Заметки</Label>
           <Form.Item key={'comment'} name={'comment'}>
             <Input placeholder='заметки'/>
           </Form.Item>
@@ -52,10 +90,10 @@ const modal = ({ currentItem, isBtnDisabled, handleSubmit, isLoading, packageTyp
         <Col span={24} key={'cargoDetails'} id={'cargoDetails'} className={'cargoDetails'}>
           <Typography.Title level={5}>Параметры груза</Typography.Title>
           <Row>
-            <Col span={5}>Вес</Col>
-            <Col span={5}>Объём</Col>
+            <Col span={5}>Вес {modalType === 'clone' ? getWeight() : ''}</Col>
+            <Col span={5}>Объём {modalType === 'clone' ? getCapacity() : ''}</Col>
             <Col span={5}>Тип упаковки</Col>
-            <Col span={5}>Количество упаковки</Col>
+            <Col span={5}>Кол-во упаковки {modalType === 'clone' ? getPackageAmount() : ''}</Col>
           </Row>
           <Form.List name={'cargoDetails'}>
             {(fields, { add, remove }) =>
@@ -83,7 +121,7 @@ const modal = ({ currentItem, isBtnDisabled, handleSubmit, isLoading, packageTyp
                       <Input placeholder="количество упаковки" />
                     </Form.Item>
                   </Col>
-                  <Col span={2}>
+                  <Col span={2} className={'text-center'}>
                     {fields.length > 1 ? <MinusCircleOutlined onClick={() => remove(index)} style={{color: 'red'}}/> : ''}
                   </Col>
                   <Col span={2}>

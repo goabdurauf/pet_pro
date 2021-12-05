@@ -12,7 +12,8 @@ public enum ListType
     ShippingType    (5),
     OrderStatus     (6),
     PackageType     (7),
-    CargoStatus     (8)
+    CargoStatus     (8),
+    CargoRegType    (9)
     ;
 
     private final int code;

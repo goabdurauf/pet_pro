@@ -21,6 +21,10 @@ export default {
           component: './dashboard',
         },
         {
+          path: '/order/request',
+          component: './order/request',
+        },
+        {
           path: '/order',
           component: './order',
         },
@@ -39,6 +43,10 @@ export default {
         {
           path: '/order/shipping/detail/:shipping_detail',
           component: './order/shipping/$shipping_detail',
+        },
+        {
+          path: '/order/tracking',
+          component: './order/tracking',
         },
         {
           path: '/finance',

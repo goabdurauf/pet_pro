@@ -5,7 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
+import java.math.BigDecimal;
 
 @Data @NoArgsConstructor @AllArgsConstructor
 public class ListDto {
@@ -18,4 +18,9 @@ public class ListDto {
     private String nameEn;
     private String nameCn;
     private String nameUz;
+
+    private BigDecimal num01;
+    private BigDecimal num02;
+
+    private String val01;
 }

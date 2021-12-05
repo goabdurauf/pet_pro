@@ -4,13 +4,11 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.GenericGenerator;
-import org.hibernate.annotations.Type;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
+import java.math.BigDecimal;
 import java.sql.Timestamp;
-import java.util.UUID;
 
 @Data @NoArgsConstructor @AllArgsConstructor
 @Entity(name = "list")
@@ -27,6 +25,10 @@ public class ListEntity {
     private String nameCn;
     private String nameUz;
 
+    private BigDecimal num01;
+    private BigDecimal num02;
+
+    private String val01;
 
 
     private int state = 1;

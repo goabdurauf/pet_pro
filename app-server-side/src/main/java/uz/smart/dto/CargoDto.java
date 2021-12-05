@@ -21,6 +21,8 @@ public class CargoDto {
     private String code;
     private String comment;
     private UUID orderId;
+    private Long regTypeId;
+    private String regTypeName;
 
     @JsonDeserialize(using = DateTimeDeserializer.class)
     private Timestamp loadDate;

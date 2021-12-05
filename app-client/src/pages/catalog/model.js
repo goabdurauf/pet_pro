@@ -590,7 +590,23 @@ export default ({
                 title: 'Название',
                 dataIndex: 'nameRu',
                 key: 'nameRu',
-              }
+              },
+              {
+                title: 'Объём',
+                dataIndex: 'num01',
+                key: 'num01',
+              },
+              {
+                title: 'Вес',
+                dataIndex: 'num02',
+                key: 'num02',
+              },
+              {
+                title: 'Размер',
+                dataIndex: 'val01',
+                key: 'val01',
+              },
+
             ]
           }
         })
@@ -946,6 +962,106 @@ export default ({
       if (result.success) {
         yield put({
           type: 'queryCargoStatus'
+        })
+        notification.info({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#d8ffe9'}
+        });
+      } else {
+        notification.error({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#ffd9d9'}
+        });
+      }
+    },
+    * queryCargoRegType({payload}, {call, put, select}) {
+      let data = yield call(getListItems, 9);
+
+      if (data.success) {
+        yield put({
+          type: 'updateState',
+          payload: {
+            model: 'CargoRegType',
+            title: 'Тип оформление груза',
+            createTitle: 'Создать тип оформление груза',
+            editTitle: 'Редактировать тип оформление груза',
+            isModalOpen: false,
+            itemList: data.list,
+            currentItem: null,
+            modalType: 'create',
+            isBtnDisabled: false,
+            visibleColumns: [
+              {
+                title: '№',
+                dataIndex: 'num',
+                key: 'num',
+                align: 'center',
+                render: (value, item, index) => index + 1
+              },
+              {
+                title: 'Название',
+                dataIndex: 'nameRu',
+                key: 'nameRu',
+              }
+            ]
+          }
+        })
+      }
+    },
+    * saveCargoRegType({payload}, {call, put, select}) {
+      const result = yield call(saveListItem, {...payload, typeId: 9});
+      if (result.success) {
+        yield put({
+          type: 'queryCargoRegType'
+        })
+        notification.info({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#d8ffe9'}
+        });
+      } else {
+        // yield put({
+        //   type: 'updateState',
+        //   payload: {isBtnDisabled: false}
+        // })
+        notification.error({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#ffd9d9'}
+        });
+      }
+    },
+    * getCargoRegTypeById({payload}, {call, put, select}) {
+      const result = yield call(getListItemById, payload.id);
+      if (result.success) {
+        yield put({
+          type: 'updateState',
+          payload: {
+            currentItem: result,
+            isModalOpen: true,
+            modalType: 'update'
+          }
+        })
+      } else {
+        notification.error({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#ffd9d9'}
+        });
+      }
+    },
+    * deleteCargoRegType({payload}, {call, put, select}) {
+      const result = yield call(deleteListItemById, payload.id);
+      if (result.success) {
+        yield put({
+          type: 'queryCargoRegType'
         })
         notification.info({
           description: result.message,

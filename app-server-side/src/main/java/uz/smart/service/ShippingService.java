@@ -95,10 +95,6 @@ public class ShippingService {
                 .orElseThrow(() -> new ResourceNotFoundException("List", "currencyId", dto.getCurrencyId()));
         entity.setCurrencyName(currency.getNameRu());
 
-        ListEntity shType = listRepository.findById(dto.getShippingTypeId())
-                .orElseThrow(() -> new ResourceNotFoundException("List", "shippingTypeId", dto.getShippingTypeId()));
-        entity.setShippingTypeName(shType.getNameRu());
-
         repository.save(entity);
         return ResponseEntity.ok().body(new ApiResponse("Сохранено успешно", true));
     }
@@ -192,6 +188,13 @@ public class ShippingService {
                 }
                 res.setCargoList(cargoList);
             }
+
+            ListEntity shType = listRepository.findById(entity.getShippingTypeId())
+                    .orElseThrow(() -> new ResourceNotFoundException("List", "shippingTypeId", entity.getShippingTypeId()));
+            res.setShippingTypeName(shType.getNameRu());
+            res.setShippingTypeCapacity(shType.getNum01());
+            res.setShippingTypeWeight(shType.getNum02());
+            res.setShippingTypeSize(shType.getVal01());
 
             if (entity.getDocuments() != null)
                 res.setDocuments(documentService.getDocumentDto(entity.getDocuments()));

@@ -153,11 +153,33 @@ const ShippingDetail = ({dispatch, shippingDetail}) => {
     })
     return ' Вес: ' + weight + '; Объём: ' + capacity + '; Кол-во уп.: ' + amount;
   }
+  const getTotalCapacity = () => {
+    let capacity = 0;
+    cargoList.forEach(item => {
+      item.cargoDetails && item.cargoDetails.forEach(detail => {
+        capacity += detail.capacity;
+      })
+    })
+    capacity = currentModel && currentModel.shippingTypeCapacity - capacity;
+    return capacity > 0 ? '+' + capacity : capacity;
+  }
+  const getTotalWeight = () => {
+    let weight = 0;
+    cargoList.forEach(item => {
+      item.cargoDetails && item.cargoDetails.forEach(detail => {
+        weight += detail.weight;
+      })
+    })
+    weight = currentModel && currentModel.shippingTypeWeight - weight;
+    return weight > 0 ? '+' + weight : weight;
+  }
+
 
   return (
     <div className="order-page">
       <Card style={{width: '100%'}} bordered={false}>
         <Tabs onChange={pushToPage} defaultActiveKey="/order/shipping">
+          <Tabs.TabPane tab="Запросы" key="/order/request">Подождите пожалуйста ...</Tabs.TabPane>
           <Tabs.TabPane tab="Заказы" key="/order">Подождите пожалуйста ...</Tabs.TabPane>
           <Tabs.TabPane tab="Грузы" key="/order/cargo">Подождите пожалуйста ...</Tabs.TabPane>
           <Tabs.TabPane tab="Рейсы" key="/order/shipping">
@@ -181,6 +203,8 @@ const ShippingDetail = ({dispatch, shippingDetail}) => {
                         <tr><td>Номер транспорта:</td><td>{currentModel && currentModel.shippingNum}</td></tr>
                         <tr><td>Дата загрузки:</td><td>{currentModel && currentModel.loadDate}</td></tr>
                         <tr><td>Дата разгрузки:</td><td>{currentModel && currentModel.unloadDate}</td></tr>
+                        <tr><td>Допустимый объём:</td><td>{currentModel && currentModel.shippingTypeCapacity} м3 ({getTotalCapacity()})</td></tr>
+                        <tr><td>Допустимый вес:</td><td>{currentModel && currentModel.shippingTypeWeight} кг ({getTotalWeight()})</td></tr>
                         </tbody>
                       </table>
                     </div>
@@ -215,6 +239,7 @@ const ShippingDetail = ({dispatch, shippingDetail}) => {
               </Col>
             </Row>
           </Tabs.TabPane>
+          <Tabs.TabPane tab="Отслеживание" key="/order/tracking">Подождите пожалуйста ...</Tabs.TabPane>
         </Tabs>
         {isModalOpen && <Modal {...modalProps}
                                isBtnDisabled={isBtnDisabled} loadingFile={loadingFile} handleSubmit={handleSubmit} currentItem={currentItem}

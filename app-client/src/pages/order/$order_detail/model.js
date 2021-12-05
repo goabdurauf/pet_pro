@@ -45,6 +45,7 @@ export default modelExtend(tableModel, {
     countryList: [],
     cargoDetails: [],
     currencyList: [],
+    cargoRegTypeList: [],
     shipTypeList: [],
     packageTypeList: [],
     documentAttachments: [],
@@ -202,6 +203,7 @@ export default modelExtend(tableModel, {
       let status = yield call(getListItems, 6);
       let country = yield call(getListItems, 2);
       let packageType = yield call(getListItems, 7);
+      let cargoRegType = yield call(getListItems, 9);
 
       if (manager.success && client.success) {
         yield put({
@@ -214,7 +216,8 @@ export default modelExtend(tableModel, {
             shipTypeList: shipType.list,
             orderStatusList: status.list,
             countryList: country.list,
-            packageTypeList: packageType.list
+            packageTypeList: packageType.list,
+            cargoRegTypeList: cargoRegType.list
           }
         })
       }

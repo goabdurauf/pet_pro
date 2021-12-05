@@ -225,9 +225,11 @@ class Shipping extends Component {
       <div className="order-page">
         <Card style={{width: '100%'}} bordered={false}>
           <Tabs onChange={onChange} defaultActiveKey="Shipping">
+            <TabPane tab="Запросы" key="/order/request">Подождите пожалуйста ...</TabPane>
             <TabPane tab="Заказы" key="/order">Подождите пожалуйста ...</TabPane>
             <TabPane tab="Грузы" key="/order/cargo">Подождите пожалуйста ...</TabPane>
             <TabPane tab="Рейсы" key="Shipping"><TabBody /></TabPane>
+            <TabPane tab="Отслеживание" key="/order/tracking">Подождите пожалуйста ...</TabPane>
           </Tabs>
           <Form.Provider onFormFinish={handleSubmit}><ShippingModal/></Form.Provider>
         </Card>
