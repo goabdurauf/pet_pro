@@ -16,6 +16,7 @@ export default ({
     editTitle: 'Редактировать рейса',
     modalWidth: 800,
     isBtnDisabled: false,
+    isPlanning: false,
     managerList: [],
     carrierList: [],
     currencyList: [],
@@ -161,6 +162,7 @@ export default ({
             itemList: data.list,
             isModalOpen: false,
             isBtnDisabled: false,
+            isPlanning: false,
             modalType: 'create',
           }
         })
@@ -181,7 +183,7 @@ export default ({
       } else {
         yield put({
           type: 'updateState',
-          payload: {isBtnDisabled: false,}
+          payload: {isBtnDisabled: false}
         })
         notification.error({
           description: result.message,

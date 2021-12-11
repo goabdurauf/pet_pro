@@ -3,15 +3,15 @@ import PropTypes from 'prop-types'
 import {connect} from 'dva'
 import {Card, Row, Col, Select, Tabs, Space, Popconfirm, Table} from 'antd';
 import CargoModal from './modals/cargoModal'
-import ShippingModal from './modals/shippingModal'
+import ShippingModal from '../shipping/modal'
 import DocumentModal from './modals/documentModal'
 import {Button} from "reactstrap";
 import {DeleteOutlined, FormOutlined, PlusOutlined, CopyOutlined} from "@ant-design/icons";
 import 'moment/locale/ru';
 
 const OrderDetail = ({dispatch, orderDetail}) => {
-      const {model, orderId, isModalOpen, isLoading, isBtnDisabled, itemList, cargoList, currentModel, currentItem, modalType, modalWidth, countryList, orderStatusList,
-        managerList, createTitle, editTitle, visibleColumns, cargoSelectList, cargoRegTypeList,
+      const {model, orderId, isModalOpen, isLoading, isBtnDisabled, itemList, selectOrderList, currentModel, currentItem, modalType, modalWidth, countryList, orderStatusList,
+        managerList, createTitle, editTitle, visibleColumns, cargoSelectList, cargoRegTypeList, isPlanning,
         documentAttachments, packageTypeList, carrierList, currencyList, shipTypeList} = orderDetail;
 
     const openModal = () => {
@@ -22,7 +22,7 @@ const OrderDetail = ({dispatch, orderDetail}) => {
           modalType: 'create',
           documentAttachments: [],
           isModalOpen: !isModalOpen,
-          currentItem: isModalOpen ? {cargoDetails:[{weight:'', capacity:'', packageTypeId:'', packageAmount:''}]} : currentItem
+          currentItem: model === 'Cargo' ? {cargoDetails:[{weight:'', capacity:'', packageAmount:''}]} : null
         }
       })
     }
@@ -83,29 +83,8 @@ const OrderDetail = ({dispatch, orderDetail}) => {
       if (modalType !== 'create')
         values = {...values, id: currentItem.id, docId: currentItem.docId}
 
-      if (values.loadDate !== null && values.loadDate !== undefined && values.loadDate !== '')
-        values.loadDate = values.loadDate.format('DD.MM.YYYY HH:mm');
-
-      if (values.loadSendDate !== null && values.loadSendDate !== undefined && values.loadSendDate !== '')
-        values.loadSendDate = values.loadSendDate.format('DD.MM.YYYY HH:mm');
-
       if (values.docDate !== null && values.docDate !== undefined && values.docDate !== '')
         values.docDate = values.docDate.format('DD.MM.YYYY HH:mm');
-
-      if (values.date !== null && values.date !== undefined && values.date !== '')
-        values.date = values.date.format('DD.MM.YYYY HH:mm:ss');
-
-      if (values.customArrivalDate !== null && values.customArrivalDate !== undefined && values.customArrivalDate !== '')
-        values.customArrivalDate = values.customArrivalDate.format('DD.MM.YYYY HH:mm');
-
-      if (values.customSendDate !== null && values.customSendDate !== undefined && values.customSendDate !== '')
-        values.customSendDate = values.customSendDate.format('DD.MM.YYYY HH:mm');
-
-      if (values.unloadArrivalDate !== null && values.unloadArrivalDate !== undefined && values.unloadArrivalDate !== '')
-        values.unloadArrivalDate = values.unloadArrivalDate.format('DD.MM.YYYY HH:mm');
-
-      if (values.unloadDate !== null && values.unloadDate !== undefined && values.unloadDate !== '')
-        values.unloadDate = values.unloadDate.format('DD.MM.YYYY HH:mm');
 
       if (modalType === 'clone') {
         dispatch({
@@ -127,6 +106,25 @@ const OrderDetail = ({dispatch, orderDetail}) => {
         })
       }
     }
+    const handleShippingSubmit = (values) => {
+      dispatch({
+        type: 'orderDetail/updateState',
+        payload: {isBtnDisabled: true}
+      })
+      if (modalType !== 'create') {
+        values = {...values, id: currentItem.id}
+      }
+
+      if (isPlanning)
+        values.statusId = 10;
+
+      dispatch({
+        type: 'orderDetail/saveShipping',
+        payload: {
+          ...values
+        }
+      })
+    };
     const handleDocumentSubmit = (values) => {
       dispatch({
         type: 'orderDetail/updateState',
@@ -145,6 +143,21 @@ const OrderDetail = ({dispatch, orderDetail}) => {
           ...values,
           attachments: documentAttachments
         }
+      })
+    }
+    const onCancel = () => {
+      dispatch({
+        type: 'orderDetail/updateState',
+        payload: {
+          isModalOpen: false,
+          isPlanning: false
+        }
+      })
+    }
+    const setPlanning = () => {
+      dispatch({
+        type: 'orderDetail/updateState',
+        payload: {isPlanning: true}
       })
     }
     const columns = [
@@ -268,13 +281,16 @@ const OrderDetail = ({dispatch, orderDetail}) => {
                             <Button className="float-right" outline color="primary" size="sm" onClick={openModal}><PlusOutlined/> Добавить</Button>
                           </Col>
                         </Row>
-                        <Table columns={columns} dataSource={itemList} bordered size="middle" rowKey={record => record.id}
+                        <Table rowClassName={(record, index) => record.shippingStatusId === 1 ? 'planning-row' :  ''}
+                               columns={columns} dataSource={itemList} bordered size="middle" rowKey={record => record.id}
                                pagination={false}/>
                       </Tabs.TabPane>
                       <Tabs.TabPane tab="Рейсы" key="Shipping">
                         <Button className="float-right" outline color="primary" size="sm" onClick={openModal}><PlusOutlined/> Добавить</Button>
-                        <Table columns={columns} dataSource={itemList} bordered size="middle" rowKey={record => record.id}
-                               pagination={false}/>
+                        <Table
+                          rowClassName={(record, index) => record.statusId === 1 ? 'planning-row' :  ''}
+                          columns={columns} dataSource={itemList} bordered size="middle" rowKey={record => record.id}
+                          pagination={false}/>
                       </Tabs.TabPane>
                       <Tabs.TabPane tab="Финансы" key="Finance">
                       </Tabs.TabPane>
@@ -305,11 +321,12 @@ const OrderDetail = ({dispatch, orderDetail}) => {
             {...modalProps}
             handleSubmit={handleSubmit} isBtnDisabled={isBtnDisabled} currentItem={currentItem} countryList={countryList} modalType={modalType}
             isLoading={isLoading} packageTypeList={packageTypeList} documentAttachments={documentAttachments} cargoRegTypeList={cargoRegTypeList}
+            currencyList={currencyList}
           />}
           {isModalOpen && model === 'Shipping' &&
           <ShippingModal
-            {...modalProps}
-            handleSubmit={handleSubmit} isBtnDisabled={isBtnDisabled} currentItem={currentItem} cargoList={cargoList}
+            {...modalProps} onCancel={onCancel} setPlanning={setPlanning}
+            handleSubmit={handleShippingSubmit} isBtnDisabled={isBtnDisabled} currentItem={currentItem} selectOrderList={selectOrderList}
             carrierList={carrierList} currencyList={currencyList} managerList={managerList} shipTypeList={shipTypeList}
           />}
 

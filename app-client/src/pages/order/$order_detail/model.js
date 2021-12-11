@@ -34,7 +34,7 @@ export default modelExtend(tableModel, {
     orderId: '',
     isModalOpen: false,
     itemList: [],
-    cargoList: [],
+    selectOrderList: [],
     cargoSelectList: [],
     currentModel: null,
     modalWidth: 100,
@@ -51,6 +51,7 @@ export default modelExtend(tableModel, {
     documentAttachments: [],
     isBtnDisabled: false,
     isLoading: false,
+    isPlanning: false,
     visibleColumns : []
   },
   subscriptions: {
@@ -93,7 +94,6 @@ export default modelExtend(tableModel, {
           payload: {
             model: 'Cargo',
             itemList: data.list,
-            cargoList: data.list,
             modalWidth: 1200,
             currentItem: {cargoDetails:[{weight:'', capacity:'', packageTypeId:'', packageAmount:''}]},
             isModalOpen: false,
@@ -331,12 +331,13 @@ export default modelExtend(tableModel, {
       if (data.success) {
         yield put({
           type: 'updateState',
-          payload: {
+          payload:  {
             model: 'Shipping',
             itemList: data.list,
             currentItem: {num: '', managerId: '', price: '', rate: 1, final: 0},
             isModalOpen: false,
             isBtnDisabled: false,
+            isPlanning: false,
             selectOrderList: orders.object,
             modalType: 'create',
             modalWidth: 800,
@@ -448,7 +449,8 @@ export default modelExtend(tableModel, {
           payload: {
             currentItem: result,
             isModalOpen: true,
-            modalType: 'update'
+            modalType: 'update',
+            selectOrderList: result.orderSelect
           }
         })
       } else {

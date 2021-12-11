@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import uz.smart.entity.CargoEntity;
 import uz.smart.entity.OrderEntity;
 import uz.smart.entity.ShippingEntity;
+import uz.smart.entity.enums.ShippingStatus;
 
 import java.util.List;
 import java.util.Optional;
@@ -33,5 +34,6 @@ public interface ShippingRepository extends JpaRepository<ShippingEntity, UUID> 
 
     Optional<ShippingEntity> getByCargoEntitiesIn(List<CargoEntity> cargoEntities);
 
-    Optional<ShippingEntity> getFirstByOrderByCreatedAtDesc();
+//    Optional<ShippingEntity> getFirstByOrderByCreatedAtDesc();
+    Optional<ShippingEntity> getFirstByStatusOrderByCreatedAtDesc(ShippingStatus status);
 }

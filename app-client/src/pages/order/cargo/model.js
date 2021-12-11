@@ -4,7 +4,7 @@ import {
   getCargoById,
   getCargoList,
   getListItems,
-  saveCargo, uploadFile, setCargoStatus
+  saveCargo, uploadFile, setCargoStatus, getManagers, getCarrierList, getSelectOrders, saveShipping
 } from '@/services/service'
 import {Link} from "umi";
 import {notification} from "antd";
@@ -20,8 +20,11 @@ export default ({
     currentModal: 'Cargo',
     modalType: 'update',
     isModalOpen: false,
+    modalWidth: 1200,
+    modalTitle: '',
     isBtnDisabled: false,
     isLoading: false,
+    isPlanning: false,
     selectedStatusId: null,
     pagination: {
       current: 1,
@@ -31,10 +34,15 @@ export default ({
     isTableLoading: false,
     documentAttachments: [],
     countryList: [],
+    currencyList: [],
     selectedRowKeys: [],
     packageTypeList: [],
     cargoStatusList: [],
     cargoRegTypeList: [],
+    selectOrderList: [],
+    carrierList: [],
+    managerList: [],
+    shipTypeList: [],
     visibleColumns : [
       {
         title: 'Номер заказа',
@@ -154,6 +162,9 @@ export default ({
             itemList: data.list,
             isBtnDisabled: false,
             isModalOpen: false,
+            isPlanning: false,
+            modalWidth: 1200,
+            modalTitle: 'Редактировать груза',
             selectedRowKeys: []
           }
         })
@@ -161,18 +172,26 @@ export default ({
     },
     * getAdditionals({payload}, {call, put, select}) {
       let country = yield call(getListItems, 2);
+      let currency = yield call(getListItems, 4);
       let packageType = yield call(getListItems, 7);
       let cargoStatus = yield call(getListItems, 8);
       let cargoRegType = yield call(getListItems, 9);
+      let manager = yield call(getManagers);
+      let carrier = yield call(getCarrierList);
+      let shipType = yield call(getListItems, 5);
 
       if (country.success && packageType.success) {
         yield put({
           type: 'updateState',
           payload: {
             countryList: country.list,
+            currencyList: currency.list,
             packageTypeList: packageType.list,
             cargoStatusList: cargoStatus.list,
-            cargoRegTypeList: cargoRegType.list
+            cargoRegTypeList: cargoRegType.list,
+            managerList: manager.list,
+            carrierList: carrier.list,
+            shipTypeList: shipType.list
           }
         })
       }
@@ -314,7 +333,47 @@ export default ({
     },
     * pushToPage({payload}, {call, put, select}) {
       yield put(routerRedux.push(payload.key));
-    }
+    },
+    * openShippingModal({payload}, {call, put, select}) {
+      let orders = yield call(getSelectOrders);
+      yield put({
+        type: 'updateState',
+        payload: {
+          isModalOpen: true,
+          currentItem: {rate:1, ...payload},
+          currentModal: 'Shipping',
+          modalTitle: 'Создать рейс',
+          isBtnDisabled: false,
+          modalWidth: 800,
+          selectOrderList: orders.object
+        }
+      })
+    },
+    * saveShipping({payload}, {call, put, select}) {
+      const result = yield call(saveShipping, payload);
+      if (result.success) {
+        yield put({
+          type: 'queryCargo'
+        })
+        notification.info({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#d8ffe9'}
+        });
+      } else {
+        yield put({
+          type: 'updateState',
+          payload: {isBtnDisabled: false}
+        })
+        notification.error({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#ffd9d9'}
+        });
+      }
+    },
   },
   reducers: {
     updateState(state, {payload}) {

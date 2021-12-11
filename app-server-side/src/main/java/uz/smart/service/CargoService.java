@@ -94,6 +94,11 @@ public class CargoService {
                     .orElseThrow(() -> new ResourceNotFoundException("List", "cargoRegTypeId", dto.getRegTypeId()));
             entity.setRegTypeName(regType.getNameRu());
         }
+
+        ListEntity currency = listRepository.findById(dto.getCurrencyId())
+                .orElseThrow(() -> new ResourceNotFoundException("List", "currencyId", dto.getCurrencyId()));
+        entity.setCurrencyName(currency.getNameRu());
+
         entity.setCargoDetails(null);
         entity = repository.saveAndFlush(entity);
 
@@ -280,6 +285,7 @@ public class CargoService {
                 ResShipping resShipping = shippingService.getResShipping(shippingEntity, false);
                 resCargo.setCarrierName(resShipping.getCarrierName());
                 resCargo.setShippingNum(resShipping.getNum());
+                resCargo.setShippingStatusId(resShipping.getStatusId());
             }
 
             list.add(resCargo);

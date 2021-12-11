@@ -1,12 +1,12 @@
 import React from 'react'
-import {Col, DatePicker, Form, Input, Modal, Row, Select, Typography, InputNumber} from 'antd'
+import PropTypes from 'prop-types'
+import {Col, DatePicker, Button, Form, Input, Modal, Row, Select, InputNumber, TreeSelect, Typography} from 'antd'
 import {Label} from "reactstrap";
 import 'moment/locale/ru';
 import locale from 'antd/es/date-picker/locale/ru_RU';
-import PropTypes from "prop-types";
 
-const modal = ({ currentItem, isBtnDisabled, handleSubmit, managerList, carrierList, shipTypeList, currencyList, cargoList,
-                 ...modalProps }) => {
+const modal = ({ currentItem, isBtnDisabled, handleSubmit, managerList, carrierList, shipTypeList, currencyList, selectOrderList, onCancel,
+                 setPlanning, ...modalProps }) => {
   const [form] = Form.useForm()
   function handleFormSubmit (values) {
     if (values.loadDate !== null && values.loadDate !== undefined && values.loadDate !== '')
@@ -44,27 +44,38 @@ const modal = ({ currentItem, isBtnDisabled, handleSubmit, managerList, carrierL
     let price = document.getElementById("price").value;
     form.setFieldsValue({finalPrice: price / (event !== '' && event !== null ? event : 1)})
   }
-  return (<Modal {...modalProps} okButtonProps={{disabled: isBtnDisabled}} onOk={handleSave} okText={"Добавить"} cancelText={"Отмена"}>
+  const handlePlanButton = () => {
+    setPlanning();
+    handleSave();
+  }
+
+  return (<Modal {...modalProps}
+                 footer={[
+                   <Button key="1" type="dashed" className={'float-left'} onClick={handlePlanButton}
+                           disabled={isBtnDisabled || (currentItem && currentItem.statusId === 2)}>Плановой</Button>,
+                   <Button key="2" onClick={onCancel}>Отмена</Button>,
+                   <Button key="3" type="primary" onClick={handleSave} disabled={isBtnDisabled}>Обычный</Button>
+                 ]}>
     <Form form={form} initialValues={currentItem !== null ? currentItem : ''} onFinish={handleFormSubmit} onValuesChange={handleChangeForm}>
       <Row>
         <Col span={8}><Label>Менеджер</Label>
           <Form.Item key={'managerId'} name={'managerId'} rules={[{required: true, message: 'Выберите менеджера'}]}>
             <Select placeholder='менеджер'>
-              {managerList && managerList.map(manager => <Select.Option key={manager.id} value={manager.id}>{manager.fullName}</Select.Option>)}
+              {managerList.map(manager => <Select.Option key={manager.id} value={manager.id}>{manager.fullName}</Select.Option>)}
             </Select>
           </Form.Item>
         </Col>
         <Col span={8}><Label>Перевозчик</Label>
           <Form.Item key={'carrierId'} name={'carrierId'} rules={[{required: true, message: 'Выберите перевозчика'}]}>
             <Select placeholder='перевозчик'>
-              {carrierList && carrierList.map(carrier => <Select.Option key={carrier.id} value={carrier.id}>{carrier.name}</Select.Option>)}
+              {carrierList.map(carrier => <Select.Option key={carrier.id} value={carrier.id}>{carrier.name}</Select.Option>)}
             </Select>
           </Form.Item>
         </Col>
         <Col span={8}><Label>Тип транспорта</Label>
           <Form.Item key={'shippingTypeId'} name={'shippingTypeId'} rules={[{required: true, message: 'Выберите тип транспорта'}]}>
             <Select placeholder='тип транспорта'>
-              {shipTypeList && shipTypeList.map(type => <Select.Option key={type.id} value={type.id}>{type.nameRu}</Select.Option>)}
+              {shipTypeList.map(type => <Select.Option key={type.id} value={type.id}>{type.nameRu}</Select.Option>)}
             </Select>
           </Form.Item>
         </Col>
@@ -76,30 +87,31 @@ const modal = ({ currentItem, isBtnDisabled, handleSubmit, managerList, carrierL
         <Col span={6}><Label>Валюта</Label>
           <Form.Item key={'currencyId'} name={'currencyId'} rules={[{required: true, message: 'Выберите валюту'}]}>
             <Select placeholder='валюта'>
-              {currencyList && currencyList.map(currency => <Select.Option key={currency.id} value={currency.id}>{currency.nameRu}</Select.Option>)}
+              {currencyList.map(currency => <Select.Option key={currency.id} value={currency.id}>{currency.nameRu}</Select.Option>)}
             </Select>
           </Form.Item>
         </Col>
         <Col span={6}><Label>Курс</Label>
           <Form.Item key={'rate'} name={'rate'} rules={[{required: true, message: 'Введите курса'}]} >
-            <InputNumber placeholder='курс' onChange={getRate} precision={4}/>
+            <InputNumber placeholder='курс' onChange={getRate} precision={4} />
           </Form.Item>
         </Col>
         <Col span={6}><Label>Конечное цена (USD)</Label>
           <Form.Item key={'finalPrice'} name={'finalPrice'} rules={[{required: true, message: 'Введите конечную цену'}]}>
-            <InputNumber placeholder='конечное цена' precision={2}/>
+            <InputNumber placeholder='конечное цена' precision={2} />
           </Form.Item>
         </Col>
-        <Col span={12}><Label>Номер транспорта</Label>
+        <Col span={8}><Label>Номер транспорта</Label>
           <Form.Item key={'shippingNum'} name={'shippingNum'} rules={[{required: true, message: 'Введите номер транспорта'}]}>
             <Input placeholder='номер транспорта' />
           </Form.Item>
         </Col>
-        <Col span={12}><Label>Грузы</Label>
+        <Col span={16}><Label>Грузы</Label>
           <Form.Item key={'cargoList'} name={'cargoList'} rules={[{required: true, message: 'Выберите грузы'}]}>
-            <Select placeholder='грузы' mode="multiple" allowClear>
-              {cargoList && cargoList.map(cargo => <Select.Option key={cargo.id} value={cargo.id}>{cargo.num}</Select.Option>)}
-            </Select>
+            <TreeSelect treeData={selectOrderList} treeCheckable={true} />
+            {/*<Select placeholder='гурзы'>
+                    {selectOrderList.map(order => <Select.Option key={order.id} value={order.id}>{order.num}</Select.Option>)}
+                  </Select>*/}
           </Form.Item>
         </Col>
       </Row>
@@ -138,7 +150,7 @@ const modal = ({ currentItem, isBtnDisabled, handleSubmit, managerList, carrierL
 
 modal.propTypes = {
   currentItem: PropTypes.object,
-  handleSubmit: PropTypes.func
+  handleSubmit: PropTypes.func,
 };
 
 export default (modal);

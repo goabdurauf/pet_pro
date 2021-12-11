@@ -1,5 +1,5 @@
 import React from 'react'
-import {Col, DatePicker, Form, Input, Modal, Row, Select, Typography} from 'antd'
+import {Col, DatePicker, Form, Input, InputNumber, Modal, Row, Select, Typography} from 'antd'
 import {MinusCircleOutlined, PlusOutlined} from '@ant-design/icons';
 import {Label} from "reactstrap";
 import 'moment/locale/ru';
@@ -7,9 +7,15 @@ import locale from 'antd/es/date-picker/locale/ru_RU';
 import PropTypes from "prop-types";
 
 const modal = ({ currentItem, isBtnDisabled, handleSubmit, isLoading, packageTypeList, countryList, documentAttachments, cargoRegTypeList, modalType,
-                 ...modalProps }) => {
+                 currencyList, ...modalProps }) => {
   const [form] = Form.useForm()
   function handleFormSubmit (values) {
+    if (values.loadDate !== null && values.loadDate !== undefined && values.loadDate !== '')
+      values.loadDate = values.loadDate.format('DD.MM.YYYY HH:mm');
+
+    if (values.unloadDate !== null && values.unloadDate !== undefined && values.unloadDate !== '')
+      values.unloadDate = values.unloadDate.format('DD.MM.YYYY HH:mm');
+
     handleSubmit(values);
   }
   function handleSave () {
@@ -46,6 +52,15 @@ const modal = ({ currentItem, isBtnDisabled, handleSubmit, isLoading, packageTyp
     })
     return packageAmount + ')'
   }
+  const priceChange = (event) => {
+    let price = event.target.value;
+    let rate = document.getElementById("rate").value;
+    form.setFieldsValue({finalPrice: price / (rate !== '' && rate !== null ? rate : 1)})
+  }
+  const rateChange = (event) => {
+    let price = document.getElementById("price").value;
+    form.setFieldsValue({finalPrice: price / (event !== '' && event !== null ? event : 1)})
+  }
 
   return (<Modal {...modalProps} okButtonProps={{disabled: isBtnDisabled}} onOk={handleSave} okText={"Добавить"} cancelText={"Отмена"}>
     <Form form={form} initialValues={currentItem !== null ? currentItem : ''} onFinish={handleFormSubmit} onValuesChange={handleChangeForm}>
@@ -55,24 +70,22 @@ const modal = ({ currentItem, isBtnDisabled, handleSubmit, isLoading, packageTyp
             <Input placeholder='название груза'/>
           </Form.Item>
         </Col>
-        <Col span={6} key={'code'}><Label>HS CODE</Label>
+        <Col span={5} key={'code'}><Label>HS CODE</Label>
           <Form.Item key={'code'} name={'code'} rules={[{required: true, message: 'Введите HS CODE'}]}>
             <Input placeholder='HS CODE'/>
           </Form.Item>
         </Col>
-        <Col span={6} key={'loadDate'}><Label>Дата погрузки</Label>
+        <Col span={4} key={'loadDate'}><Label>Дата погрузки</Label>
           <Form.Item key={'loadDate'} name={'loadDate'} rules={[{required: true, message: 'Выберите дату'}]}>
             <DatePicker format={'DD.MM.YYYY'} locale={locale}/>
           </Form.Item>
         </Col>
-        <Col span={6} key={'unloadDate'}><Label>Дата разгрузки</Label>
+        <Col span={4} key={'unloadDate'}><Label>Дата разгрузки</Label>
           <Form.Item key={'unloadDate'} name={'unloadDate'} rules={[{required: true, message: 'Выберите дату'}]}>
             <DatePicker format={'DD.MM.YYYY'} locale={locale}/>
           </Form.Item>
         </Col>
-      </Row>
-      <Row>
-        <Col span={6} key={'regTypeId'}><Label>Тип оформление груза</Label>
+        <Col span={5} key={'regTypeId'}><Label>Тип оформление груза</Label>
           <Form.Item key={'regTypeId'} name={'regTypeId'} rules={[{required: false, message: 'Выберите тип оформление груза'}]}>
             <Select placeholder='тип оформление груза' showSearch
                     filterOption={(input, option) => option.children.toLocaleLowerCase().indexOf(input.toLocaleLowerCase()) >= 0 }>
@@ -80,7 +93,31 @@ const modal = ({ currentItem, isBtnDisabled, handleSubmit, isLoading, packageTyp
             </Select>
           </Form.Item>
         </Col>
-        <Col span={6} key={'comment'}><Label>Заметки</Label>
+      </Row>
+      <Row>
+        <Col span={4}><Label>Цена</Label>
+          <Form.Item key={'price'} name={'price'} rules={[{required: true, message: 'Введите цену'}]}>
+            <Input placeholder='цена' onChange={priceChange} />
+          </Form.Item>
+        </Col>
+        <Col span={4}><Label>Валюта</Label>
+          <Form.Item key={'currencyId'} name={'currencyId'} rules={[{required: true, message: 'Выберите валюту'}]}>
+            <Select placeholder='валюта'>
+              {currencyList && currencyList.map(currency => <Select.Option key={currency.id} value={currency.id}>{currency.nameRu}</Select.Option>)}
+            </Select>
+          </Form.Item>
+        </Col>
+        <Col span={4}><Label>Курс</Label>
+          <Form.Item key={'rate'} name={'rate'} rules={[{required: true, message: 'Введите курса'}]} >
+            <InputNumber placeholder='курс' onChange={rateChange} precision={4}/>
+          </Form.Item>
+        </Col>
+        <Col span={5}><Label>Конечное цена (USD)</Label>
+          <Form.Item key={'finalPrice'} name={'finalPrice'} rules={[{required: true, message: 'Введите конечную цену'}]}>
+            <InputNumber placeholder='конечное цена' precision={2}/>
+          </Form.Item>
+        </Col>
+        <Col span={7} key={'comment'}><Label>Заметки</Label>
           <Form.Item key={'comment'} name={'comment'}>
             <Input placeholder='заметки'/>
           </Form.Item>

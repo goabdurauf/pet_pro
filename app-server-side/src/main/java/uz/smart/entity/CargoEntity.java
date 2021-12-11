@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import uz.smart.entity.template.BaseEntity;
 
 import javax.persistence.*;
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.List;
 
@@ -33,6 +34,12 @@ public class CargoEntity extends BaseEntity {
     private String statusName;
     private Long regTypeId;
     private String regTypeName;
+
+    private Long currencyId;
+    private String currencyName;
+    private BigDecimal price;
+    private BigDecimal rate;
+    private BigDecimal finalPrice;
 
     @OneToMany(fetch = FetchType.LAZY)
     private List<CargoDetailEntity> cargoDetails;

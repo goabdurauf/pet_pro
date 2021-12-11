@@ -29,6 +29,7 @@ public class ResShipping {
     private BigDecimal shippingTypeCapacity;
     private BigDecimal shippingTypeWeight;
     private String shippingTypeSize;
+    private int statusId;
 
     private Timestamp loadDate;
     private String loadStation;

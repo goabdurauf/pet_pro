@@ -7,6 +7,7 @@ package uz.smart.entity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import uz.smart.entity.enums.ShippingStatus;
 import uz.smart.entity.template.BaseEntity;
 
 import javax.persistence.*;
@@ -28,6 +29,8 @@ public class ShippingEntity extends BaseEntity {
     private BigDecimal rate;
     private BigDecimal finalPrice;
     private long shippingTypeId;
+
+    private ShippingStatus status;
 
     private Timestamp loadDate;
     private String loadStation;

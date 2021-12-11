@@ -10,6 +10,9 @@ const modal = ({ currentItem, isBtnDisabled, handleSubmit, customRequest, upload
                  documentAttachments, ...modalProps }) => {
   const [form] = Form.useForm()
   function handleFormSubmit (values) {
+    if (values.date !== null && values.date !== undefined && values.date !== '')
+      values.date = values.date.format('DD.MM.YYYY HH:mm:ss');
+
     handleSubmit(values);
   }
   function handleSave () {

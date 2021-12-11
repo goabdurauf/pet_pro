@@ -3,6 +3,7 @@ import {Card, Tabs, Space, Popconfirm, Table, Row, Col, Select, Modal, Typograph
 import {connect} from "react-redux";
 import {DeleteOutlined, FormOutlined} from "@ant-design/icons";
 import CargoModal from '../$order_detail/modals/cargoModal'
+import ShippingModal from '../shipping/modal'
 const { TabPane } = Tabs;
 
 @connect(({cargo, app}) => ({cargo, app}))
@@ -18,8 +19,9 @@ class Cargo extends Component {
 
   render() {
     const {cargo, dispatch} = this.props;
-    const {itemList, currentItem, currentModal, selectedStatusId, isModalOpen, isBtnDisabled, isLoading,  countryList, packageTypeList, documentAttachments,
-      modalType, isTableLoading, pagination, selectedRowKeys, cargoStatusList, cargoRegTypeList, visibleColumns} = cargo;
+    const {itemList, currentItem, currentModal, selectedStatusId, isModalOpen, isBtnDisabled, isLoading,  countryList, currencyList, packageTypeList, documentAttachments,
+      modalType, isTableLoading, pagination, selectedRowKeys, cargoStatusList, cargoRegTypeList, selectOrderList, carrierList, managerList, shipTypeList, visibleColumns,
+      modalWidth, modalTitle, isPlanning} = cargo;
 
     const onChange = (key) => {
       if (key !== 'Cargo') {
@@ -31,27 +33,33 @@ class Cargo extends Component {
         type: 'cargo/updateState',
         payload: {isBtnDisabled: true}
       })
+      if (modalType === 'Cargo') {
+        dispatch({
+          type: 'cargo/saveCargo',
+          payload: {
+            ...values,
+            id: currentItem.id,
+            orderId: currentItem.orderId,
+          }
+        })
+      } else {
+        if (isPlanning)
+          values.statusId = 10;
 
-      if (values.loadDate !== undefined && values.loadDate !== '')
-        values.loadDate = values.loadDate.format('DD.MM.YYYY HH:mm');
-
-      if (values.docDate !== null && values.docDate !== '')
-        values.docDate = values.docDate.format('DD.MM.YYYY HH:mm');
-
-      if (values.unloadDate !== undefined && values.unloadDate !== '')
-        values.unloadDate = values.unloadDate.format('DD.MM.YYYY HH:mm');
-
-      dispatch({
-        type: 'cargo/saveCargo',
-        payload: {
-          ...values,
-          id: currentItem.id,
-          docId: currentItem.docId,
-          orderId: currentItem.orderId,
-          docAttachments: documentAttachments
-        }
-      })
+        dispatch({
+          type: 'cargo/saveShipping',
+          payload: {
+            ...values
+          }
+        })
+      }
     };
+    const setPlanning = () => {
+      dispatch({
+        type: 'cargo/updateState',
+        payload: {isPlanning: true}
+      })
+    }
     const columns = [
       ...visibleColumns,
       {
@@ -73,16 +81,8 @@ class Cargo extends Component {
     ];
     const modalProps = {
       visible: isModalOpen,
-      title: 'Редактировать груза',
-      width: 1200,
-      onCancel() {
-        dispatch({
-          type: 'cargo/updateState',
-          payload: {
-            isModalOpen: false
-          }
-        })
-      }
+      title: modalTitle,
+      width: modalWidth
     };
     const confirmModalProps = {
       visible: isModalOpen,
@@ -168,6 +168,32 @@ class Cargo extends Component {
         });
       }
     }
+    const handleShipping = (id) => {
+      if (selectedRowKeys.length > 0) {
+        dispatch({
+          type: 'cargo/openShippingModal',
+          payload: {
+            cargoList: selectedRowKeys
+          }
+        })
+      } else {
+        notification.error({
+          description: 'Сначала выберите груза',
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#ffd9d9'}
+        });
+      }
+    }
+    const onShippingCancel = () => {
+      dispatch({
+        type: 'cargo/updateState',
+        payload: {
+          isModalOpen: false,
+          isPlanning: false
+        }
+      })
+    }
     const handleStatusConfirm = () => {
         dispatch({
           type: 'cargo/changeCargoStatus',
@@ -189,13 +215,20 @@ class Cargo extends Component {
             <TabPane tab="Заказы" key="/order">Подождите пожалуйста ...</TabPane>
             <TabPane tab="Грузы" key="Cargo">
               <Row>
-                <Col span={6} offset={12}>
+                <Col span={4} offset={12}>
                   <Select placeholder='статус груза' onSelect={handleSelect}>
                     {cargoStatusList && cargoStatusList.map(status => <Select.Option key={status.id} value={status.id}>{status.nameRu}</Select.Option>)}
                   </Select>
                 </Col>
+                <Col span={4}>
+                  <Select placeholder='объединить в рейс' onSelect={handleShipping}>
+                    <Select.Option key={'collect'} value={'22'}>Объединить в рейс</Select.Option>
+                  </Select>
+                </Col>
+
               </Row>
-              <Table rowSelection={rowSelection} columns={columns} dataSource={itemList} bordered size="middle"
+              <Table rowClassName={(record, index) => record.shippingStatusId === 1 ? 'planning-row' :  ''}
+                     rowSelection={rowSelection} columns={columns} dataSource={itemList} bordered size="middle"
                      rowKey={record => record.id} pagination={pagination} loading={isTableLoading}
                      onChange={handleTableChange}/>
             </TabPane>
@@ -208,7 +241,14 @@ class Cargo extends Component {
             {...modalProps}
             handleSubmit={handleSubmit} isBtnDisabled={isBtnDisabled} currentItem={currentItem} countryList={countryList}
             customRequest={customRequest} uploadChange={uploadChange} isLoading={isLoading} packageTypeList={packageTypeList}
-            documentAttachments={documentAttachments} modalType={modalType} cargoRegTypeList={cargoRegTypeList}
+            documentAttachments={documentAttachments} modalType={modalType} cargoRegTypeList={cargoRegTypeList} currencyList={currencyList}
+          />}
+
+          {isModalOpen && currentModal === 'Shipping' &&
+          <ShippingModal
+            {...modalProps} onCancel={onShippingCancel} setPlanning={setPlanning}
+            handleSubmit={handleSubmit} isBtnDisabled={isBtnDisabled} currentItem={currentItem} selectOrderList={selectOrderList}
+            carrierList={carrierList} currencyList={currencyList} managerList={managerList} shipTypeList={shipTypeList}
           />}
 
           {isModalOpen && currentModal === 'Confirm' &&

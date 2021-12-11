@@ -10,6 +10,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import uz.smart.converter.DateTimeDeserializer;
 
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.UUID;
@@ -29,6 +30,11 @@ public class CargoDto {
 
     @JsonDeserialize(using = DateTimeDeserializer.class)
     private Timestamp unloadDate;
+
+    private Long currencyId;
+    private BigDecimal price;
+    private BigDecimal rate;
+    private BigDecimal finalPrice;
 
     private List<CargoDetailDto> cargoDetails;
 

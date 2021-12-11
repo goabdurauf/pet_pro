@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import uz.smart.dto.DocumentDto;
 import uz.smart.dto.ShippingDto;
 import uz.smart.entity.*;
+import uz.smart.entity.enums.ShippingStatus;
 import uz.smart.entity.template.AbsEntity;
 import uz.smart.exception.ResourceNotFoundException;
 import uz.smart.mapper.MapperUtil;
@@ -59,12 +60,25 @@ public class ShippingService {
                 : mapper.updateShippingEntity(dto, repository.findById(dto.getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Shipping", "Id", dto.getId())));
 
-        if (dto.getId() == null) {
-            Optional<ShippingEntity> opt = repository.getFirstByOrderByCreatedAtDesc();
-            if (opt.isEmpty())
-                entity.setNum(CommonUtils.generateNextNum("R", ""));
-            else
-                entity.setNum(CommonUtils.generateNextNum("R", opt.get().getNum()));
+        if (dto.getId() == null || (entity.getStatus() == ShippingStatus.Draft && dto.getStatusId() == null)) {
+            if (dto.getStatusId() == null) {
+                entity.setStatus(ShippingStatus.Standart);
+                Optional<ShippingEntity> opt = repository.getFirstByStatusOrderByCreatedAtDesc(ShippingStatus.Standart);
+                if (opt.isEmpty())
+                    entity.setNum(CommonUtils.generateNextNum("R", ""));
+                else
+                    entity.setNum(CommonUtils.generateNextNum("R", opt.get().getNum()));
+            } else {
+                entity.setStatus(ShippingStatus.Draft);
+                Optional<ShippingEntity> opt = repository.getFirstByStatusOrderByCreatedAtDesc(ShippingStatus.Draft);
+                if (opt.isEmpty())
+                    entity.setNum("R-P-01");
+                else {
+                    String lastNum = opt.get().getNum();
+                    int num = Integer.parseInt(lastNum.substring(lastNum.lastIndexOf('-') + 1)) + 1;
+                    entity.setNum("R-P-" + (num < 10 ? "0" + num : num));
+                }
+            }
         }
 
         entity = repository.saveAndFlush(entity);
@@ -131,7 +145,7 @@ public class ShippingService {
         if (entity.getCargoEntities() != null) {
             dto.setCargoList(entity.getCargoEntities().stream().map(AbsEntity::getId).collect(Collectors.toList()));
         }
-
+        dto.setStatusId(entity.getStatus().get());
         dto.setOrderSelect(orderService.getOrdersForSelect(entity));
 
         return dto;
@@ -167,6 +181,7 @@ public class ShippingService {
         User manager = userRepository.findById(entity.getManagerId())
                 .orElseThrow(() -> new ResourceNotFoundException("User", "managerId", entity.getManagerId()));
         res.setManagerName(manager.getFullName());
+        res.setStatusId(entity.getStatus().get());
 
         CarrierEntity carrier = carrierRepository.findById(entity.getCarrierId())
                 .orElseThrow(() -> new ResourceNotFoundException("Carrier", "carrierId", entity.getCarrierId()));

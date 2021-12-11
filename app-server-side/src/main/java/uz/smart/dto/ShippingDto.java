@@ -27,6 +27,7 @@ public class ShippingDto {
     private long shippingTypeId;
     private String shippingNum;
     private UUID orderId;
+    private Integer statusId;
     private List<UUID> cargoList;
     private List<OrderSelectDto> orderSelect;
 
