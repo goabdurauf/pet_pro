@@ -44,6 +44,9 @@ export function deleteShippingById(id) {return request({url: '/api/shipping/' + 
 export function deleteCargoFromShippingById(data) {return request({url: '/api/shipping/' + data.shippingId + '/cargo/' + data.id, method: 'delete'})}
 export function addShippingDocument(data) {return request({url: '/api/shipping/document', method: 'post', data})}
 export function deleteDocumentFromShippingById(data) {return request({url: '/api/shipping/' + data.shippingId + '/document/' + data.id, method: 'delete'})}
+export function addShippingExpense(data) {return request({url: '/api/shipping/expense', method: 'post', data})}
+export function getShippingExpenses(id) {return request({url: '/api/shipping/expense/' + id, method: 'get',})}
+export function deleteExpenseFromShippingById(id) {return request({url: '/api/shipping/expense/' + id, method: 'delete',})}
 
 export function getDocumentById(id) {return request({url: '/api/document/' + id, method: 'get'})}
 export function deleteAttachmentFromDocumentById(data) {return request({url: '/api/document/' + data.docId + '/attachment/' + data.id, method: 'delete'})}
@@ -72,5 +75,11 @@ export function addCargoDocument(data) {return request({url: '/api/cargo/documen
 export function getSelectOrderCargos(id) {return request({url: '/api/cargo/select/order/' + id, method: 'get'})}
 export function getCargoDocument(id) {return request({url: '/api/cargo/doc/' + id, method: 'get'})}
 export function deleteDocumentFromCargo(data) {return request({url: '/api/cargo/' + data.orderId + '/document/' + data.id, method: 'delete',})}
+export function addCargoExpense(data) {return request({url: '/api/cargo/expense', method: 'post', data})}
+export function getCargoExpenseByOrderId(id) {return request({url: '/api/cargo/expense/' + id, method: 'get',})}
+export function deleteExpenseFromCargoById(id) {return request({url: '/api/cargo/expense/' + id, method: 'delete',})}
+
+export function getExpenseById(id) {return request({url: '/api/expense/' + id, method: 'get',})}
+
 
 

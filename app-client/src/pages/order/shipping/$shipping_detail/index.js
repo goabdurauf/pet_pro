@@ -3,13 +3,14 @@ import PropTypes from 'prop-types'
 import {connect} from 'dva'
 import {Card, Col, Popconfirm, Row, Space, Table, Tabs} from "antd";
 import {DeleteOutlined, FormOutlined, PlusOutlined} from "@ant-design/icons";
-import Modal from './modal'
+import DocumentModal from './modal'
+import ExpenseModal from '../../$order_detail/modals/expenseModal'
 import {Button} from "reactstrap";
 
 const ShippingDetail = ({dispatch, shippingDetail}) => {
 
   const {model, shippingId, isModalOpen, loadingFile, cargoList, currentModel, currentItem, modalType, modalWidth, createTitle, editTitle, visibleColumns,
-    isBtnDisabled, documentList, documentAttachments} = shippingDetail;
+    isBtnDisabled, documentList, documentAttachments, carrierList, currencyList, expenseList} = shippingDetail;
 
   const openModal = () => {
     dispatch({
@@ -83,7 +84,7 @@ const ShippingDetail = ({dispatch, shippingDetail}) => {
     })
   }
   const onChange = (key) => {
-    dispatch({type: 'shippingDetail/query' + key});
+    dispatch({type: 'shippingDetail/query' + key, payload: {id: shippingId}});
   }
   const handleSubmit = (values) => {
     dispatch({
@@ -183,7 +184,7 @@ const ShippingDetail = ({dispatch, shippingDetail}) => {
           <Tabs.TabPane tab="Заказы" key="/order">Подождите пожалуйста ...</Tabs.TabPane>
           <Tabs.TabPane tab="Грузы" key="/order/cargo">Подождите пожалуйста ...</Tabs.TabPane>
           <Tabs.TabPane tab="Рейсы" key="/order/shipping">
-            <Row className="order-detail-page">
+            <Row className="shipping-detail-page">
               <Col span={5}>
                 <Card style={{width: '100%'}} bordered={false}>
                   <div className="row">
@@ -198,7 +199,7 @@ const ShippingDetail = ({dispatch, shippingDetail}) => {
                         <tbody>
                         <tr><td>Менеджер:</td><td>{currentModel && currentModel.managerName}</td></tr>
                         <tr><td>Перевозчик:</td><td>{currentModel && currentModel.carrierName}</td></tr>
-                        <tr><td>Цена:</td><td>{currentModel && (currentModel.finalPrice + ' USD (' + currentModel.price + ' ' + currentModel.currencyName + ')')}</td></tr>
+                        <tr><td>Цена:</td><td>{currentModel && currentModel.finalPrice !== null && (currentModel.finalPrice + ' USD (' + currentModel.price + ' ' + currentModel.currencyName + ')')}</td></tr>
                         <tr><td>Тип транспорта:</td><td>{currentModel && currentModel.shippingTypeName}</td></tr>
                         <tr><td>Номер транспорта:</td><td>{currentModel && currentModel.shippingNum}</td></tr>
                         <tr><td>Дата загрузки:</td><td>{currentModel && currentModel.loadDate}</td></tr>
@@ -231,7 +232,11 @@ const ShippingDetail = ({dispatch, shippingDetail}) => {
                     </Tabs.TabPane>
                     <Tabs.TabPane tab="Счета" key="Account">
                     </Tabs.TabPane>
-                    <Tabs.TabPane tab="Финансы" key="Finance">
+                    <Tabs.TabPane tab="Финансы" key="Expense">
+                      <Button className="float-right" outline color="primary" size="sm" onClick={openModal}><PlusOutlined/> Добавить</Button>
+                      <Table
+                        columns={columns} dataSource={expenseList} bordered size="middle" rowKey={record => record.id}
+                        pagination={false}/>
                     </Tabs.TabPane>
 
                   </Tabs>
@@ -241,10 +246,20 @@ const ShippingDetail = ({dispatch, shippingDetail}) => {
           </Tabs.TabPane>
           <Tabs.TabPane tab="Отслеживание" key="/order/tracking">Подождите пожалуйста ...</Tabs.TabPane>
         </Tabs>
-        {isModalOpen && <Modal {...modalProps}
-                               isBtnDisabled={isBtnDisabled} loadingFile={loadingFile} handleSubmit={handleSubmit} currentItem={currentItem}
-                               documentAttachments={documentAttachments} customRequest={customRequest} uploadChange={uploadChange}/>}
       </Card>
+
+      {isModalOpen &&
+      <DocumentModal {...modalProps}
+             isBtnDisabled={isBtnDisabled} loadingFile={loadingFile} handleSubmit={handleSubmit} currentItem={currentItem}
+             documentAttachments={documentAttachments} customRequest={customRequest} uploadChange={uploadChange}
+      />}
+      {isModalOpen && model === 'Expense' &&
+      <ExpenseModal
+        {...modalProps}
+        handleSubmit={handleSubmit} isBtnDisabled={isBtnDisabled} currentItem={currentItem} ownerType={'Shipping'}
+        carrierList={carrierList} currencyList={currencyList} />
+      }
+
     </div>
   )
 };

@@ -82,7 +82,15 @@ class Cargo extends Component {
     const modalProps = {
       visible: isModalOpen,
       title: modalTitle,
-      width: modalWidth
+      width: modalWidth,
+      onCancel() {
+        dispatch({
+          type: 'cargo/updateState',
+          payload: {
+            isModalOpen: false
+          }
+        })
+      }
     };
     const confirmModalProps = {
       visible: isModalOpen,

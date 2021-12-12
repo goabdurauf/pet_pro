@@ -18,7 +18,8 @@ import {
   addAttachmentToDocument,
   deleteAttachmentFromDocumentById,
   getCargoDocumentByOrderId,
-  deleteDocumentFromCargo, cloneCargo, getSelectOrderCargos, addCargoDocument, getCargoDocument
+  deleteDocumentFromCargo, cloneCargo, getSelectOrderCargos, addCargoDocument, getCargoDocument,
+  addCargoExpense, getCargoExpenseByOrderId, getExpenseById, deleteExpenseFromCargoById
 } from '@/services/service'
 import modelExtend from 'dva-model-extend'
 import {Image, notification} from 'antd'
@@ -67,7 +68,8 @@ export default modelExtend(tableModel, {
             payload:{id: location.pathname.split('/')[3]}
           });
           dispatch({
-            type: 'getAdditionals'
+            type: 'getAdditionals',
+            payload:{id: location.pathname.split('/')[3]}
           });
         }
       });
@@ -204,6 +206,7 @@ export default modelExtend(tableModel, {
       let country = yield call(getListItems, 2);
       let packageType = yield call(getListItems, 7);
       let cargoRegType = yield call(getListItems, 9);
+      let cargos = yield call(getSelectOrderCargos, payload.id);
 
       if (manager.success && client.success) {
         yield put({
@@ -217,6 +220,7 @@ export default modelExtend(tableModel, {
             orderStatusList: status.list,
             countryList: country.list,
             packageTypeList: packageType.list,
+            cargoSelectList: cargos.list,
             cargoRegTypeList: cargoRegType.list
           }
         })
@@ -390,7 +394,7 @@ export default modelExtend(tableModel, {
                 title: 'Цена',
                 dataIndex: 'customFinalPrice',
                 key: 'customFinalPrice',
-                render: (text, record) => {return record.finalPrice + ' USD (' + record.price + ' ' + record.currencyName + ')'}
+                render: (text, record) => {return record.finalPrice !== null ? record.finalPrice + ' USD (' + record.price + ' ' + record.currencyName + ')' : ''}
               },
               {
                 title: 'Тип транспорта',
@@ -488,14 +492,12 @@ export default modelExtend(tableModel, {
     * queryDocument({payload}, {call, put, select}) {
       const {orderId} = yield select(_ => _.orderDetail);
       let data = yield call(getCargoDocumentByOrderId, orderId);
-      let cargos = yield call(getSelectOrderCargos, orderId);
       if (data.success) {
         yield put({
           type: 'updateState',
           payload: {
             model: 'Document',
             itemList: data.list,
-            cargoSelectList: cargos.list,
             currentItem: null,
             isModalOpen: false,
             isBtnDisabled: false,
@@ -673,6 +675,142 @@ export default modelExtend(tableModel, {
     },
     * pushToPage({payload}, {call, put, select}) {
       yield put(routerRedux.push(payload.key));
-    }
+    },
+    * queryExpense({payload}, {call, put, select}) {
+      let data = yield call(getCargoExpenseByOrderId, payload.id);
+
+      if (data.success) {
+        yield put({
+          type: 'updateState',
+          payload:  {
+            model: 'Expense',
+            itemList: data.list,
+            currentItem: null,
+            isModalOpen: false,
+            isBtnDisabled: false,
+            modalType: 'create',
+            modalWidth: 700,
+            createTitle: 'Создать расход',
+            editTitle: 'Редактировать расхода',
+            visibleColumns : [
+              {
+                title: '№',
+                dataIndex: 'nomer',
+                key: 'nomer',
+                align: 'center',
+                render: (value, item, index) => index+1
+              },
+              {
+                title: 'Название',
+                dataIndex: 'name',
+                key: 'name',
+              },
+              {
+                title: 'Перевозчик',
+                dataIndex: 'carrierName',
+                key: 'carrierName',
+              },
+              {
+                title: 'Груз',
+                dataIndex: 'ownerName',
+                key: 'ownerName'
+              },
+              {
+                title: 'Ставка',
+                dataIndex: 'from',
+                key: 'from',
+                render: (text, record) => {return record.fromFinalPrice !== null ? record.fromFinalPrice + ' USD (' + record.fromPrice + ' ' + record.fromCurrencyName + ')' : ''}
+              },
+              {
+                title: 'Расход',
+                dataIndex: 'to',
+                key: 'to',
+                render: (text, record) => {return record.toFinalPrice !== null ? record.toFinalPrice + ' USD (' + record.toPrice + ' ' + record.toCurrencyName + ')' : ''}
+              },
+              {
+                title: 'Комментарии',
+                dataIndex: 'comment',
+                key: 'comment',
+              }
+            ]
+          }
+        })
+      }
+    },
+    * saveExpense({payload}, {call, put, select}) {
+      const result = yield call(addCargoExpense, payload);
+      if (result.success) {
+        yield put({
+          type: 'updateState',
+          payload: {
+            itemList: result.list,
+            currentItem: null,
+            isModalOpen: false,
+            isBtnDisabled: false
+          }
+        })
+        notification.info({
+          description: 'Сохранен успешно',
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#d8ffe9'}
+        });
+      } else {
+        yield put({
+          type: 'updateState',
+          payload: {isBtnDisabled: false}
+        })
+        notification.error({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#ffd9d9'}
+        });
+      }
+    },
+    * getExpenseById({payload}, {call, put, select}) {
+      const result = yield call(getExpenseById, payload.id);
+      if (result.success) {
+        yield put({
+          type: 'updateState',
+          payload: {
+            currentItem: result,
+            isModalOpen: true,
+            modalType: 'update'
+          }
+        })
+      } else {
+        notification.error({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#ffd9d9'}
+        });
+      }
+    },
+    * deleteExpenseById({payload}, {call, put, select}) {
+      const result = yield call(deleteExpenseFromCargoById, payload.id);
+      if (result.success) {
+        yield put({
+          type: 'queryExpense',
+          payload:{id: payload.orderId}
+        })
+        notification.info({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#d8ffe9'}
+        });
+      } else {
+        notification.error({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#ffd9d9'}
+        });
+      }
+    },
+
+
   },
 })

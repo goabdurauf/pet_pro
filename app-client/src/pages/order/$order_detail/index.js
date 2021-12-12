@@ -5,6 +5,7 @@ import {Card, Row, Col, Select, Tabs, Space, Popconfirm, Table} from 'antd';
 import CargoModal from './modals/cargoModal'
 import ShippingModal from '../shipping/modal'
 import DocumentModal from './modals/documentModal'
+import ExpenseModal from './modals/expenseModal'
 import {Button} from "reactstrap";
 import {DeleteOutlined, FormOutlined, PlusOutlined, CopyOutlined} from "@ant-design/icons";
 import 'moment/locale/ru';
@@ -142,6 +143,22 @@ const OrderDetail = ({dispatch, orderDetail}) => {
         payload: {
           ...values,
           attachments: documentAttachments
+        }
+      })
+    }
+    const handleExpenseSubmit = (values) => {
+      dispatch({
+        type: 'orderDetail/updateState',
+        payload: {isBtnDisabled: true}
+      })
+
+      if (modalType !== 'create')
+        values = {...values, id: currentItem.id}
+
+      dispatch({
+        type: 'orderDetail/save' + model,
+        payload: {
+          ...values
         }
       })
     }
@@ -292,7 +309,11 @@ const OrderDetail = ({dispatch, orderDetail}) => {
                           columns={columns} dataSource={itemList} bordered size="middle" rowKey={record => record.id}
                           pagination={false}/>
                       </Tabs.TabPane>
-                      <Tabs.TabPane tab="Финансы" key="Finance">
+                      <Tabs.TabPane tab="Финансы" key="Expense">
+                        <Button className="float-right" outline color="primary" size="sm" onClick={openModal}><PlusOutlined/> Добавить</Button>
+                        <Table
+                          columns={columns} dataSource={itemList} bordered size="middle" rowKey={record => record.id}
+                          pagination={false}/>
                       </Tabs.TabPane>
                       <Tabs.TabPane tab="Документы" key="Document">
                         <Row>
@@ -315,28 +336,34 @@ const OrderDetail = ({dispatch, orderDetail}) => {
             <Tabs.TabPane tab="Рейсы" key="/order/shipping">Подождите пожалуйста ...</Tabs.TabPane>
             <Tabs.TabPane tab="Отслеживание" key="/order/tracking">Подождите пожалуйста ...</Tabs.TabPane>
           </Tabs>
-
-          {isModalOpen && model === 'Cargo' &&
-          <CargoModal
-            {...modalProps}
-            handleSubmit={handleSubmit} isBtnDisabled={isBtnDisabled} currentItem={currentItem} countryList={countryList} modalType={modalType}
-            isLoading={isLoading} packageTypeList={packageTypeList} documentAttachments={documentAttachments} cargoRegTypeList={cargoRegTypeList}
-            currencyList={currencyList}
-          />}
-          {isModalOpen && model === 'Shipping' &&
-          <ShippingModal
-            {...modalProps} onCancel={onCancel} setPlanning={setPlanning}
-            handleSubmit={handleShippingSubmit} isBtnDisabled={isBtnDisabled} currentItem={currentItem} selectOrderList={selectOrderList}
-            carrierList={carrierList} currencyList={currencyList} managerList={managerList} shipTypeList={shipTypeList}
-          />}
-
-          {isModalOpen && model === 'Document' &&
-          <DocumentModal
-            {...modalProps} cargoSelectList={cargoSelectList}
-            isBtnDisabled={isBtnDisabled} loadingFile={isLoading} handleSubmit={handleDocumentSubmit} currentItem={currentItem}
-            documentAttachments={documentAttachments} customRequest={customRequest} uploadChange={uploadChange}/>}
-
         </Card>
+
+        {isModalOpen && model === 'Cargo' &&
+        <CargoModal
+          {...modalProps}
+          handleSubmit={handleSubmit} isBtnDisabled={isBtnDisabled} currentItem={currentItem} countryList={countryList} modalType={modalType}
+          isLoading={isLoading} packageTypeList={packageTypeList} documentAttachments={documentAttachments} cargoRegTypeList={cargoRegTypeList}
+          currencyList={currencyList}
+        />}
+        {isModalOpen && model === 'Shipping' &&
+        <ShippingModal
+          {...modalProps} onCancel={onCancel} setPlanning={setPlanning}
+          handleSubmit={handleShippingSubmit} isBtnDisabled={isBtnDisabled} currentItem={currentItem} selectOrderList={selectOrderList}
+          carrierList={carrierList} currencyList={currencyList} managerList={managerList} shipTypeList={shipTypeList}
+        />}
+
+        {isModalOpen && model === 'Document' &&
+        <DocumentModal
+          {...modalProps} cargoSelectList={cargoSelectList}
+          isBtnDisabled={isBtnDisabled} loadingFile={isLoading} handleSubmit={handleDocumentSubmit} currentItem={currentItem}
+          documentAttachments={documentAttachments} customRequest={customRequest} uploadChange={uploadChange}/>}
+
+        {isModalOpen && model === 'Expense' &&
+        <ExpenseModal
+          {...modalProps}
+          handleSubmit={handleExpenseSubmit} isBtnDisabled={isBtnDisabled} currentItem={currentItem} cargoSelectList={cargoSelectList}
+          carrierList={carrierList} currencyList={currencyList} ownerType={'Cargo'}/>
+        }
       </div>
     );
 }

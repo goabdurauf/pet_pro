@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import uz.smart.dto.*;
 import uz.smart.entity.*;
+import uz.smart.entity.enums.ExpenseType;
 import uz.smart.entity.template.AbsEntity;
 import uz.smart.exception.ResourceNotFoundException;
 import uz.smart.mapper.MapperUtil;
@@ -39,11 +40,16 @@ public class CargoService {
     @Autowired
     ShippingRepository shippingRepository;
     @Autowired
+    ExpenseRepository expenseRepository;
+
+    @Autowired
     DocumentService documentService;
     @Autowired
     OrderService orderService;
     @Autowired
     ShippingService shippingService;
+    @Autowired
+    ExpenseService expenseService;
     @Autowired
     MapperUtil mapper;
 
@@ -210,6 +216,12 @@ public class CargoService {
             cargoEntity = repository.saveAndFlush(cargoEntity);
             documentService.deleteAllDocuments(documentList);
         }
+        if (cargoEntity.getExpenseList() != null && cargoEntity.getExpenseList().size() > 0) {
+            List<UUID> expenseIdList = cargoEntity.getExpenseList().stream().map(AbsEntity::getId).collect(Collectors.toList());
+            cargoEntity.setExpenseList(null);
+            cargoEntity = repository.saveAndFlush(cargoEntity);
+            expenseService.deleteExpense(expenseIdList);
+        }
         repository.delete(cargoEntity);
         return ResponseEntity.ok().body(new ApiResponse("Удалено успешно", true));
     }
@@ -280,9 +292,9 @@ public class CargoService {
             resCargo.setOrderNum(resOrder.getNum());
             resCargo.setClientName(resOrder.getClientName());
 
-            ShippingEntity shippingEntity = shippingRepository.getByCargoEntitiesIn(List.of(entity)).orElse(null);
-            if (shippingEntity != null) {
-                ResShipping resShipping = shippingService.getResShipping(shippingEntity, false);
+//            ShippingEntity shippingEntity = shippingRepository.getByCargoEntitiesIn(List.of(entity)).orElse(null);
+            if (entity.getShipping() != null) {
+                ResShipping resShipping = shippingService.getResShipping(entity.getShipping(), false);
                 resCargo.setCarrierName(resShipping.getCarrierName());
                 resCargo.setShippingNum(resShipping.getNum());
                 resCargo.setShippingStatusId(resShipping.getStatusId());
@@ -331,6 +343,41 @@ public class CargoService {
         }
         repository.saveAll(list);
         return ResponseEntity.ok().body(new ApiResponse("Статусы " + list.size() + " груза изменено успешно", true));
+    }
+
+    public List<ExpenseDto> addExpense(ExpenseDto dto){
+        CargoEntity cargoEntity = repository.findById(dto.getOwnerId())
+                .orElseThrow(() -> new ResourceNotFoundException("Cargo", "Id", dto.getOwnerId()));
+        dto.setType(ExpenseType.Cargo);
+        ExpenseEntity expense = expenseService.saveAndUpdate(dto);
+        cargoEntity.getExpenseList().add(expense);
+
+        cargoEntity = repository.saveAndFlush(cargoEntity);
+        return getExpensesByOrderId(cargoEntity.getOrder().getId());
+    }
+
+    public List<ExpenseDto> getExpensesByOrderId(UUID orderId) {
+        List<ExpenseDto> expenseList = new ArrayList<>();
+        List<CargoEntity> cargoList = repository.getAllByOrder_IdAndStateGreaterThanOrderByCreatedAt(orderId, 0);
+        for (CargoEntity cargo : cargoList) {
+            List<ExpenseDto> dtoList = expenseService.getExpenseDto(cargo.getExpenseList(), cargo.getName());
+            if (dtoList.size() > 0)
+                expenseList.addAll(dtoList);
+        }
+
+        return expenseList;
+    }
+
+    public HttpEntity<?> deleteExpenseFromCargo(UUID id) {
+        ExpenseEntity expenseEntity = expenseRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Expense", "Id", id));
+        CargoEntity cargoEntity = repository.findById(expenseEntity.getOwnerId())
+                .orElseThrow(() -> new ResourceNotFoundException("Cargo", "Id", expenseEntity.getOwnerId()));
+        cargoEntity.getExpenseList().remove(expenseEntity);
+        repository.saveAndFlush(cargoEntity);
+        expenseRepository.delete(expenseEntity);
+
+        return ResponseEntity.ok().body(new ApiResponse("Удалено успешно", true));
     }
 
 }

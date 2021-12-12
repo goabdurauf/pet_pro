@@ -7,13 +7,11 @@ done - select orders in shipping that not connected to any shipping
 done - bug in adding cargo detail in edit modes
 
 
-- select cargo connected to shipping in generate shipping
+- comment in cargo and shipping
+- select cargo not connected to shipping in generate shipping
 
 - search and pagination in order, cargo and shipping pages
 
-
-shipping table rate field numeric(19,4)
-cargo table rate field numeric(19,4)
 
 
 Modal example

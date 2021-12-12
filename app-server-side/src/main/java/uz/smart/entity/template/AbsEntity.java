@@ -1,6 +1,8 @@
 package uz.smart.entity.template;
 
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
@@ -14,7 +16,7 @@ import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.UUID;
 
-@Data
+@Getter @Setter
 @MappedSuperclass
 public abstract class AbsEntity implements Serializable {
     @Id

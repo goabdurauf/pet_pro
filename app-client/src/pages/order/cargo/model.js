@@ -28,7 +28,7 @@ export default ({
     selectedStatusId: null,
     pagination: {
       current: 1,
-      pageSize: 10,
+      pageSize: 20,
       position: ["bottomCenter"]
     },
     isTableLoading: false,

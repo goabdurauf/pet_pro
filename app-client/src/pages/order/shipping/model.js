@@ -84,7 +84,7 @@ export default ({
         title: 'Цена',
         dataIndex: 'customFinalPrice',
         key: 'customFinalPrice',
-        render: (text, record) => {return record.finalPrice + ' USD (' + record.price + ' ' + record.currencyName + ')'}
+        render: (text, record) => {return record.finalPrice !== null ? record.finalPrice + ' USD (' + record.price + ' ' + record.currencyName + ')' : ''}
       },
       {
         title: 'Тип транспорта',

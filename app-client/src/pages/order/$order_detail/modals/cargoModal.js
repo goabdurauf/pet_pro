@@ -117,9 +117,9 @@ const modal = ({ currentItem, isBtnDisabled, handleSubmit, isLoading, packageTyp
             <InputNumber placeholder='конечное цена' precision={2}/>
           </Form.Item>
         </Col>
-        <Col span={7} key={'comment'}><Label>Заметки</Label>
+        <Col span={7} key={'comment'}><Label>Комментарии</Label>
           <Form.Item key={'comment'} name={'comment'}>
-            <Input placeholder='заметки'/>
+            <Input placeholder='комментарии'/>
           </Form.Item>
         </Col>
       </Row>

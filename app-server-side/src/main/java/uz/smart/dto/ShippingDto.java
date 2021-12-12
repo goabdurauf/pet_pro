@@ -20,7 +20,7 @@ public class ShippingDto {
     private UUID id;
     private UUID managerId;
     private UUID carrierId;
-    private long currencyId;
+    private Long currencyId;
     private BigDecimal price;
     private BigDecimal rate;
     private BigDecimal finalPrice;
@@ -30,6 +30,7 @@ public class ShippingDto {
     private Integer statusId;
     private List<UUID> cargoList;
     private List<OrderSelectDto> orderSelect;
+    private String comment;
 
     @JsonDeserialize(using = DateTimeDeserializer.class)
     private Timestamp loadDate;

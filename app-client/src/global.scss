@@ -171,7 +171,7 @@ body {
     }
   }
 
-  .order-detail-page {
+  .order-detail-page, .shipping-detail-page {
     .ant-col-5 {
       border: 15px solid #f6f7fb;
       border-right: 0;
@@ -218,6 +218,11 @@ body {
         border-radius: 4px;
       }
     }
+  }
+
+  .expense-to-row {
+    border-top: 1px dashed #cdcdcd;
+    padding-top: 10px;
   }
 
   .ant-modal-root {

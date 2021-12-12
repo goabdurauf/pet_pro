@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.web.bind.annotation.*;
 import uz.smart.dto.DocumentDto;
+import uz.smart.dto.ExpenseDto;
 import uz.smart.dto.ShippingDto;
 import uz.smart.payload.ResShipping;
 import uz.smart.service.ShippingService;
@@ -61,4 +62,14 @@ public class ShippingController {
             @PathVariable UUID shippingId, @PathVariable UUID docId
     ) {return service.removeDocumentById(shippingId, docId);}
 
+    @PostMapping("/expense")
+    public List<ExpenseDto> addExpense(@RequestBody ExpenseDto dto){ return service.addExpense(dto);}
+
+    @GetMapping("/expense/{shippingId}")
+    public List<ExpenseDto> getExpenseList(@PathVariable UUID shippingId) {return service.getExpensesByShippingId(shippingId);}
+
+    @DeleteMapping("/expense/{id}")
+    public HttpEntity<?> deleteExpense(@PathVariable UUID id) {
+        return service.deleteExpenseFromShipping(id);
+    }
 }

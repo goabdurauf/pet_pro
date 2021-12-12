@@ -1,5 +1,15 @@
-import {uploadFile, deleteFile, getDocumentById, getShippingDetailById, deleteCargoFromShippingById,
-  deleteDocumentFromShippingById, addShippingDocument, deleteAttachmentFromDocumentById, addAttachmentToDocument} from '@/services/service'
+import {
+  uploadFile,
+  deleteFile,
+  getDocumentById,
+  getShippingDetailById,
+  deleteCargoFromShippingById,
+  deleteDocumentFromShippingById,
+  addShippingDocument,
+  deleteAttachmentFromDocumentById,
+  addAttachmentToDocument,
+  getShippingExpenses, addShippingExpense, getExpenseById, deleteExpenseFromShippingById, getCarrierList, getListItems
+} from '@/services/service'
 import modelExtend from 'dva-model-extend'
 import {tableModel} from 'utils/model'
 import {Image, notification} from 'antd'
@@ -19,6 +29,9 @@ export default modelExtend(tableModel, {
     cargoDetails: [],
     documentList: [],
     documentAttachments: [],
+    carrierList: [],
+    currencyList: [],
+    expenseList: [],
     isBtnDisabled: false,
     loadingFile: false,
     visibleColumns : []
@@ -38,6 +51,8 @@ export default modelExtend(tableModel, {
   effects: {
     * getDetail({payload}, {call, put, select}) {
       const result = yield call(getShippingDetailById, payload.id);
+      let carrier = yield call(getCarrierList);
+      let currency = yield call(getListItems, 4);
       if (result.success) {
         yield put({
           type: 'updateState',
@@ -47,6 +62,8 @@ export default modelExtend(tableModel, {
             currentModel: result,
             cargoList: result.cargoList,
             documentList: result.documents,
+            carrierList: carrier.list,
+            currencyList: currency.list,
             visibleColumns : [
               {
                 title: 'Номер груза',
@@ -392,6 +409,141 @@ export default modelExtend(tableModel, {
     },
     * pushToPage({payload}, {call, put, select}) {
       yield put(routerRedux.push(payload.key));
-    }
+    },
+    * queryExpense({payload}, {call, put, select}) {
+      let data = yield call(getShippingExpenses, payload.id);
+
+      if (data.success) {
+        yield put({
+          type: 'updateState',
+          payload:  {
+            model: 'Expense',
+            expenseList: data.list,
+            currentItem: null,
+            isModalOpen: false,
+            isBtnDisabled: false,
+            modalType: 'create',
+            modalWidth: 700,
+            createTitle: 'Создать расход',
+            editTitle: 'Редактировать расхода',
+            visibleColumns : [
+              {
+                title: '№',
+                dataIndex: 'nomer',
+                key: 'nomer',
+                align: 'center',
+                render: (value, item, index) => index+1
+              },
+              {
+                title: 'Название',
+                dataIndex: 'name',
+                key: 'name',
+              },
+              {
+                title: 'Перевозчик',
+                dataIndex: 'carrierName',
+                key: 'carrierName',
+              },
+              {
+                title: 'Груз',
+                dataIndex: 'ownerName',
+                key: 'ownerName'
+              },
+              {
+                title: 'Ставка',
+                dataIndex: 'from',
+                key: 'from',
+                render: (text, record) => {return record.fromFinalPrice !== null ? record.fromFinalPrice + ' USD (' + record.fromPrice + ' ' + record.fromCurrencyName + ')' : ''}
+              },
+              {
+                title: 'Расход',
+                dataIndex: 'to',
+                key: 'to',
+                render: (text, record) => {return record.toFinalPrice !== null ? record.toFinalPrice + ' USD (' + record.toPrice + ' ' + record.toCurrencyName + ')' : ''}
+              },
+              {
+                title: 'Комментарии',
+                dataIndex: 'comment',
+                key: 'comment',
+              }
+            ]
+          }
+        })
+      }
+    },
+    * saveExpense({payload}, {call, put, select}) {
+      const result = yield call(addShippingExpense, payload);
+      if (result.success) {
+        yield put({
+          type: 'updateState',
+          payload: {
+            expenseList: result.list,
+            currentItem: null,
+            isModalOpen: false,
+            isBtnDisabled: false
+          }
+        })
+        notification.info({
+          description: 'Сохранен успешно',
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#d8ffe9'}
+        });
+      } else {
+        yield put({
+          type: 'updateState',
+          payload: {isBtnDisabled: false}
+        })
+        notification.error({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#ffd9d9'}
+        });
+      }
+    },
+    * getExpenseById({payload}, {call, put, select}) {
+      const result = yield call(getExpenseById, payload.id);
+      if (result.success) {
+        yield put({
+          type: 'updateState',
+          payload: {
+            currentItem: result,
+            isModalOpen: true,
+            modalType: 'update'
+          }
+        })
+      } else {
+        notification.error({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#ffd9d9'}
+        });
+      }
+    },
+    * deleteExpenseById({payload}, {call, put, select}) {
+      const result = yield call(deleteExpenseFromShippingById, payload.id);
+      if (result.success) {
+        yield put({
+          type: 'queryExpense',
+          payload:{id: payload.shippingId}
+        })
+        notification.info({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#d8ffe9'}
+        });
+      } else {
+        notification.error({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#ffd9d9'}
+        });
+      }
+    },
+
   }
 })

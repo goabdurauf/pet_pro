@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import uz.smart.dto.CargoDto;
 import uz.smart.dto.CargoStatusDto;
 import uz.smart.dto.DocumentDto;
+import uz.smart.dto.ExpenseDto;
 import uz.smart.payload.ResCargo;
 import uz.smart.payload.ResDocument;
 import uz.smart.service.CargoService;
@@ -60,6 +61,17 @@ public class CargoController {
     @DeleteMapping("/{id}/document/{docId}")
     public List<ResDocument> deleteDocumentFromCargo(@PathVariable UUID id, @PathVariable UUID docId){
         return service.removeDocumentFromCargo(id, docId);
+    }
+
+    @PostMapping("/expense")
+    public List<ExpenseDto> addExpense(@RequestBody ExpenseDto dto){ return service.addExpense(dto);}
+
+    @GetMapping("/expense/{orderId}")
+    public List<ExpenseDto> getExpenseList(@PathVariable UUID orderId) {return service.getExpensesByOrderId(orderId);}
+
+    @DeleteMapping("/expense/{id}")
+    public HttpEntity<?> deleteExpense(@PathVariable UUID id) {
+        return service.deleteExpenseFromCargo(id);
     }
 
 }

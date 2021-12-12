@@ -132,9 +132,13 @@ public abstract class MapperUtil {
     }
 
     // document
-
     public abstract DocumentEntity toDocumentEntity(DocumentDto dto, @MappingTarget DocumentEntity entity);
 
     public abstract DocumentDto toDocumentDto(DocumentEntity entity);
+
+    // Expense
+    public abstract ExpenseEntity toExpenseEntity(ExpenseDto dto, @MappingTarget ExpenseEntity entity);
+
+    public abstract ExpenseDto toExpenseDto(ExpenseEntity entity);
 
 }

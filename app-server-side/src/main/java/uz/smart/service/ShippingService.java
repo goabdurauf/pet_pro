@@ -9,8 +9,10 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import uz.smart.dto.DocumentDto;
+import uz.smart.dto.ExpenseDto;
 import uz.smart.dto.ShippingDto;
 import uz.smart.entity.*;
+import uz.smart.entity.enums.ExpenseType;
 import uz.smart.entity.enums.ShippingStatus;
 import uz.smart.entity.template.AbsEntity;
 import uz.smart.exception.ResourceNotFoundException;
@@ -45,11 +47,16 @@ public class ShippingService {
     @Autowired
     DocumentRepository documentRepository;
     @Autowired
+    ExpenseRepository expenseRepository;
+
+    @Autowired
     OrderService orderService;
     @Autowired
     DocumentService documentService;
     @Autowired
     CargoService cargoService;
+    @Autowired
+    ExpenseService expenseService;
     @Autowired
     MapperUtil mapper;
 
@@ -105,9 +112,11 @@ public class ShippingService {
         }
         entity.setOrderEntities(new ArrayList<>(orderEntities));
 
-        ListEntity currency = listRepository.findById(dto.getCurrencyId())
-                .orElseThrow(() -> new ResourceNotFoundException("List", "currencyId", dto.getCurrencyId()));
-        entity.setCurrencyName(currency.getNameRu());
+        if (dto.getCurrencyId() != null) {
+            ListEntity currency = listRepository.findById(dto.getCurrencyId())
+                    .orElseThrow(() -> new ResourceNotFoundException("List", "currencyId", dto.getCurrencyId()));
+            entity.setCurrencyName(currency.getNameRu());
+        }
 
         repository.save(entity);
         return ResponseEntity.ok().body(new ApiResponse("Сохранено успешно", true));
@@ -178,15 +187,17 @@ public class ShippingService {
 
     public ResShipping getResShipping(ShippingEntity entity, boolean hasDetails) {
         ResShipping res = mapper.toResShipping(entity);
-        User manager = userRepository.findById(entity.getManagerId())
-                .orElseThrow(() -> new ResourceNotFoundException("User", "managerId", entity.getManagerId()));
-        res.setManagerName(manager.getFullName());
+        if (entity.getManagerId() != null) {
+            User manager = userRepository.findById(entity.getManagerId())
+                    .orElseThrow(() -> new ResourceNotFoundException("User", "managerId", entity.getManagerId()));
+            res.setManagerName(manager.getFullName());
+        }
         res.setStatusId(entity.getStatus().get());
-
-        CarrierEntity carrier = carrierRepository.findById(entity.getCarrierId())
-                .orElseThrow(() -> new ResourceNotFoundException("Carrier", "carrierId", entity.getCarrierId()));
-        res.setCarrierName(carrier.getName());
-
+        if (entity.getCarrierId() != null) {
+            CarrierEntity carrier = carrierRepository.findById(entity.getCarrierId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Carrier", "carrierId", entity.getCarrierId()));
+            res.setCarrierName(carrier.getName());
+        }
         if (hasDetails) {
             if (entity.getOrderEntities() != null) {
                 List<ResOrder> orderList = new ArrayList<>();
@@ -225,6 +236,8 @@ public class ShippingService {
                 .orElseThrow(() -> new ResourceNotFoundException("Cargo", "Id", cargoId));
         shipping.getCargoEntities().remove(cargo);
         repository.saveAndFlush(shipping);
+        cargo.setShipping(null);
+        cargoRepository.saveAndFlush(cargo);
         return ResponseEntity.ok().body(new ApiResponse("Груз удалено успешно", true));
     }
 
@@ -256,5 +269,41 @@ public class ShippingService {
         documentService.deleteDocument(document);
 
         return documentService.getDocumentDto(entity.getDocuments());
+    }
+
+    public List<ExpenseDto> addExpense(ExpenseDto dto) {
+        ShippingEntity entity = repository.findById(dto.getOwnerId())
+                .orElseThrow(() -> new ResourceNotFoundException("Shipping", "Id", dto.getOwnerId()));
+        dto.setType(ExpenseType.Shipping);
+        ExpenseEntity expenseEntity = expenseService.saveAndUpdate(dto);
+        entity.getExpenseList().add(expenseEntity);
+
+        entity = repository.saveAndFlush(entity);
+        return getExpensesByShipping(entity);
+    }
+
+    public List<ExpenseDto> getExpensesByShipping(ShippingEntity entity) {
+        List<ExpenseDto> expenseList = new ArrayList<>();
+        if (entity.getExpenseList() == null || entity.getExpenseList().size() == 0)
+            return expenseList;
+
+        return expenseService.getExpenseDto(entity.getExpenseList(), entity.getNum());
+    }
+
+    public List<ExpenseDto> getExpensesByShippingId(UUID shippingId) {
+        return getExpensesByShipping(repository.findById(shippingId)
+                .orElseThrow(() -> new ResourceNotFoundException("Shipping", "Id", shippingId)));
+    }
+
+    public HttpEntity<?> deleteExpenseFromShipping(UUID id) {
+        ExpenseEntity expenseEntity = expenseRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Expense", "Id", id));
+        ShippingEntity shippingEntity = repository.findById(expenseEntity.getOwnerId())
+                .orElseThrow(() -> new ResourceNotFoundException("Shipping", "Id", expenseEntity.getOwnerId()));
+        shippingEntity.getExpenseList().remove(expenseEntity);
+        repository.saveAndFlush(shippingEntity);
+        expenseRepository.delete(expenseEntity);
+
+        return ResponseEntity.ok().body(new ApiResponse("Удалено успешно", true));
     }
 }

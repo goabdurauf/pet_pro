@@ -102,7 +102,7 @@ public class OrderService {
 
         for (CargoEntity cargoEntity : cargoList) {
             OrderSelectDto selectDto = new OrderSelectDto(cargoEntity.getOrder().getNum(), cargoEntity.getOrder().getId());
-            selectDto.setChildren(List.of(new OrderSelectDto(cargoEntity.getNum(), cargoEntity.getId())));
+            selectDto.setChildren(List.of(new OrderSelectDto(cargoEntity.getNum() + " - " + cargoEntity.getName(), cargoEntity.getId())));
             dtoList.add(selectDto);
         }
 

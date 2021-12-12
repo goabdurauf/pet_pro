@@ -49,7 +49,7 @@ const modal = ({ currentItem, isBtnDisabled, handleSubmit, managerList, carrierL
     handleSave();
   }
 
-  return (<Modal {...modalProps}
+  return (<Modal {...modalProps} onCancel={onCancel}
                  footer={[
                    <Button key="1" type="dashed" className={'float-left'} onClick={handlePlanButton}
                            disabled={isBtnDisabled || (currentItem && currentItem.statusId === 2)}>Плановой</Button>,
@@ -59,14 +59,14 @@ const modal = ({ currentItem, isBtnDisabled, handleSubmit, managerList, carrierL
     <Form form={form} initialValues={currentItem !== null ? currentItem : ''} onFinish={handleFormSubmit} onValuesChange={handleChangeForm}>
       <Row>
         <Col span={8}><Label>Менеджер</Label>
-          <Form.Item key={'managerId'} name={'managerId'} rules={[{required: true, message: 'Выберите менеджера'}]}>
+          <Form.Item key={'managerId'} name={'managerId'} rules={[{required: false, message: 'Выберите менеджера'}]}>
             <Select placeholder='менеджер'>
               {managerList.map(manager => <Select.Option key={manager.id} value={manager.id}>{manager.fullName}</Select.Option>)}
             </Select>
           </Form.Item>
         </Col>
         <Col span={8}><Label>Перевозчик</Label>
-          <Form.Item key={'carrierId'} name={'carrierId'} rules={[{required: true, message: 'Выберите перевозчика'}]}>
+          <Form.Item key={'carrierId'} name={'carrierId'} rules={[{required: false, message: 'Выберите перевозчика'}]}>
             <Select placeholder='перевозчик'>
               {carrierList.map(carrier => <Select.Option key={carrier.id} value={carrier.id}>{carrier.name}</Select.Option>)}
             </Select>
@@ -79,30 +79,30 @@ const modal = ({ currentItem, isBtnDisabled, handleSubmit, managerList, carrierL
             </Select>
           </Form.Item>
         </Col>
-        <Col span={6}><Label>Цена</Label>
-          <Form.Item key={'price'} name={'price'} rules={[{required: true, message: 'Введите цену'}]}>
+        <Col span={4}><Label>Цена</Label>
+          <Form.Item key={'price'} name={'price'} rules={[{required: false, message: 'Введите цену'}]}>
             <Input placeholder='цена' onChange={getPrice} />
           </Form.Item>
         </Col>
-        <Col span={6}><Label>Валюта</Label>
-          <Form.Item key={'currencyId'} name={'currencyId'} rules={[{required: true, message: 'Выберите валюту'}]}>
+        <Col span={4}><Label>Валюта</Label>
+          <Form.Item key={'currencyId'} name={'currencyId'} rules={[{required: false, message: 'Выберите валюту'}]}>
             <Select placeholder='валюта'>
               {currencyList.map(currency => <Select.Option key={currency.id} value={currency.id}>{currency.nameRu}</Select.Option>)}
             </Select>
           </Form.Item>
         </Col>
-        <Col span={6}><Label>Курс</Label>
-          <Form.Item key={'rate'} name={'rate'} rules={[{required: true, message: 'Введите курса'}]} >
+        <Col span={4}><Label>Курс</Label>
+          <Form.Item key={'rate'} name={'rate'} rules={[{required: false, message: 'Введите курса'}]} >
             <InputNumber placeholder='курс' onChange={getRate} precision={4} />
           </Form.Item>
         </Col>
         <Col span={6}><Label>Конечное цена (USD)</Label>
-          <Form.Item key={'finalPrice'} name={'finalPrice'} rules={[{required: true, message: 'Введите конечную цену'}]}>
+          <Form.Item key={'finalPrice'} name={'finalPrice'} rules={[{required: false, message: 'Введите конечную цену'}]}>
             <InputNumber placeholder='конечное цена' precision={2} />
           </Form.Item>
         </Col>
-        <Col span={8}><Label>Номер транспорта</Label>
-          <Form.Item key={'shippingNum'} name={'shippingNum'} rules={[{required: true, message: 'Введите номер транспорта'}]}>
+        <Col span={6}><Label>Номер транспорта</Label>
+          <Form.Item key={'shippingNum'} name={'shippingNum'} rules={[{required: false, message: 'Введите номер транспорта'}]}>
             <Input placeholder='номер транспорта' />
           </Form.Item>
         </Col>
@@ -112,6 +112,11 @@ const modal = ({ currentItem, isBtnDisabled, handleSubmit, managerList, carrierL
             {/*<Select placeholder='гурзы'>
                     {selectOrderList.map(order => <Select.Option key={order.id} value={order.id}>{order.num}</Select.Option>)}
                   </Select>*/}
+          </Form.Item>
+        </Col>
+        <Col span={8} key={'comment'}><Label>Комментарии</Label>
+          <Form.Item key={'comment'} name={'comment'}>
+            <Input placeholder='комментарии'/>
           </Form.Item>
         </Col>
       </Row>

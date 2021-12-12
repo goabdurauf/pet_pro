@@ -13,6 +13,7 @@ import javax.persistence.*;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.Set;
 
 @Data @NoArgsConstructor @AllArgsConstructor
 @Entity(name = "cargo")
@@ -38,6 +39,7 @@ public class CargoEntity extends BaseEntity {
     private Long currencyId;
     private String currencyName;
     private BigDecimal price;
+    @Column(precision = 19, scale = 4)
     private BigDecimal rate;
     private BigDecimal finalPrice;
 
@@ -52,6 +54,9 @@ public class CargoEntity extends BaseEntity {
 
     @OneToMany(fetch = FetchType.LAZY)
     private List<DocumentEntity> documentList;
+
+    @OneToMany(fetch = FetchType.LAZY)
+    private Set<ExpenseEntity> expenseList;
 
     private String receiverName;
     private Long receiverCountryId;
