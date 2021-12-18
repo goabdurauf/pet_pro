@@ -1,16 +1,17 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import {connect} from 'dva'
-import {Card, Col, Popconfirm, Row, Space, Table, Tabs} from "antd";
-import {DeleteOutlined, FormOutlined, PlusOutlined} from "@ant-design/icons";
-import DocumentModal from './modal'
+import {Card, Col, notification, Popconfirm, Row, Space, Table, Tabs, Tooltip} from "antd";
+import {DeleteOutlined, FormOutlined, PlusOutlined, ApartmentOutlined} from "@ant-design/icons";
+import DocumentModal from './modals/documentModal'
 import ExpenseModal from '../../$order_detail/modals/expenseModal'
+import DivideModal from './modals/divideModal'
 import {Button} from "reactstrap";
 
 const ShippingDetail = ({dispatch, shippingDetail}) => {
 
-  const {model, shippingId, isModalOpen, loadingFile, cargoList, currentModel, currentItem, modalType, modalWidth, createTitle, editTitle, visibleColumns,
-    isBtnDisabled, documentList, documentAttachments, carrierList, currencyList, expenseList} = shippingDetail;
+  const {model, shippingId, isModalOpen, isDivideModalOpen, loadingFile, cargoList, currentModel, currentItem, modalType, modalWidth, createTitle, editTitle, visibleColumns,
+    isBtnDisabled, documentList, documentAttachments, carrierList, currencyList, expenseList, expenseDivideList, expenseDivide} = shippingDetail;
 
   const openModal = () => {
     dispatch({
@@ -28,6 +29,88 @@ const ShippingDetail = ({dispatch, shippingDetail}) => {
     visible: isModalOpen,
     onCancel: openModal,
     width: modalWidth
+  }
+  const openDivideModal = (id) => {
+    dispatch({
+      type: 'shippingDetail/getExpenseDivideId',
+      payload: {shippingId, id}
+    })
+  };
+  const handleDivideChange = (data) => {
+    dispatch({
+      type: 'shippingDetail/updateState',
+      payload: {expenseDivideList: data}
+    })
+  };
+  const closeDivideModal = () => {
+    dispatch({
+      type: 'shippingDetail/updateState',
+      payload: {
+        isDivideModalOpen: false,
+        expenseDivide: {},
+        expenseDivideList: []
+      }
+    })
+  }
+  const handleDivideSubmit = () => {
+    if (expenseDivideList.length === 0) {
+      notification.error({
+        description: 'Сначала прикрепите грузы на этот рейс',
+        placement: 'topRight',
+        duration: 3,
+        style: {backgroundColor: '#ffd9d9'}
+      });
+      return;
+    }
+    let isValid = true;
+    let fPrice = 0;
+    expenseDivideList.forEach(divide => {
+      fPrice += Number.parseFloat(divide.finalPrice);
+      if (divide.finalPrice <= 0)
+        isValid = false;
+    })
+    if (fPrice !== expenseDivide.expensePrice) {
+      notification.error({
+        description: 'Общая сумма не совпадает с разделяемый суммы (' + expenseDivide.expensePrice + ' <> ' + fPrice + ')',
+        placement: 'topRight',
+        duration: 3,
+        style: {backgroundColor: '#ffd9d9'}
+      });
+      return;
+    }
+    if (isValid) {
+      dispatch({
+        type: 'shippingDetail/updateState',
+        payload: {
+          isBtnDisabled: true
+        }
+      })
+      dispatch({
+        type: 'shippingDetail/divideExpense',
+        payload: {
+          id: expenseDivide.id,
+          typeId: document.getElementById("selectedId").value,
+          expensePrice: expenseDivide.expensePrice,
+          totalWeight: expenseDivide.totalWeight,
+          totalCapacity: expenseDivide.totalCapacity,
+          divideList: expenseDivideList
+        }
+      })
+    } else {
+      notification.error({
+        description: 'Сумма должно быть больше 0',
+        placement: 'topRight',
+        duration: 3,
+        style: {backgroundColor: '#ffd9d9'}
+      });
+    }
+  }
+  const modalDivideProps = {
+    title: 'Разбить',
+    visible: isDivideModalOpen,
+    onCancel: closeDivideModal,
+    onOk: handleDivideSubmit,
+    width: 1100
   }
   const customRequest = (options) => {
     dispatch({
@@ -117,9 +200,19 @@ const ShippingDetail = ({dispatch, shippingDetail}) => {
       align: 'center',
       render: (text, record) => (
         <Space size="middle">
-          {model !== 'Cargo' ? <FormOutlined onClick={() => handleEdit(record.id)}/> : ''}
+          {model === 'Expense' &&
+          <Tooltip title="Разбить" placement={"bottom"} color={"purple"}>
+            <ApartmentOutlined onClick={() => openDivideModal(record.id)}/>
+          </Tooltip>
+          }
+          {model !== 'Cargo' ?
+            <Tooltip title="Редактировать" placement={"bottom"} color={"#1f75a8"}>
+              <FormOutlined onClick={() => handleEdit(record.id)}/>
+            </Tooltip>: ''}
           <Popconfirm title="Удалить?" onConfirm={() => handleDelete(record.id)} okText="Да" cancelText="Нет">
-            <DeleteOutlined style={{color: 'red'}}/>
+            <Tooltip title="Удалить" placement={"bottom"} color={"red"}>
+              <DeleteOutlined style={{color: 'red'}}/>
+            </Tooltip>
           </Popconfirm>
         </Space>
       )
@@ -258,6 +351,12 @@ const ShippingDetail = ({dispatch, shippingDetail}) => {
         {...modalProps}
         handleSubmit={handleSubmit} isBtnDisabled={isBtnDisabled} currentItem={currentItem} ownerType={'Shipping'}
         carrierList={carrierList} currencyList={currencyList} />
+      }
+      {isDivideModalOpen &&
+        <DivideModal
+          {...modalDivideProps}
+          expenseDivideList={expenseDivideList} isBtnDisabled={isBtnDisabled} onChange={handleDivideChange} expenseDivide={expenseDivide}
+        />
       }
 
     </div>

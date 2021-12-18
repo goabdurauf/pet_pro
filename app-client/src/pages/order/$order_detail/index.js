@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types'
 import {connect} from 'dva'
-import {Card, Row, Col, Select, Tabs, Space, Popconfirm, Table} from 'antd';
+import {Card, Row, Col, Select, Tabs, Space, Popconfirm, Table, Tooltip} from 'antd';
 import CargoModal from './modals/cargoModal'
 import ShippingModal from '../shipping/modal'
 import DocumentModal from './modals/documentModal'
@@ -187,11 +187,17 @@ const OrderDetail = ({dispatch, orderDetail}) => {
         align: 'center',
         render: (text, record) => (
           <Space size="middle">
-            {model === 'Cargo' && <CopyOutlined onClick={() => handleClone(record.id)}/>}
-            <FormOutlined onClick={() => handleEdit(record.id)}/>
-            <Popconfirm title="Удалить?" onConfirm={() => handleDelete(record.id)}
-                        okText="Да" cancelText="Нет">
-              <DeleteOutlined style={{color: 'red'}}/>
+            {model === 'Cargo' &&
+            <Tooltip title="Дублировать" placement={"bottom"} color={"purple"}>
+              <CopyOutlined onClick={() => handleClone(record.id)}/>
+            </Tooltip>}
+            <Tooltip title="Редактировать" placement={"bottom"} color={"#1f75a8"}>
+              <FormOutlined onClick={() => handleEdit(record.id)}/>
+            </Tooltip>
+            <Popconfirm title="Удалить?" onConfirm={() => handleDelete(record.id)} okText="Да" cancelText="Нет">
+              <Tooltip title="Удалить" placement={"bottom"} color={"red"}>
+                <DeleteOutlined style={{color: 'red'}}/>
+              </Tooltip>
             </Popconfirm>
           </Space>
         )

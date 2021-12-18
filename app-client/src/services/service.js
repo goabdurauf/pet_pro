@@ -47,6 +47,7 @@ export function deleteDocumentFromShippingById(data) {return request({url: '/api
 export function addShippingExpense(data) {return request({url: '/api/shipping/expense', method: 'post', data})}
 export function getShippingExpenses(id) {return request({url: '/api/shipping/expense/' + id, method: 'get',})}
 export function deleteExpenseFromShippingById(id) {return request({url: '/api/shipping/expense/' + id, method: 'delete',})}
+export function getShippingExpenseDivide(data) {return request({url: '/api/shipping/' + data.shippingId + '/expense/divide/' + data.id, method: 'get',})}
 
 export function getDocumentById(id) {return request({url: '/api/document/' + id, method: 'get'})}
 export function deleteAttachmentFromDocumentById(data) {return request({url: '/api/document/' + data.docId + '/attachment/' + data.id, method: 'delete'})}
@@ -78,6 +79,7 @@ export function deleteDocumentFromCargo(data) {return request({url: '/api/cargo/
 export function addCargoExpense(data) {return request({url: '/api/cargo/expense', method: 'post', data})}
 export function getCargoExpenseByOrderId(id) {return request({url: '/api/cargo/expense/' + id, method: 'get',})}
 export function deleteExpenseFromCargoById(id) {return request({url: '/api/cargo/expense/' + id, method: 'delete',})}
+export function divideShippingExpenseToCargos(data) {return request({url: '/api/cargo/expense/divide', method: 'post', data})}
 
 export function getExpenseById(id) {return request({url: '/api/expense/' + id, method: 'get',})}
 

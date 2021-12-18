@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Card, Row, Col, Tabs, Form, Input, Select, Space, Popconfirm, Table, DatePicker, Modal} from 'antd';
+import {Card, Row, Col, Tabs, Form, Input, Select, Space, Popconfirm, Table, DatePicker, Modal, Tooltip} from 'antd';
 import {connect} from "react-redux";
 import {DeleteOutlined, FormOutlined, PlusOutlined} from "@ant-design/icons";
 import {Button, Label} from "reactstrap";
@@ -112,10 +112,13 @@ class Order extends Component {
         align: 'center',
         render: (text, record) => (
           <Space size="middle">
-            <FormOutlined onClick={() => handleEdit(record.id)}/>
-            <Popconfirm title="Удалить?" onConfirm={() => handleDelete(record.id)}
-                        okText="Да" cancelText="Нет">
-              <DeleteOutlined style={{color: 'red'}}/>
+            <Tooltip title="Редактировать" placement={"bottom"} color={"#1f75a8"}>
+              <FormOutlined onClick={() => handleEdit(record.id)}/>
+            </Tooltip>
+            <Popconfirm title="Удалить?" onConfirm={() => handleDelete(record.id)} okText="Да" cancelText="Нет">
+              <Tooltip title="Удалить" placement={"bottom"} color={"red"}>
+                <DeleteOutlined style={{color: 'red'}}/>
+              </Tooltip>
             </Popconfirm>
           </Space>
         )

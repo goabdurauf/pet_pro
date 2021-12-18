@@ -141,4 +141,15 @@ public abstract class MapperUtil {
 
     public abstract ExpenseDto toExpenseDto(ExpenseEntity entity);
 
+    public abstract ExpenseEntity cloneExpense(ExpenseEntity entity);
+
+    @AfterMapping
+    void cloneExpense(@MappingTarget ExpenseEntity entity, ExpenseEntity old) {
+        entity.setId(null);
+        entity.setVersion(1);
+        entity.setCreatedAt(null);
+        entity.setUpdatedAt(null);
+    }
+
+
 }

@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Card, Tabs, Space, Popconfirm, Table, Row, Col, Select, Modal, Typography, notification} from 'antd';
+import {Card, Tabs, Space, Popconfirm, Table, Row, Col, Select, Modal, Typography, notification, Tooltip} from 'antd';
 import {connect} from "react-redux";
 import {DeleteOutlined, FormOutlined} from "@ant-design/icons";
 import CargoModal from '../$order_detail/modals/cargoModal'
@@ -70,10 +70,13 @@ class Cargo extends Component {
         align: 'center',
         render: (text, record) => (
           <Space size="middle">
-            <FormOutlined onClick={() => handleEdit(record.id)}/>
-            <Popconfirm title="Удалить?" onConfirm={() => handleDelete(record.id)}
-                        okText="Да" cancelText="Нет">
-              <DeleteOutlined style={{color: 'red'}}/>
+            <Tooltip title="Редактировать" placement={"bottom"} color={"#1f75a8"}>
+              <FormOutlined onClick={() => handleEdit(record.id)}/>
+            </Tooltip>
+            <Popconfirm title="Удалить?" onConfirm={() => handleDelete(record.id)} okText="Да" cancelText="Нет">
+              <Tooltip title="Удалить" placement={"bottom"} color={"red"}>
+                <DeleteOutlined style={{color: 'red'}}/>
+              </Tooltip>
             </Popconfirm>
           </Space>
         )

@@ -7,7 +7,7 @@ import {
   deleteDocumentFromShippingById,
   addShippingDocument,
   deleteAttachmentFromDocumentById,
-  addAttachmentToDocument,
+  addAttachmentToDocument, getShippingExpenseDivide, divideShippingExpenseToCargos,
   getShippingExpenses, addShippingExpense, getExpenseById, deleteExpenseFromShippingById, getCarrierList, getListItems
 } from '@/services/service'
 import modelExtend from 'dva-model-extend'
@@ -23,6 +23,7 @@ export default modelExtend(tableModel, {
     model: '',
     shippingId: '',
     isModalOpen: false,
+    isDivideModalOpen: false,
     cargoList: [],
     currentModel: null,
     modalWidth: 500,
@@ -32,6 +33,8 @@ export default modelExtend(tableModel, {
     carrierList: [],
     currencyList: [],
     expenseList: [],
+    expenseDivideList: [],
+    expenseDivide: {},
     isBtnDisabled: false,
     loadingFile: false,
     visibleColumns : []
@@ -536,6 +539,57 @@ export default modelExtend(tableModel, {
           style: {backgroundColor: '#d8ffe9'}
         });
       } else {
+        notification.error({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#ffd9d9'}
+        });
+      }
+    },
+    * getExpenseDivideId({payload}, {call, put, select}) {
+      const result = yield call(getShippingExpenseDivide, payload);
+      if (result.success) {
+        yield put({
+          type: 'updateState',
+          payload: {
+            expenseDivideList: result.divideList,
+            expenseDivide: result,
+            isDivideModalOpen: true
+          }
+        })
+      } else {
+        notification.error({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#ffd9d9'}
+        });
+      }
+    },
+    * divideExpense({payload}, {call, put, select}) {
+      const result = yield call(divideShippingExpenseToCargos, payload);
+      if (result.success) {
+        yield put({
+          type: 'updateState',
+          payload: {
+            expenseDivideList: [],
+            expenseDivide: {},
+            isDivideModalOpen: false,
+            isBtnDisabled: false
+          }
+        })
+        notification.info({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#d8ffe9'}
+        });
+      } else {
+        yield put({
+          type: 'updateState',
+          payload: {isBtnDisabled: false}
+        })
         notification.error({
           description: result.message,
           placement: 'topRight',

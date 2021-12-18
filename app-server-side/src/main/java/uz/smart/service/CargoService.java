@@ -17,6 +17,8 @@ import uz.smart.mapper.MapperUtil;
 import uz.smart.payload.*;
 import uz.smart.repository.*;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -205,11 +207,11 @@ public class CargoService {
 
     public HttpEntity<?> deleteCargo(CargoEntity cargoEntity) {
         ShippingEntity shippingEntity = shippingRepository.getByCargoEntitiesIn(List.of(cargoEntity)).orElse(null);
-        if (shippingEntity != null){
+        if (shippingEntity != null) {
             shippingEntity.getCargoEntities().remove(cargoEntity);
             shippingRepository.saveAndFlush(shippingEntity);
         }
-        if (cargoEntity.getDocumentList() != null && cargoEntity.getDocumentList().size() > 0){
+        if (cargoEntity.getDocumentList() != null && cargoEntity.getDocumentList().size() > 0) {
             List<UUID> docIdList = cargoEntity.getDocumentList().stream().map(AbsEntity::getId).collect(Collectors.toList());
             List<DocumentEntity> documentList = documentRepository.findAllByIdIn(docIdList);
             cargoEntity.setDocumentList(null);
@@ -345,7 +347,7 @@ public class CargoService {
         return ResponseEntity.ok().body(new ApiResponse("Статусы " + list.size() + " груза изменено успешно", true));
     }
 
-    public List<ExpenseDto> addExpense(ExpenseDto dto){
+    public List<ExpenseDto> addExpense(ExpenseDto dto) {
         CargoEntity cargoEntity = repository.findById(dto.getOwnerId())
                 .orElseThrow(() -> new ResourceNotFoundException("Cargo", "Id", dto.getOwnerId()));
         dto.setType(ExpenseType.Cargo);
@@ -378,6 +380,39 @@ public class CargoService {
         expenseRepository.delete(expenseEntity);
 
         return ResponseEntity.ok().body(new ApiResponse("Удалено успешно", true));
+    }
+
+    public HttpEntity<?> divideExpense(ResShippingDivide divide) {
+        if (divide.getTypeId() == null)
+            return ResponseEntity.ok().body(new ApiResponse("Выберите тип раздела", false));
+
+        ExpenseEntity oldExpense = expenseRepository.findById(divide.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Expense", "Id", divide.getId()));
+        for (ResDivide resDivide : divide.getDivideList()) {
+            ExpenseEntity expenseEntity = mapper.cloneExpense(oldExpense);
+            CargoEntity cargoEntity = repository.findById(resDivide.getId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Cargo", "Id", resDivide.getId()));
+            expenseEntity.setOwnerId(cargoEntity.getId());
+            expenseEntity.setType(ExpenseType.Cargo);
+            BigDecimal percent = resDivide.getFinalPrice().divide(divide.getExpensePrice(), 10, RoundingMode.HALF_EVEN);
+            /*switch (divide.getTypeId()) {
+                case 1 -> resDivide.getWeight().divide(divide.getTotalWeight(), 10, RoundingMode.HALF_EVEN);
+                case 2 -> resDivide.getCapacity().divide(divide.getTotalCapacity(), 10, RoundingMode.HALF_EVEN);
+                case 3 -> BigDecimal.ONE.divide(BigDecimal.valueOf(divide.getDivideList().size()), 10, RoundingMode.HALF_EVEN);
+
+                default -> BigDecimal.ONE;
+            };*/
+            expenseEntity.setFromPrice(expenseEntity.getFromPrice().multiply(percent));
+            expenseEntity.setFromFinalPrice(expenseEntity.getFromFinalPrice().multiply(percent));
+            expenseEntity.setToPrice(expenseEntity.getToPrice().multiply(percent));
+            expenseEntity.setToFinalPrice(resDivide.getFinalPrice());
+
+            expenseEntity = expenseRepository.saveAndFlush(expenseEntity);
+            cargoEntity.getExpenseList().add(expenseEntity);
+            repository.saveAndFlush(cargoEntity);
+        }
+
+        return ResponseEntity.ok().body(new ApiResponse("Разделено успешно", true));
     }
 
 }

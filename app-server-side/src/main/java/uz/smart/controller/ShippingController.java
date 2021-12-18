@@ -11,6 +11,7 @@ import uz.smart.dto.DocumentDto;
 import uz.smart.dto.ExpenseDto;
 import uz.smart.dto.ShippingDto;
 import uz.smart.payload.ResShipping;
+import uz.smart.payload.ResShippingDivide;
 import uz.smart.service.ShippingService;
 
 import java.util.List;
@@ -69,7 +70,8 @@ public class ShippingController {
     public List<ExpenseDto> getExpenseList(@PathVariable UUID shippingId) {return service.getExpensesByShippingId(shippingId);}
 
     @DeleteMapping("/expense/{id}")
-    public HttpEntity<?> deleteExpense(@PathVariable UUID id) {
-        return service.deleteExpenseFromShipping(id);
-    }
+    public HttpEntity<?> deleteExpense(@PathVariable UUID id) {return service.deleteExpenseFromShipping(id);}
+
+    @GetMapping("/{shippingId}/expense/divide/{id}")
+    public ResShippingDivide getShippingDivideList(@PathVariable UUID shippingId, @PathVariable UUID id) {return service.getResShippingDivide(shippingId, id);}
 }

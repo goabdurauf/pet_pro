@@ -17,10 +17,7 @@ import uz.smart.entity.enums.ShippingStatus;
 import uz.smart.entity.template.AbsEntity;
 import uz.smart.exception.ResourceNotFoundException;
 import uz.smart.mapper.MapperUtil;
-import uz.smart.payload.ApiResponse;
-import uz.smart.payload.ResCargo;
-import uz.smart.payload.ResOrder;
-import uz.smart.payload.ResShipping;
+import uz.smart.payload.*;
 import uz.smart.repository.*;
 import uz.smart.utils.CommonUtils;
 
@@ -225,6 +222,44 @@ public class ShippingService {
             if (entity.getDocuments() != null)
                 res.setDocuments(documentService.getDocumentDto(entity.getDocuments()));
         }
+
+        return res;
+    }
+
+    public ResShippingDivide getResShippingDivide(UUID shippingId, UUID expenseId) {
+        List<ResDivide> list = new ArrayList<>();
+        ShippingEntity shipping = repository.getShippingById(shippingId).orElseThrow(() -> new ResourceNotFoundException("Shipping", "id", shippingId));
+        if (shipping.getCargoEntities() == null || shipping.getCargoEntities().size() == 0)
+            return new ResShippingDivide();
+
+        ExpenseEntity expense = expenseRepository.findById(expenseId).orElseThrow(() -> new ResourceNotFoundException("Expense", "id", expenseId));
+        ResShippingDivide res = new ResShippingDivide();
+        res.setId(expenseId);
+        res.setExpensePrice(expense.getToFinalPrice());
+
+        for (CargoEntity cargo : shipping.getCargoEntities()) {
+            ResDivide divide = new ResDivide();
+            divide.setId(cargo.getId());
+            divide.setShippingNum(shipping.getNum());
+            divide.setOrderNum(cargo.getOrder().getNum());
+            ClientEntity client = clientRepository.findById(cargo.getOrder().getClientId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Client", "id", cargo.getOrder().getClientId()));
+            divide.setClientName(client.getName());
+            divide.setCargoName(cargo.getNum() + " - " + cargo.getName());
+            if (cargo.getCargoDetails() != null && cargo.getCargoDetails().size() > 0) {
+                for (CargoDetailEntity cargoDetail : cargo.getCargoDetails()) {
+                    divide.setWeight(divide.getWeight().add(cargoDetail.getWeight()));
+                    divide.setCapacity(divide.getCapacity().add(cargoDetail.getCapacity()));
+                    divide.setPackageAmount(divide.getPackageAmount().add(cargoDetail.getPackageAmount()));
+
+                    res.setTotalWeight(res.getTotalWeight().add(cargoDetail.getWeight()));
+                    res.setTotalCapacity(res.getTotalCapacity().add(cargoDetail.getCapacity()));
+                }
+            }
+
+            list.add(divide);
+        }
+        res.setDivideList(list);
 
         return res;
     }
