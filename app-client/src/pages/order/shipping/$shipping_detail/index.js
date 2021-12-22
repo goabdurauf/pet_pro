@@ -2,16 +2,17 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import {connect} from 'dva'
 import {Card, Col, notification, Popconfirm, Row, Space, Table, Tabs, Tooltip} from "antd";
-import {DeleteOutlined, FormOutlined, PlusOutlined, ApartmentOutlined} from "@ant-design/icons";
+import {DeleteOutlined, FormOutlined, PlusOutlined, ApartmentOutlined, FileDoneOutlined} from "@ant-design/icons";
 import DocumentModal from './modals/documentModal'
 import ExpenseModal from '../../$order_detail/modals/expenseModal'
 import DivideModal from './modals/divideModal'
+import ReceivedInvoiceModal from "./modals/receivedInvoiceModal";
 import {Button} from "reactstrap";
 
 const ShippingDetail = ({dispatch, shippingDetail}) => {
 
   const {model, shippingId, isModalOpen, isDivideModalOpen, loadingFile, cargoList, currentModel, currentItem, modalType, modalWidth, createTitle, editTitle, visibleColumns,
-    isBtnDisabled, documentList, documentAttachments, carrierList, currencyList, expenseList, expenseDivideList, expenseDivide} = shippingDetail;
+    isBtnDisabled, documentList, documentAttachments, carrierList, currencyList, expenseList, expenseDivideList, expenseDivide, isAddInvoiceModalOpen} = shippingDetail;
 
   const openModal = () => {
     dispatch({
@@ -201,9 +202,14 @@ const ShippingDetail = ({dispatch, shippingDetail}) => {
       render: (text, record) => (
         <Space size="middle">
           {model === 'Expense' &&
-          <Tooltip title="Разбить" placement={"bottom"} color={"purple"}>
-            <ApartmentOutlined onClick={() => openDivideModal(record.id)}/>
-          </Tooltip>
+            <Tooltip title="Разбить" placement={"bottom"} color={"purple"}>
+              <ApartmentOutlined onClick={() => openDivideModal(record.id)}/>
+            </Tooltip>
+          }
+          {model === 'Expense' &&
+            <Tooltip title="Добавить полученный счёт" placement={"bottom"} color={"cyan"}>
+              <FileDoneOutlined onClick={() => openExpenseInvoiceModal(record.id)} />
+            </Tooltip>
           }
           {model !== 'Cargo' ?
             <Tooltip title="Редактировать" placement={"bottom"} color={"#1f75a8"}>
@@ -268,6 +274,71 @@ const ShippingDetail = ({dispatch, shippingDetail}) => {
     return weight > 0 ? '+' + weight : weight;
   }
 
+  const carrierColumns = [
+    {
+      title: 'Перевозчик',
+      dataIndex: 'name',
+      key: 'name',
+    },
+    {
+      title: 'Цена',
+      dataIndex: 'price',
+      key: 'price',
+    },
+    {
+      title: 'Операции',
+      key: 'operation',
+      width: 100,
+      align: 'center',
+      render: (text, record) => (
+        <Space size="middle">
+          <Tooltip title="Добавить полученный счёт" placement={"bottom"} color={"cyan"}>
+            <FileDoneOutlined onClick={openInvoiceModal} />
+          </Tooltip>
+        </Space>
+      )
+    }
+  ];
+  const carrierData = [
+    {
+      id: currentModel && currentModel.id,
+      name: currentModel && currentModel.carrierName,
+      price: currentModel && currentModel.finalPrice !== null && (currentModel.finalPrice + ' USD (' + currentModel.price + ' ' + currentModel.currencyName + ')')
+    }
+  ]
+  const openExpenseInvoiceModal = (id) => {
+    dispatch({
+      type: 'shippingDetail/getExpenseForInvoiceById',
+      payload: {id}
+    })
+  }
+  const openInvoiceModal = () => {
+    dispatch({
+      type: 'shippingDetail/updateState',
+      payload: {
+        isAddInvoiceModalOpen: !isAddInvoiceModalOpen,
+        modalType: 'create',
+        currentItem: null,
+      }
+    })
+  }
+  const closeAddInvoiceModal = () => {
+    dispatch({
+      type: 'shippingDetail/updateState',
+      payload: {
+        isAddInvoiceModalOpen: !isAddInvoiceModalOpen,
+        currentItem: null,
+      }
+    })
+  }
+  const modalAddInvoiceProps = {
+    title: modalType === 'create' ? 'Добавить полученный счёт' : 'Редактировать полученный счёт',
+    visible: isAddInvoiceModalOpen,
+    onCancel: closeAddInvoiceModal
+  }
+
+
+
 
   return (
     <div className="order-page">
@@ -326,6 +397,9 @@ const ShippingDetail = ({dispatch, shippingDetail}) => {
                     <Tabs.TabPane tab="Счета" key="Account">
                     </Tabs.TabPane>
                     <Tabs.TabPane tab="Финансы" key="Expense">
+                      <Table style={{marginBottom: '15px'}}
+                        columns={carrierColumns} dataSource={carrierData} bordered size="middle" rowKey={record => record.id}
+                        pagination={false}/>
                       <Button className="float-right" outline color="primary" size="sm" onClick={openModal}><PlusOutlined/> Добавить</Button>
                       <Table
                         columns={columns} dataSource={expenseList} bordered size="middle" rowKey={record => record.id}
@@ -356,6 +430,12 @@ const ShippingDetail = ({dispatch, shippingDetail}) => {
         <DivideModal
           {...modalDivideProps}
           expenseDivideList={expenseDivideList} isBtnDisabled={isBtnDisabled} onChange={handleDivideChange} expenseDivide={expenseDivide}
+        />
+      }
+      {isAddInvoiceModalOpen &&
+        <ReceivedInvoiceModal
+          {...modalAddInvoiceProps}
+          currencyList={currencyList} currentItem={currentItem} handleSubmit={handleSubmit} isBtnDisabled={isBtnDisabled}
         />
       }
 

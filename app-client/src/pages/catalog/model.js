@@ -2,6 +2,7 @@ import {saveListItem, deleteListItemById, getListItems, getListItemById, getUser
   getProductById, deleteProductById
 } from '@/services/service'
 import {notification} from 'antd'
+import moment from "moment";
 
 export default ({
   namespace: 'catalog',
@@ -605,8 +606,7 @@ export default ({
                 title: 'Размер',
                 dataIndex: 'val01',
                 key: 'val01',
-              },
-
+              }
             ]
           }
         })
@@ -1062,6 +1062,224 @@ export default ({
       if (result.success) {
         yield put({
           type: 'queryCargoRegType'
+        })
+        notification.info({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#d8ffe9'}
+        });
+      } else {
+        notification.error({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#ffd9d9'}
+        });
+      }
+    },
+    * queryTransportKind({payload}, {call, put, select}) {
+      let data = yield call(getListItems, 10);
+
+      if (data.success) {
+        yield put({
+          type: 'updateState',
+          payload: {
+            model: 'TransportKind',
+            title: 'Вид транспорта',
+            createTitle: 'Создать вид транспорта',
+            editTitle: 'Редактировать вид транспорта',
+            isModalOpen: false,
+            itemList: data.list,
+            currentItem: null,
+            modalType: 'create',
+            isBtnDisabled: false,
+            visibleColumns: [
+              {
+                title: '№',
+                dataIndex: 'num',
+                key: 'num',
+                align: 'center',
+                render: (value, item, index) => index + 1
+              },
+              {
+                title: 'Название',
+                dataIndex: 'nameRu',
+                key: 'nameRu',
+              },
+              {
+                title: 'Дата',
+                dataIndex: 'date01',
+                key: 'date01',
+                render: (text, record) => text && text.substring(0, text.indexOf(' '))
+              }
+            ]
+          }
+        })
+      }
+    },
+    * saveTransportKind({payload}, {call, put, select}) {
+      const result = yield call(saveListItem, {...payload, typeId: 10});
+      if (result.success) {
+        yield put({
+          type: 'queryTransportKind'
+        })
+        notification.info({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#d8ffe9'}
+        });
+      } else {
+        // yield put({
+        //   type: 'updateState',
+        //   payload: {isBtnDisabled: false}
+        // })
+        notification.error({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#ffd9d9'}
+        });
+      }
+    },
+    * getTransportKindById({payload}, {call, put, select}) {
+      const result = yield call(getListItemById, payload.id);
+      if (result.success) {
+        if (result.date01 !== null)
+          result.date01 = moment(result.date01, 'DD.MM.YYYY');
+
+        yield put({
+          type: 'updateState',
+          payload: {
+            currentItem: result,
+            isModalOpen: true,
+            modalType: 'update'
+          }
+        })
+      } else {
+        notification.error({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#ffd9d9'}
+        });
+      }
+    },
+    * deleteTransportKind({payload}, {call, put, select}) {
+      const result = yield call(deleteListItemById, payload.id);
+      if (result.success) {
+        yield put({
+          type: 'queryTransportKind'
+        })
+        notification.info({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#d8ffe9'}
+        });
+      } else {
+        notification.error({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#ffd9d9'}
+        });
+      }
+    },
+    * queryTransportCondition({payload}, {call, put, select}) {
+      let data = yield call(getListItems, 11);
+
+      if (data.success) {
+        yield put({
+          type: 'updateState',
+          payload: {
+            model: 'TransportCondition',
+            title: 'Условие транспорта',
+            createTitle: 'Создать условие транспорта',
+            editTitle: 'Редактировать условие транспорта',
+            isModalOpen: false,
+            itemList: data.list,
+            currentItem: null,
+            modalType: 'create',
+            isBtnDisabled: false,
+            visibleColumns: [
+              {
+                title: '№',
+                dataIndex: 'num',
+                key: 'num',
+                align: 'center',
+                render: (value, item, index) => index + 1
+              },
+              {
+                title: 'Название',
+                dataIndex: 'nameRu',
+                key: 'nameRu',
+              },
+              {
+                title: 'Дата',
+                dataIndex: 'date01',
+                key: 'date01',
+                render: (text, record) => text && text.substring(0, text.indexOf(' '))
+              }
+            ]
+          }
+        })
+      }
+    },
+    * saveTransportCondition({payload}, {call, put, select}) {
+      const result = yield call(saveListItem, {...payload, typeId: 11});
+      if (result.success) {
+        yield put({
+          type: 'queryTransportCondition'
+        })
+        notification.info({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#d8ffe9'}
+        });
+      } else {
+        // yield put({
+        //   type: 'updateState',
+        //   payload: {isBtnDisabled: false}
+        // })
+        notification.error({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#ffd9d9'}
+        });
+      }
+    },
+    * getTransportConditionById({payload}, {call, put, select}) {
+      const result = yield call(getListItemById, payload.id);
+      if (result.success) {
+        if (result.date01 !== null)
+          result.date01 = moment(result.date01, 'DD.MM.YYYY');
+
+        yield put({
+          type: 'updateState',
+          payload: {
+            currentItem: result,
+            isModalOpen: true,
+            modalType: 'update'
+          }
+        })
+      } else {
+        notification.error({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#ffd9d9'}
+        });
+      }
+    },
+    * deleteTransportCondition({payload}, {call, put, select}) {
+      const result = yield call(deleteListItemById, payload.id);
+      if (result.success) {
+        yield put({
+          type: 'queryTransportCondition'
         })
         notification.info({
           description: result.message,

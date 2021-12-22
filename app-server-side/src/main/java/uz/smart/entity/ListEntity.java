@@ -30,6 +30,7 @@ public class ListEntity {
 
     private String val01;
 
+    private Timestamp date01;
 
     private int state = 1;
     private int version = 1;

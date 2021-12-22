@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types'
 import {connect} from 'dva'
-import {Card, Row, Col, Select, Tabs, Space, Popconfirm, Table, Tooltip} from 'antd';
+import {Card, Row, Col, Select, Tabs, Space, Popconfirm, Table, Tooltip, Typography} from 'antd';
 import CargoModal from './modals/cargoModal'
 import ShippingModal from '../shipping/modal'
 import DocumentModal from './modals/documentModal'
@@ -12,20 +12,28 @@ import 'moment/locale/ru';
 
 const OrderDetail = ({dispatch, orderDetail}) => {
       const {model, orderId, isModalOpen, isLoading, isBtnDisabled, itemList, selectOrderList, currentModel, currentItem, modalType, modalWidth, countryList, orderStatusList,
-        managerList, createTitle, editTitle, visibleColumns, cargoSelectList, cargoRegTypeList, isPlanning,
-        documentAttachments, packageTypeList, carrierList, currencyList, shipTypeList} = orderDetail;
+        managerList, createTitle, editTitle, visibleColumns, visibleColumns1, cargoSelectList, cargoRegTypeList, isPlanning, transportKindList, transportConditionList,
+        documentAttachments, packageTypeList, carrierList, currencyList, shipTypeList, shippingExpenseList} = orderDetail;
 
     const openModal = () => {
-      // this.setBtnEnabled();
-      dispatch({
-        type: 'orderDetail/updateState',
-        payload: {
-          modalType: 'create',
-          documentAttachments: [],
-          isModalOpen: !isModalOpen,
-          currentItem: model === 'Cargo' ? {cargoDetails:[{weight:'', capacity:'', packageAmount:''}]} : null
-        }
-      })
+      if (model === 'Shipping') {
+        dispatch({
+          type: 'orderDetail/getCargoSelect',
+          payload: {
+            id: orderId
+          }
+        })
+      } else {
+        dispatch({
+          type: 'orderDetail/updateState',
+          payload: {
+            modalType: 'create',
+            documentAttachments: [],
+            isModalOpen: !isModalOpen,
+            currentItem: model === 'Cargo' ? {cargoDetails: [{weight: '', capacity: '', packageAmount: ''}]} : null
+          }
+        })
+      }
     }
     const modalProps = {
       title: modalType === 'create' ? createTitle : editTitle,
@@ -203,6 +211,32 @@ const OrderDetail = ({dispatch, orderDetail}) => {
         )
       }
     ];
+    const columns1 = [
+      ...visibleColumns1,
+      {
+        title: 'Операции',
+        key: 'operation',
+        width: 100,
+        // fixed: 'right',
+        align: 'center',
+        render: (text, record) => (
+          <Space size="middle">
+            {model === 'Cargo' &&
+            <Tooltip title="Дублировать" placement={"bottom"} color={"purple"}>
+              <CopyOutlined onClick={() => handleClone(record.id)}/>
+            </Tooltip>}
+            <Tooltip title="Редактировать" placement={"bottom"} color={"#1f75a8"}>
+              <FormOutlined onClick={() => handleEdit(record.id)}/>
+            </Tooltip>
+            <Popconfirm title="Удалить?" onConfirm={() => handleDelete(record.id)} okText="Да" cancelText="Нет">
+              <Tooltip title="Удалить" placement={"bottom"} color={"red"}>
+                <DeleteOutlined style={{color: 'red'}}/>
+              </Tooltip>
+            </Popconfirm>
+          </Space>
+        )
+      }
+    ];
     const handleClone = (id) => {
       dispatch({
         type: 'orderDetail/updateState',
@@ -320,6 +354,10 @@ const OrderDetail = ({dispatch, orderDetail}) => {
                         <Table
                           columns={columns} dataSource={itemList} bordered size="middle" rowKey={record => record.id}
                           pagination={false}/>
+                        <Typography.Title style={{marginTop:'20px'}} level={5}>Расходы по рейсам</Typography.Title>
+                        <Table style={{marginTop:'10px'}}
+                          columns={columns1} dataSource={shippingExpenseList} bordered size="middle" rowKey={record => record.id}
+                          pagination={false}/>
                       </Tabs.TabPane>
                       <Tabs.TabPane tab="Документы" key="Document">
                         <Row>
@@ -349,13 +387,14 @@ const OrderDetail = ({dispatch, orderDetail}) => {
           {...modalProps}
           handleSubmit={handleSubmit} isBtnDisabled={isBtnDisabled} currentItem={currentItem} countryList={countryList} modalType={modalType}
           isLoading={isLoading} packageTypeList={packageTypeList} documentAttachments={documentAttachments} cargoRegTypeList={cargoRegTypeList}
-          currencyList={currencyList}
+          currencyList={currencyList} transportKindList={transportKindList} transportConditionList={transportConditionList}
         />}
         {isModalOpen && model === 'Shipping' &&
         <ShippingModal
           {...modalProps} onCancel={onCancel} setPlanning={setPlanning}
           handleSubmit={handleShippingSubmit} isBtnDisabled={isBtnDisabled} currentItem={currentItem} selectOrderList={selectOrderList}
           carrierList={carrierList} currencyList={currencyList} managerList={managerList} shipTypeList={shipTypeList}
+          transportKindList={transportKindList} transportConditionList={transportConditionList}
         />}
 
         {isModalOpen && model === 'Document' &&

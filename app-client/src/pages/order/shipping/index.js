@@ -12,7 +12,7 @@ class Shipping extends Component {
   render() {
     const {shipping, dispatch} = this.props;
     const {model, isModalOpen, isBtnDisabled, itemList, currentItem, modalType, managerList, carrierList, currencyList, shipTypeList, selectOrderList,
-      modalWidth, createTitle, editTitle, visibleColumns, isPlanning} = shipping;
+      modalWidth, createTitle, editTitle, visibleColumns, isPlanning, transportKindList, transportConditionList} = shipping;
 
     const onChange = (key) => {
       if (key !== 'Shipping')
@@ -124,6 +124,7 @@ class Shipping extends Component {
             {...modalProps} onCancel={onCancel} setPlanning={setPlanning}
             handleSubmit={handleSubmit} isBtnDisabled={isBtnDisabled} currentItem={currentItem} selectOrderList={selectOrderList}
             carrierList={carrierList} currencyList={currencyList} managerList={managerList} shipTypeList={shipTypeList}
+            transportKindList={transportKindList} transportConditionList={transportConditionList}
           />}
         </Card>
       </div>

@@ -77,6 +77,16 @@ public class CargoService {
                 entity.setNum(order.getNum() + "-" + 1);
         }
 
+        if (dto.getTransportKindId() != null) {
+            ListEntity transportKind = listRepository.findById(dto.getTransportKindId())
+                    .orElseThrow(() -> new ResourceNotFoundException("List", "transportKindId", dto.getTransportKindId()));
+            entity.setTransportKindName(transportKind.getNameRu());
+        }
+        if (dto.getTransportConditionId() != null) {
+            ListEntity transportCondition = listRepository.findById(dto.getTransportConditionId())
+                    .orElseThrow(() -> new ResourceNotFoundException("List", "transportConditionId", dto.getTransportConditionId()));
+            entity.setTransportConditionName(transportCondition.getNameRu());
+        }
         if (dto.getSenderCountryId() != null) {
             ListEntity senderCountry = listRepository.findById(dto.getSenderCountryId())
                     .orElseThrow(() -> new ResourceNotFoundException("List", "senderCountryId", dto.getSenderCountryId()));
@@ -297,6 +307,7 @@ public class CargoService {
 //            ShippingEntity shippingEntity = shippingRepository.getByCargoEntitiesIn(List.of(entity)).orElse(null);
             if (entity.getShipping() != null) {
                 ResShipping resShipping = shippingService.getResShipping(entity.getShipping(), false);
+                resCargo.setShippingId(resShipping.getId());
                 resCargo.setCarrierName(resShipping.getCarrierName());
                 resCargo.setShippingNum(resShipping.getNum());
                 resCargo.setShippingStatusId(resShipping.getStatusId());
@@ -347,27 +358,43 @@ public class CargoService {
         return ResponseEntity.ok().body(new ApiResponse("Статусы " + list.size() + " груза изменено успешно", true));
     }
 
-    public List<ExpenseDto> addExpense(ExpenseDto dto) {
+    public ResCargoExpenses addExpense(ExpenseDto dto) {
         CargoEntity cargoEntity = repository.findById(dto.getOwnerId())
                 .orElseThrow(() -> new ResourceNotFoundException("Cargo", "Id", dto.getOwnerId()));
         dto.setType(ExpenseType.Cargo);
-        ExpenseEntity expense = expenseService.saveAndUpdate(dto);
+
+        if (dto.getId() != null) {
+            ExpenseEntity old = expenseRepository.findById(dto.getId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Expense", "Id", dto.getId()));
+            if (!old.getOwnerId().equals(dto.getOwnerId())){
+                CargoEntity oldCargo = repository.findById(old.getOwnerId())
+                        .orElseThrow(() -> new ResourceNotFoundException("Cargo", "Id", old.getOwnerId()));
+                oldCargo.getExpenseList().remove(old);
+                repository.saveAndFlush(oldCargo);
+            }
+        }
+
+        ExpenseEntity expense = dto.getId() == null ? expenseService.saveAndUpdate(dto) : expenseService.update(dto);
         cargoEntity.getExpenseList().add(expense);
 
         cargoEntity = repository.saveAndFlush(cargoEntity);
         return getExpensesByOrderId(cargoEntity.getOrder().getId());
     }
 
-    public List<ExpenseDto> getExpensesByOrderId(UUID orderId) {
-        List<ExpenseDto> expenseList = new ArrayList<>();
+    public ResCargoExpenses getExpensesByOrderId(UUID orderId) {
+        ResCargoExpenses res = new ResCargoExpenses();
         List<CargoEntity> cargoList = repository.getAllByOrder_IdAndStateGreaterThanOrderByCreatedAt(orderId, 0);
         for (CargoEntity cargo : cargoList) {
-            List<ExpenseDto> dtoList = expenseService.getExpenseDto(cargo.getExpenseList(), cargo.getName());
-            if (dtoList.size() > 0)
-                expenseList.addAll(dtoList);
+            List<ExpenseDto> dtoList = expenseService.getExpenseDto(cargo.getExpenseList(), cargo.getName(), cargo.getNum());
+            for (ExpenseDto dto : dtoList) {
+                if (dto.getOldId() == null)
+                    res.getCargoExpenseList().add(dto);
+                else
+                    res.getShippingExpenseList().add(dto);
+            }
         }
 
-        return expenseList;
+        return res;
     }
 
     public HttpEntity<?> deleteExpenseFromCargo(UUID id) {
@@ -383,25 +410,27 @@ public class CargoService {
     }
 
     public HttpEntity<?> divideExpense(ResShippingDivide divide) {
-        if (divide.getTypeId() == null)
-            return ResponseEntity.ok().body(new ApiResponse("Выберите тип раздела", false));
+//        if (divide.getTypeId() == null)
+//            return ResponseEntity.ok().body(new ApiResponse("Выберите тип раздела", false));
 
         ExpenseEntity oldExpense = expenseRepository.findById(divide.getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Expense", "Id", divide.getId()));
+        ShippingEntity shippingEntity = shippingRepository.findById(oldExpense.getOwnerId())
+                .orElseThrow(() -> new ResourceNotFoundException("Shipping", "Id", oldExpense.getOwnerId()));
+
         for (ResDivide resDivide : divide.getDivideList()) {
-            ExpenseEntity expenseEntity = mapper.cloneExpense(oldExpense);
-            CargoEntity cargoEntity = repository.findById(resDivide.getId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Cargo", "Id", resDivide.getId()));
+            ExpenseEntity expenseEntity = resDivide.getId() == null
+                    ? mapper.cloneExpense(oldExpense)
+                    : expenseRepository.findById(resDivide.getId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Expense", "Id", resDivide.getId()));
+            expenseEntity.setOldId(divide.getId());
+            expenseEntity.setOldNum(shippingEntity.getNum());
+
+            CargoEntity cargoEntity = repository.findById(resDivide.getOwnerId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Cargo", "Id", resDivide.getOwnerId()));
             expenseEntity.setOwnerId(cargoEntity.getId());
             expenseEntity.setType(ExpenseType.Cargo);
             BigDecimal percent = resDivide.getFinalPrice().divide(divide.getExpensePrice(), 10, RoundingMode.HALF_EVEN);
-            /*switch (divide.getTypeId()) {
-                case 1 -> resDivide.getWeight().divide(divide.getTotalWeight(), 10, RoundingMode.HALF_EVEN);
-                case 2 -> resDivide.getCapacity().divide(divide.getTotalCapacity(), 10, RoundingMode.HALF_EVEN);
-                case 3 -> BigDecimal.ONE.divide(BigDecimal.valueOf(divide.getDivideList().size()), 10, RoundingMode.HALF_EVEN);
-
-                default -> BigDecimal.ONE;
-            };*/
             expenseEntity.setFromPrice(expenseEntity.getFromPrice().multiply(percent));
             expenseEntity.setFromFinalPrice(expenseEntity.getFromFinalPrice().multiply(percent));
             expenseEntity.setToPrice(expenseEntity.getToPrice().multiply(percent));

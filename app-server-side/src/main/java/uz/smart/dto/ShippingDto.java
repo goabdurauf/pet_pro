@@ -32,6 +32,11 @@ public class ShippingDto {
     private List<OrderSelectDto> orderSelect;
     private String comment;
 
+    private Long transportKindId;
+    private String transportKindName;
+    private Long transportConditionId;
+    private String transportConditionName;
+
     @JsonDeserialize(using = DateTimeDeserializer.class)
     private Timestamp loadDate;
     private String loadStation;

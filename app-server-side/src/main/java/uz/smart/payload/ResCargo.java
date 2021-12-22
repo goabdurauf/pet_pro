@@ -21,6 +21,7 @@ public class ResCargo extends CargoDto {
     private String orderNum;
     private String clientName;
     private String carrierName;
+    private UUID shippingId;
     private String shippingNum;
     private Long statusId;
     private String statusName;

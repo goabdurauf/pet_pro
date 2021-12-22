@@ -33,6 +33,11 @@ public class ShippingEntity extends BaseEntity {
     private long shippingTypeId;
     private String comment;
 
+    private Long transportKindId;
+    private String transportKindName;
+    private Long transportConditionId;
+    private String transportConditionName;
+
     private ShippingStatus status;
 
     private Timestamp loadDate;

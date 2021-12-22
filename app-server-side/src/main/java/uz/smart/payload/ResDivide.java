@@ -14,6 +14,7 @@ import java.util.UUID;
 @Data @NoArgsConstructor @AllArgsConstructor
 public class ResDivide {
     private UUID id;
+    private UUID ownerId;
     private String shippingNum;
     private String orderNum;
     private String clientName;

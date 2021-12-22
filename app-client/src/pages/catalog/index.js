@@ -1,16 +1,18 @@
 import React, {Component} from 'react';
-import {Card, Row, Col, Typography, Tabs, Space, Popconfirm, Input, Select, Form, Modal, Table,} from 'antd';
+import {Card, Row, Col, Typography, Tabs, Space, Popconfirm, Input, Select, Table, Tooltip, DatePicker} from 'antd';
 import {connect} from "react-redux";
 import {DeleteOutlined, FormOutlined, PlusOutlined} from "@ant-design/icons";
-import {Button, Label} from "reactstrap";
+import {Button} from "reactstrap";
+import CatalogModal from './modal'
+import 'moment/locale/ru';
+import locale from "antd/es/date-picker/locale/ru_RU";
 const { TabPane } = Tabs;
-const FormItem = Form.Item;
 
 @connect(({catalog, app}) => ({catalog, app}))
 class Catalog extends Component {
   render() {
     const {catalog, dispatch} = this.props;
-    const {model, title, createTitle, editTitle, isModalOpen, itemList, currentItem, modalType, roleList, measureList, visibleColumns} = catalog;
+    const {model, title, createTitle, editTitle, isModalOpen, isBtnDisabled, itemList, currentItem, modalType, roleList, measureList, visibleColumns} = catalog;
 
     const getFormItems = () => {
       switch (model) {
@@ -159,6 +161,38 @@ class Catalog extends Component {
             obj: <Input placeholder='Название'/>
           }
         ];
+        case 'TransportKind': return [
+          {
+            label: 'Название',
+            name: 'nameRu',
+            width: 12,
+            rules: [{required: true, message: 'Этот поля не должно быть пустое',},],
+            obj: <Input placeholder='Название'/>
+          },
+          {
+            label: 'Дата',
+            name: 'date01',
+            width: 12,
+            rules: [{required: true, message: 'Введите дату',},],
+            obj: <DatePicker format={'DD.MM.YYYY'} locale={locale}/>
+          }
+        ];
+        case 'TransportCondition': return [
+          {
+            label: 'Название',
+            name: 'nameRu',
+            width: 12,
+            rules: [{required: true, message: 'Этот поля не должно быть пустое',},],
+            obj: <Input placeholder='Название'/>
+          },
+          {
+            label: 'Дата',
+            name: 'date01',
+            width: 12,
+            rules: [{required: true, message: 'Введите дату',},],
+            obj: <DatePicker format={'DD.MM.YYYY'} locale={locale}/>
+          }
+        ];
 
         default: return [
           {
@@ -173,10 +207,10 @@ class Catalog extends Component {
     }
 
     const onChange = (key) => {dispatch({type: 'catalog/query' + key});}
-    const handleSubmit = (name, {values, forms}) => {
+    const handleSubmit = (values) => {
       dispatch({
         type: 'catalog/updateState',
-        payload: {isModalOpen: false}
+        payload: {isBtnDisabled: true}
       })
       if (currentItem !== null)
         values = {...values, id: currentItem.id}
@@ -208,10 +242,13 @@ class Catalog extends Component {
         align: 'center',
         render: (text, record) => (
           <Space size="middle">
-            <FormOutlined onClick={() => handleEdit(record.id)}/>
-            <Popconfirm title="Удалить?" onConfirm={() => handleDelete(record.id)}
-                        okText="Да" cancelText="Нет">
-              <DeleteOutlined style={{color: 'red'}}/>
+            <Tooltip title="Редактировать" placement={"bottom"} color={"#1f75a8"}>
+              <FormOutlined onClick={() => handleEdit(record.id)}/>
+            </Tooltip>
+            <Popconfirm title="Удалить?" onConfirm={() => handleDelete(record.id)} okText="Да" cancelText="Нет">
+              <Tooltip title="Удалить" placement={"bottom"} color={"red"}>
+                <DeleteOutlined style={{color: 'red'}}/>
+              </Tooltip>
             </Popconfirm>
           </Space>
         )
@@ -241,33 +278,12 @@ class Catalog extends Component {
         payload: {id}
       })
     }
-    const ModalForm = () => {
-      const [form] = Form.useForm();
-      const onOk = () => {
-        form.submit();
-      };
-      return (
-        <Modal {...modalProps} onOk={onOk} okText={"Добавить"} cancelText={"Отмена"}>
-          <Form form={form} name="userForm" initialValues={currentItem !== null ? currentItem : ''}>
-            <Row> {getFormItems().map((item) =>
-              <Col span={item.width} key={item.name}>
-                <Label>{item.label}</Label>
-                <FormItem key={item.name} name={item.name} rules={item.rules}>
-                  {item.obj}
-                </FormItem>
-              </Col>
-            )}</Row>
-          </Form>
-        </Modal>
-      );
-    };
     const TabBody = () => {
       return (<div>
         <Row>
           <Col span={8}><Typography.Title level={4}>{title}</Typography.Title></Col>
           <Col span={4} offset={12}>
-            <Button className="float-right" outline color="primary" size="sm"
-                    onClick={openModal}><PlusOutlined/> Добавить</Button>
+            <Button className="float-right" outline color="primary" size="sm" onClick={openModal}><PlusOutlined/> Добавить</Button>
           </Col>
         </Row>
         <Table columns={columns} dataSource={itemList} bordered size="middle" rowKey={record => record.id}
@@ -289,11 +305,18 @@ class Catalog extends Component {
             <TabPane tab="Тип упаковки" key="PackageType"><TabBody /></TabPane>
             <TabPane tab="Статус груза" key="CargoStatus"><TabBody /></TabPane>
             <TabPane tab="Тип оформление груза" key="CargoRegType"><TabBody /></TabPane>
+            <TabPane tab="Вид транспорта" key="TransportKind"><TabBody /></TabPane>
+            <TabPane tab="Условие транспорта" key="TransportCondition"><TabBody /></TabPane>
 
 
           </Tabs>
-          <Form.Provider onFormFinish={handleSubmit}><ModalForm/></Form.Provider>
         </Card>
+
+        {isModalOpen &&
+        <CatalogModal {...modalProps}
+          isBtnDisabled={isBtnDisabled} currentItem={currentItem} handleSubmit={handleSubmit} itemList={getFormItems()}
+        />
+        }
       </div>
     );
   }

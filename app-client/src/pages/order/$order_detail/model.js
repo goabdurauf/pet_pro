@@ -35,6 +35,7 @@ export default modelExtend(tableModel, {
     orderId: '',
     isModalOpen: false,
     itemList: [],
+    shippingExpenseList: [],
     selectOrderList: [],
     cargoSelectList: [],
     currentModel: null,
@@ -50,10 +51,13 @@ export default modelExtend(tableModel, {
     shipTypeList: [],
     packageTypeList: [],
     documentAttachments: [],
+    transportKindList: [],
+    transportConditionList: [],
     isBtnDisabled: false,
     isLoading: false,
     isPlanning: false,
-    visibleColumns : []
+    visibleColumns : [],
+    visibleColumns1 : []
   },
   subscriptions: {
     setup({dispatch, history}) {
@@ -207,6 +211,8 @@ export default modelExtend(tableModel, {
       let packageType = yield call(getListItems, 7);
       let cargoRegType = yield call(getListItems, 9);
       let cargos = yield call(getSelectOrderCargos, payload.id);
+      let trKindList = yield call(getListItems, 10);
+      let trCondList = yield call(getListItems, 11);
 
       if (manager.success && client.success) {
         yield put({
@@ -221,7 +227,9 @@ export default modelExtend(tableModel, {
             countryList: country.list,
             packageTypeList: packageType.list,
             cargoSelectList: cargos.list,
-            cargoRegTypeList: cargoRegType.list
+            cargoRegTypeList: cargoRegType.list,
+            transportKindList: trKindList.list,
+            transportConditionList: trCondList.list,
           }
         })
       }
@@ -299,6 +307,27 @@ export default modelExtend(tableModel, {
       } else {
         notification.error({
           description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#ffd9d9'}
+        });
+      }
+    },
+    * getCargoSelect({payload}, {call, put, select}) {
+      let orders = yield call(getSelectOrders);
+      if (orders.success) {
+        yield put({
+          type: 'updateState',
+          payload: {
+            selectOrderList: orders.object,
+            isModalOpen: true,
+            modalType: 'create',
+            currentItem: null
+          }
+        })
+      } else {
+        notification.error({
+          description: 'Get cargo select error',
           placement: 'topRight',
           duration: 3,
           style: {backgroundColor: '#ffd9d9'}
@@ -678,13 +707,13 @@ export default modelExtend(tableModel, {
     },
     * queryExpense({payload}, {call, put, select}) {
       let data = yield call(getCargoExpenseByOrderId, payload.id);
-
       if (data.success) {
         yield put({
           type: 'updateState',
           payload:  {
             model: 'Expense',
-            itemList: data.list,
+            itemList: data.cargoExpenseList,
+            shippingExpenseList: data.shippingExpenseList,
             currentItem: null,
             isModalOpen: false,
             isBtnDisabled: false,
@@ -732,6 +761,47 @@ export default modelExtend(tableModel, {
                 dataIndex: 'comment',
                 key: 'comment',
               }
+            ],
+            visibleColumns1 : [
+              {
+                title: '№',
+                dataIndex: 'nomer',
+                key: 'nomer',
+                align: 'center',
+                render: (value, item, index) => index+1
+              },
+              {
+                title: 'Название',
+                dataIndex: 'name',
+                key: 'name',
+              },
+              {
+                title: 'Номер Рейса',
+                dataIndex: 'oldNum',
+                key: 'oldNum',
+              },
+              {
+                title: 'Перевозчик',
+                dataIndex: 'carrierName',
+                key: 'carrierName'
+              },
+              {
+                title: 'Ставка',
+                dataIndex: 'from',
+                key: 'from',
+                render: (text, record) => {return record.fromFinalPrice !== null ? record.fromFinalPrice.toFixed(2) + ' USD (' + record.fromPrice + ' ' + record.fromCurrencyName + ')' : ''}
+              },
+              {
+                title: 'Расход',
+                dataIndex: 'to',
+                key: 'to',
+                render: (text, record) => {return record.toFinalPrice !== null ? record.toFinalPrice.toFixed(2) + ' USD (' + record.toPrice + ' ' + record.toCurrencyName + ')' : ''}
+              },
+              {
+                title: 'Комментарии',
+                dataIndex: 'comment',
+                key: 'comment',
+              }
             ]
           }
         })
@@ -743,7 +813,8 @@ export default modelExtend(tableModel, {
         yield put({
           type: 'updateState',
           payload: {
-            itemList: result.list,
+            itemList: result.cargoExpenseList,
+            shippingExpenseList: result.shippingExpenseList,
             currentItem: null,
             isModalOpen: false,
             isBtnDisabled: false

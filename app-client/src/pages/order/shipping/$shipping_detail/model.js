@@ -16,6 +16,7 @@ import {Image, notification} from 'antd'
 import moment from "moment";
 import React from "react";
 import {routerRedux} from "dva/router";
+import {Link} from "umi";
 
 export default modelExtend(tableModel, {
   namespace: 'shippingDetail',
@@ -24,6 +25,7 @@ export default modelExtend(tableModel, {
     shippingId: '',
     isModalOpen: false,
     isDivideModalOpen: false,
+    isAddInvoiceModalOpen: false,
     cargoList: [],
     currentModel: null,
     modalWidth: 500,
@@ -71,7 +73,8 @@ export default modelExtend(tableModel, {
               {
                 title: 'Номер груза',
                 dataIndex: 'num',
-                key: 'num'
+                key: 'num',
+                render: (text, record) => <Link to={'/order/detail/' + record.orderId}>{text}</Link>
               },
               {
                 title: 'Название груза',
@@ -131,7 +134,8 @@ export default modelExtend(tableModel, {
             {
               title: 'Номер груза',
               dataIndex: 'num',
-              key: 'num'
+              key: 'num',
+              render: (text, record) => <Link to={'/order/detail/' + record.orderId}>{text}</Link>
             },
             {
               title: 'Название груза',
@@ -448,11 +452,6 @@ export default modelExtend(tableModel, {
                 key: 'carrierName',
               },
               {
-                title: 'Груз',
-                dataIndex: 'ownerName',
-                key: 'ownerName'
-              },
-              {
                 title: 'Ставка',
                 dataIndex: 'from',
                 key: 'from',
@@ -463,6 +462,20 @@ export default modelExtend(tableModel, {
                 dataIndex: 'to',
                 key: 'to',
                 render: (text, record) => {return record.toFinalPrice !== null ? record.toFinalPrice + ' USD (' + record.toPrice + ' ' + record.toCurrencyName + ')' : ''}
+              },
+              {
+                title: 'Распределено',
+                dataIndex: 'divided',
+                key: 'divided',
+                render: (text, record) => {
+                  let data = [];
+                  if (record.dividedExpenseList && record.dividedExpenseList.length > 0) {
+                    record.dividedExpenseList.forEach(exp => {
+                      data.push(<div key={exp.id}>{exp.cargoNum} - {exp.cargoName} - {exp.finalPrice}<br/></div>)
+                    })
+                  }
+                  return data;
+                }
               },
               {
                 title: 'Комментарии',
@@ -590,6 +603,26 @@ export default modelExtend(tableModel, {
           type: 'updateState',
           payload: {isBtnDisabled: false}
         })
+        notification.error({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#ffd9d9'}
+        });
+      }
+    },
+    * getExpenseForInvoiceById({payload}, {call, put, select}) {
+      const result = yield call(getExpenseById, payload.id);
+      if (result.success) {
+        yield put({
+          type: 'updateState',
+          payload: {
+            currentItem: result,
+            isAddInvoiceModalOpen: true,
+            modalType: 'create'
+          }
+        })
+      } else {
         notification.error({
           description: result.message,
           placement: 'topRight',

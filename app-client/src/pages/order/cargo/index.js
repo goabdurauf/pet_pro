@@ -21,7 +21,7 @@ class Cargo extends Component {
     const {cargo, dispatch} = this.props;
     const {itemList, currentItem, currentModal, selectedStatusId, isModalOpen, isBtnDisabled, isLoading,  countryList, currencyList, packageTypeList, documentAttachments,
       modalType, isTableLoading, pagination, selectedRowKeys, cargoStatusList, cargoRegTypeList, selectOrderList, carrierList, managerList, shipTypeList, visibleColumns,
-      modalWidth, modalTitle, isPlanning} = cargo;
+      modalWidth, modalTitle, isPlanning, transportKindList, transportConditionList} = cargo;
 
     const onChange = (key) => {
       if (key !== 'Cargo') {
@@ -33,7 +33,7 @@ class Cargo extends Component {
         type: 'cargo/updateState',
         payload: {isBtnDisabled: true}
       })
-      if (modalType === 'Cargo') {
+      if (currentModal === 'Cargo') {
         dispatch({
           type: 'cargo/saveCargo',
           payload: {
@@ -253,6 +253,7 @@ class Cargo extends Component {
             handleSubmit={handleSubmit} isBtnDisabled={isBtnDisabled} currentItem={currentItem} countryList={countryList}
             customRequest={customRequest} uploadChange={uploadChange} isLoading={isLoading} packageTypeList={packageTypeList}
             documentAttachments={documentAttachments} modalType={modalType} cargoRegTypeList={cargoRegTypeList} currencyList={currencyList}
+            transportKindList={transportKindList} transportConditionList={transportConditionList}
           />}
 
           {isModalOpen && currentModal === 'Shipping' &&
@@ -260,11 +261,11 @@ class Cargo extends Component {
             {...modalProps} onCancel={onShippingCancel} setPlanning={setPlanning}
             handleSubmit={handleSubmit} isBtnDisabled={isBtnDisabled} currentItem={currentItem} selectOrderList={selectOrderList}
             carrierList={carrierList} currencyList={currencyList} managerList={managerList} shipTypeList={shipTypeList}
+            transportKindList={transportKindList} transportConditionList={transportConditionList}
           />}
 
           {isModalOpen && currentModal === 'Confirm' &&
           <Modal {...confirmModalProps} onOk={handleStatusConfirm} okText={"Подтвердить"} cancelText={"Отмена"}>
-
             <Typography.Title level={5}>Вы действительно хотите изменить статусы выбранных грузов?</Typography.Title>
           </Modal>
           }

@@ -21,6 +21,8 @@ export default ({
     carrierList: [],
     currencyList: [],
     shipTypeList: [],
+    transportKindList: [],
+    transportConditionList: [],
     selectOrderList: [],
     visibleColumns : [
       {
@@ -138,6 +140,8 @@ export default ({
       let carrier = yield call(getCarrierList);
       let currency = yield call(getListItems, 4);
       let shipType = yield call(getListItems, 5);
+      let trKindList = yield call(getListItems, 10);
+      let trCondList = yield call(getListItems, 11);
 
       if (manager.success) {
         yield put({
@@ -146,7 +150,9 @@ export default ({
             managerList: manager.list,
             carrierList: carrier.list,
             currencyList: currency.list,
-            shipTypeList: shipType.list
+            shipTypeList: shipType.list,
+            transportKindList: trKindList.list,
+            transportConditionList: trCondList.list,
           }
         })
       }

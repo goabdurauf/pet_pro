@@ -5,15 +5,18 @@ import java.util.stream.Stream;
 
 public enum ListType
 {
-    Measure         (1),
-    Country         (2),
-    About           (3),
-    Currency        (4),
-    ShippingType    (5),
-    OrderStatus     (6),
-    PackageType     (7),
-    CargoStatus     (8),
-    CargoRegType    (9)
+    Measure                 (1),
+    Country                 (2),
+    About                   (3),
+    Currency                (4),
+    ShippingType            (5),
+    OrderStatus             (6),
+    PackageType             (7),
+    CargoStatus             (8),
+    CargoRegType            (9),
+    TransportKind           (10),
+    TransportCondition      (11),
+
     ;
 
     private final int code;

@@ -31,6 +31,11 @@ public class ResShipping {
     private String shippingTypeSize;
     private int statusId;
 
+    private Long transportKindId;
+    private String transportKindName;
+    private Long transportConditionId;
+    private String transportConditionName;
+
     private Timestamp loadDate;
     private String loadStation;
     private Timestamp loadSendDate;

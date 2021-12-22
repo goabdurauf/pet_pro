@@ -23,10 +23,6 @@ const modal = ({ currentItem, isBtnDisabled, handleSubmit, cargoSelectList, carr
       ? form.setFieldsValue({fromFinalPrice: price / (rate !== '' && rate !== null ? rate : 1)})
       : form.setFieldsValue({toFinalPrice: price / (rate !== '' && rate !== null ? rate : 1)});
   }
-/*  const getRate = (event) => {
-    let price = document.getElementById("price").value;
-    form.setFieldsValue({finalPrice: price / (event !== '' && event !== null ? event : 1)})
-  }*/
 
   return (<Modal {...modalProps} onOk={handleSave} okButtonProps={{disabled: isBtnDisabled}} okText={"Добавить"} cancelText={"Отмена"}>
     <Form form={form} initialValues={currentItem !== null ? currentItem : ''} onFinish={handleFormSubmit} onValuesChange={handleChangeForm}>

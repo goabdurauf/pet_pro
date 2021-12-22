@@ -43,6 +43,8 @@ export default ({
     carrierList: [],
     managerList: [],
     shipTypeList: [],
+    transportKindList: [],
+    transportConditionList: [],
     visibleColumns : [
       {
         title: 'Номер заказа',
@@ -113,6 +115,7 @@ export default ({
         title: 'Рейс',
         dataIndex: 'shippingNum',
         key: 'shippingNum',
+        render: (text, record) => <Link to={'/order/shipping/detail/' + record.shippingId}>{text}</Link>
       },
       {
         title: 'Документы',
@@ -165,6 +168,7 @@ export default ({
             isPlanning: false,
             modalWidth: 1200,
             modalTitle: 'Редактировать груза',
+            currentModal: 'Cargo',
             selectedRowKeys: []
           }
         })
@@ -179,6 +183,8 @@ export default ({
       let manager = yield call(getManagers);
       let carrier = yield call(getCarrierList);
       let shipType = yield call(getListItems, 5);
+      let trKindList = yield call(getListItems, 10);
+      let trCondList = yield call(getListItems, 11);
 
       if (country.success && packageType.success) {
         yield put({
@@ -191,7 +197,9 @@ export default ({
             cargoRegTypeList: cargoRegType.list,
             managerList: manager.list,
             carrierList: carrier.list,
-            shipTypeList: shipType.list
+            shipTypeList: shipType.list,
+            transportKindList: trKindList.list,
+            transportConditionList: trCondList.list,
           }
         })
       }

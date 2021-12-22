@@ -7,7 +7,7 @@ import locale from 'antd/es/date-picker/locale/ru_RU';
 import PropTypes from "prop-types";
 
 const modal = ({ currentItem, isBtnDisabled, handleSubmit, isLoading, packageTypeList, countryList, documentAttachments, cargoRegTypeList, modalType,
-                 currencyList, ...modalProps }) => {
+                 currencyList, transportKindList, transportConditionList, ...modalProps }) => {
   const [form] = Form.useForm()
   function handleFormSubmit (values) {
     if (values.loadDate !== null && values.loadDate !== undefined && values.loadDate !== '')
@@ -93,6 +93,25 @@ const modal = ({ currentItem, isBtnDisabled, handleSubmit, isLoading, packageTyp
             </Select>
           </Form.Item>
         </Col>
+      </Row>
+      <Row>
+        <Col span={5} key={'transportKindId'}><Label>Вид транспорта</Label>
+          <Form.Item key={'transportKindId'} name={'transportKindId'} rules={[{required: true, message: 'Выберите вид транспорта'}]}>
+            <Select placeholder='вид транспорта' showSearch
+                    filterOption={(input, option) => option.children.toLocaleLowerCase().indexOf(input.toLocaleLowerCase()) >= 0 }>
+              {transportKindList && transportKindList.map(trKind => <Select.Option key={trKind.id} value={trKind.id}>{trKind.nameRu}</Select.Option>)}
+            </Select>
+          </Form.Item>
+        </Col>
+        <Col span={5} key={'transportConditionId'}><Label>Условие транспорта</Label>
+          <Form.Item key={'transportConditionId'} name={'transportConditionId'} rules={[{required: true, message: 'Выберите условие транспорта'}]}>
+            <Select placeholder='условие транспорта' showSearch
+                    filterOption={(input, option) => option.children.toLocaleLowerCase().indexOf(input.toLocaleLowerCase()) >= 0 }>
+              {transportConditionList && transportConditionList.map(trCond => <Select.Option key={trCond.id} value={trCond.id}>{trCond.nameRu}</Select.Option>)}
+            </Select>
+          </Form.Item>
+        </Col>
+
       </Row>
       <Row>
         <Col span={4}><Label>Цена</Label>

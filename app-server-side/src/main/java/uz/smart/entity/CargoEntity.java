@@ -36,6 +36,11 @@ public class CargoEntity extends BaseEntity {
     private Long regTypeId;
     private String regTypeName;
 
+    private Long transportKindId;
+    private String transportKindName;
+    private Long transportConditionId;
+    private String transportConditionName;
+
     private Long currencyId;
     private String currencyName;
     private BigDecimal price;

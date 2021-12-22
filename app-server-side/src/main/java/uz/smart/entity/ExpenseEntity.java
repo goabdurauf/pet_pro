@@ -23,6 +23,8 @@ public class ExpenseEntity extends BaseEntity {
     private CarrierEntity carrier;
     
     private UUID ownerId;
+    private UUID oldId;
+    private String oldNum;
     private ExpenseType type;
 
     private Long fromCurrencyId;

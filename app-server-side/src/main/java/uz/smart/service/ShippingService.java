@@ -21,6 +21,7 @@ import uz.smart.payload.*;
 import uz.smart.repository.*;
 import uz.smart.utils.CommonUtils;
 
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -83,6 +84,17 @@ public class ShippingService {
                     entity.setNum("R-P-" + (num < 10 ? "0" + num : num));
                 }
             }
+        }
+
+        if (dto.getTransportKindId() != null) {
+            ListEntity transportKind = listRepository.findById(dto.getTransportKindId())
+                    .orElseThrow(() -> new ResourceNotFoundException("List", "transportKindId", dto.getTransportKindId()));
+            entity.setTransportKindName(transportKind.getNameRu());
+        }
+        if (dto.getTransportConditionId() != null) {
+            ListEntity transportCondition = listRepository.findById(dto.getTransportConditionId())
+                    .orElseThrow(() -> new ResourceNotFoundException("List", "transportConditionId", dto.getTransportConditionId()));
+            entity.setTransportConditionName(transportCondition.getNameRu());
         }
 
         entity = repository.saveAndFlush(entity);
@@ -239,7 +251,7 @@ public class ShippingService {
 
         for (CargoEntity cargo : shipping.getCargoEntities()) {
             ResDivide divide = new ResDivide();
-            divide.setId(cargo.getId());
+            divide.setOwnerId(cargo.getId());
             divide.setShippingNum(shipping.getNum());
             divide.setOrderNum(cargo.getOrder().getNum());
             ClientEntity client = clientRepository.findById(cargo.getOrder().getClientId())
@@ -256,6 +268,9 @@ public class ShippingService {
                     res.setTotalCapacity(res.getTotalCapacity().add(cargoDetail.getCapacity()));
                 }
             }
+            ExpenseEntity savedExpense = expenseRepository.findByOwnerIdAndOldId(cargo.getId(), expenseId).orElse(null);
+            divide.setFinalPrice(savedExpense == null ? BigDecimal.ZERO : savedExpense.getToFinalPrice());
+            divide.setId(savedExpense == null ? null : savedExpense.getId());
 
             list.add(divide);
         }
@@ -322,7 +337,7 @@ public class ShippingService {
         if (entity.getExpenseList() == null || entity.getExpenseList().size() == 0)
             return expenseList;
 
-        return expenseService.getExpenseDto(entity.getExpenseList(), entity.getNum());
+        return expenseService.getExpenseDto(entity.getExpenseList(), entity.getNum(), "");
     }
 
     public List<ExpenseDto> getExpensesByShippingId(UUID shippingId) {

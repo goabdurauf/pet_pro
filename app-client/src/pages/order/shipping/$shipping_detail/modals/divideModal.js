@@ -69,7 +69,7 @@ const EditableCell = ({
           },
         ]}
       >
-        <InputNumber ref={inputRef} onPressEnter={save} onBlur={save} precision={4} style={{width: '100%'}}/>
+        <InputNumber ref={inputRef} onPressEnter={save} onBlur={save} precision={2} style={{width: '100%'}}/>
       </Form.Item>
     ) : (
       <div
@@ -100,7 +100,7 @@ const modal = ({
   };
   const handleSave = (row) => {
     const newData = [...expenseDivideList];
-    const index = newData.findIndex((item) => row.id === item.id);
+    const index = newData.findIndex((item) => row.ownerId === item.ownerId);
     const item = newData[index];
     newData.splice(index, 1, {...item, ...row});
 
@@ -176,18 +176,18 @@ const modal = ({
       case 1:
         expenseDivideList.forEach(divide => {
           let price = (divide.weight / expenseDivide.totalWeight) * expenseDivide.expensePrice;
-          newData.push({...divide, finalPrice: price.toFixed(4)})
+          newData.push({...divide, finalPrice: price.toFixed(2)})
         })
         break;
       case 2:
         expenseDivideList.forEach(divide => {
           let price = (divide.capacity / expenseDivide.totalCapacity) * expenseDivide.expensePrice;
-          newData.push({...divide, finalPrice: price.toFixed(4)})
+          newData.push({...divide, finalPrice: price.toFixed(2)})
         })
         break;
       case 3:
         expenseDivideList.forEach(divide => {
-          newData.push({...divide, finalPrice: (expenseDivide.expensePrice / expenseDivideList.length).toFixed(4)})
+          newData.push({...divide, finalPrice: (expenseDivide.expensePrice / expenseDivideList.length).toFixed(2)})
         })
         break;
       case 4:
@@ -224,7 +224,7 @@ const modal = ({
         </Row>
         <Row>
           <Col span={24}>
-            <Table size="middle" style={{marginBottom: '20px'}} rowKey={record => record.id} pagination={false}
+            <Table size="middle" style={{marginBottom: '20px'}} rowKey={record => record.ownerId} pagination={false}
                    components={components}
                    rowClassName={() => 'editable-row'}
                    bordered

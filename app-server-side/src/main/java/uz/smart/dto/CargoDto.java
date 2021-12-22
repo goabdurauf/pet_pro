@@ -25,6 +25,11 @@ public class CargoDto {
     private Long regTypeId;
     private String regTypeName;
 
+    private Long transportKindId;
+    private String transportKindName;
+    private Long transportConditionId;
+    private String transportConditionName;
+
     @JsonDeserialize(using = DateTimeDeserializer.class)
     private Timestamp loadDate;
 
