@@ -1,5 +1,20 @@
 import React, {Component} from 'react';
-import {Card, Row, Col, Tabs, Form, Input, Select, Space, Popconfirm, Table, DatePicker, Modal, Tooltip} from 'antd';
+import {
+  Card,
+  Row,
+  Col,
+  Tabs,
+  Form,
+  Input,
+  Select,
+  Space,
+  Popconfirm,
+  Table,
+  DatePicker,
+  Modal,
+  Tooltip,
+  Typography
+} from 'antd';
 import {connect} from "react-redux";
 import {DeleteOutlined, FormOutlined, PlusOutlined} from "@ant-design/icons";
 import {Button, Label} from "reactstrap";
@@ -192,12 +207,12 @@ class Order extends Component {
             <TabPane tab="Рейсы" key="/order/shipping">Подождите пожалуйста ...</TabPane>
             <TabPane tab="Отслеживание" key="/order/tracking">Подождите пожалуйста ...</TabPane>
           </Tabs>
-          {isModalOpen && modalType !== 'search' &&
-            <Form.Provider onFormFinish={handleSubmit}><ModalForm/></Form.Provider>}
-          {isModalOpen && modalType === 'search' &&
-            <SearchModal {...modalProps} formItems={searchItems} />
-          }
         </Card>
+        {isModalOpen && modalType !== 'search' &&
+          <Form.Provider onFormFinish={handleSubmit}><ModalForm/></Form.Provider>}
+        {isModalOpen && modalType === 'search' &&
+          <SearchModal {...modalProps} formItems={searchItems} />
+        }
       </div>
     );
   }

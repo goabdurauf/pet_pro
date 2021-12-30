@@ -82,6 +82,12 @@ export function deleteExpenseFromCargoById(id) {return request({url: '/api/cargo
 export function divideShippingExpenseToCargos(data) {return request({url: '/api/cargo/expense/divide', method: 'post', data})}
 
 export function getExpenseById(id) {return request({url: '/api/expense/' + id, method: 'get',})}
+export function getExpenseForInvoiceById(id) {return request({url: '/api/expense/' + id + '/invoice', method: 'get',})}
+
+export function saveInvoice(data) {return request({url: '/api/invoice/save', method: 'post', data})}
+export function getInvoiceList() {return request({url: '/api/invoice/list', method: 'get',})}
+export function getInvoiceById(id) {return request({url: '/api/invoice/' + id, method: 'get',})}
+export function deleteInvoiceById(id) {return request({url: '/api/invoice/' + id, method: 'delete',})}
 
 
 

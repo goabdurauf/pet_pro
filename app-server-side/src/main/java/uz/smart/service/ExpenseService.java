@@ -7,6 +7,7 @@ package uz.smart.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uz.smart.dto.ExpenseDto;
+import uz.smart.dto.InvoiceDto;
 import uz.smart.entity.CargoEntity;
 import uz.smart.entity.CarrierEntity;
 import uz.smart.entity.ExpenseEntity;
@@ -106,6 +107,20 @@ public class ExpenseService {
     public ExpenseDto getExpenseDto(UUID id){
         return getExpenseDto(repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Expense", "Id", id)), "", "");
+    }
+
+    public InvoiceDto getForInvoice(UUID id) {
+        ExpenseEntity expense = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Expense", "Id", id));
+        InvoiceDto dto = new InvoiceDto();
+        dto.setExpenseId(expense.getId());
+        dto.setPrice(expense.getToPrice());
+        dto.setRate(expense.getToRate());
+        dto.setFinalPrice(expense.getToFinalPrice());
+        dto.setCurrencyId(expense.getToCurrencyId());
+        dto.setComment(expense.getComment());
+
+        return dto;
     }
 
     public ExpenseDto getExpenseDto(ExpenseEntity entity, String ownerName, String ownerNum){

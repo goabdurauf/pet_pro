@@ -6,7 +6,7 @@ import {
   deleteCargoFromShippingById,
   deleteDocumentFromShippingById,
   addShippingDocument,
-  deleteAttachmentFromDocumentById,
+  deleteAttachmentFromDocumentById, saveInvoice, getExpenseForInvoiceById,
   addAttachmentToDocument, getShippingExpenseDivide, divideShippingExpenseToCargos,
   getShippingExpenses, addShippingExpense, getExpenseById, deleteExpenseFromShippingById, getCarrierList, getListItems
 } from '@/services/service'
@@ -612,7 +612,7 @@ export default modelExtend(tableModel, {
       }
     },
     * getExpenseForInvoiceById({payload}, {call, put, select}) {
-      const result = yield call(getExpenseById, payload.id);
+      const result = yield call(getExpenseForInvoiceById, payload.id);
       if (result.success) {
         yield put({
           type: 'updateState',
@@ -623,6 +623,40 @@ export default modelExtend(tableModel, {
           }
         })
       } else {
+        notification.error({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#ffd9d9'}
+        });
+      }
+    },
+    * saveInvoice({payload}, {call, put, select}) {
+      const result = yield call(saveInvoice, payload);
+      if (result.success) {
+        let data = yield call(getShippingExpenses, payload.shippingId);
+        if (data.success) {
+          yield put({
+            type: 'updateState',
+            payload: {
+              expenseList: data.list,
+              currentItem: null,
+              isAddInvoiceModalOpen: false,
+              isBtnDisabled: false
+            }
+          })
+        }
+        notification.info({
+          description: 'Сохранен успешно',
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#d8ffe9'}
+        });
+      } else {
+        yield put({
+          type: 'updateState',
+          payload: {isBtnDisabled: false}
+        })
         notification.error({
           description: result.message,
           placement: 'topRight',

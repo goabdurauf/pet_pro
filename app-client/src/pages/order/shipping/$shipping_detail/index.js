@@ -6,7 +6,7 @@ import {DeleteOutlined, FormOutlined, PlusOutlined, ApartmentOutlined, FileDoneO
 import DocumentModal from './modals/documentModal'
 import ExpenseModal from '../../$order_detail/modals/expenseModal'
 import DivideModal from './modals/divideModal'
-import ReceivedInvoiceModal from "./modals/receivedInvoiceModal";
+import InvoiceModal from "./modals/invoiceModal";
 import {Button} from "reactstrap";
 
 const ShippingDetail = ({dispatch, shippingDetail}) => {
@@ -188,6 +188,23 @@ const ShippingDetail = ({dispatch, shippingDetail}) => {
         ...values,
         ownerId: shippingId,
         attachments: documentAttachments
+      }
+    })
+  }
+  const handleInvoiceSubmit = (values) => {
+    dispatch({
+      type: 'shippingDetail/updateState',
+      payload: {isBtnDisabled: true}
+    })
+
+    if (currentItem !== null)
+      values = {...values, expenseId: currentItem.expenseId}
+
+    dispatch({
+      type: 'shippingDetail/saveInvoice',
+      payload: {
+        ...values,
+        shippingId
       }
     })
   }
@@ -433,9 +450,9 @@ const ShippingDetail = ({dispatch, shippingDetail}) => {
         />
       }
       {isAddInvoiceModalOpen &&
-        <ReceivedInvoiceModal
+        <InvoiceModal
           {...modalAddInvoiceProps}
-          currencyList={currencyList} currentItem={currentItem} handleSubmit={handleSubmit} isBtnDisabled={isBtnDisabled}
+          currencyList={currencyList} currentItem={currentItem} handleSubmit={handleInvoiceSubmit} isBtnDisabled={isBtnDisabled}
         />
       }
 

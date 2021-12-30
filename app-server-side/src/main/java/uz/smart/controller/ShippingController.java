@@ -74,4 +74,6 @@ public class ShippingController {
 
     @GetMapping("/{shippingId}/expense/divide/{id}")
     public ResShippingDivide getShippingDivideList(@PathVariable UUID shippingId, @PathVariable UUID id) {return service.getResShippingDivide(shippingId, id);}
+
+    
 }

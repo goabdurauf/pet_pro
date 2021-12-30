@@ -4,13 +4,14 @@ package uz.smart.entity;
     Created by Ilhom Ahmadjonov on 12.12.2021. 
 */
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import uz.smart.entity.enums.ExpenseType;
 import uz.smart.entity.template.BaseEntity;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
+import javax.persistence.*;
 import java.math.BigDecimal;
 import java.util.UUID;
 
@@ -26,6 +27,8 @@ public class ExpenseEntity extends BaseEntity {
     private UUID oldId;
     private String oldNum;
     private ExpenseType type;
+
+    private UUID invoiceId;
 
     private Long fromCurrencyId;
     private String fromCurrencyName;

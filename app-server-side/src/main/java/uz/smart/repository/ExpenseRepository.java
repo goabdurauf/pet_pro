@@ -17,4 +17,6 @@ public interface ExpenseRepository extends JpaRepository<ExpenseEntity, UUID> {
 
     List<ExpenseEntity> findAllByOldId(UUID oldId);
 
+    Optional<ExpenseEntity> findTopByInvoiceId(UUID invoiceId);
+
 }

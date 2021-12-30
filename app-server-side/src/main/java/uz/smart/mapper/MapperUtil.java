@@ -7,6 +7,7 @@ import uz.smart.dto.*;
 import uz.smart.entity.*;
 import uz.smart.exception.ResourceNotFoundException;
 import uz.smart.payload.ResCargo;
+import uz.smart.payload.ResInvoice;
 import uz.smart.payload.ResOrder;
 import uz.smart.payload.ResShipping;
 import uz.smart.repository.UserRepository;
@@ -151,5 +152,12 @@ public abstract class MapperUtil {
         entity.setUpdatedAt(null);
     }
 
+    // Received Invoice
+    @InheritInverseConfiguration
+    public abstract List<ResInvoice> toResInvoice(List<InvoiceEntity> entities);
+
+    public abstract InvoiceEntity toInvoiceEntity(InvoiceDto dto, @MappingTarget InvoiceEntity entity);
+
+    public abstract ResInvoice toResInvoice(InvoiceEntity entity);
 
 }
