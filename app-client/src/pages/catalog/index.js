@@ -12,7 +12,7 @@ const { TabPane } = Tabs;
 class Catalog extends Component {
   render() {
     const {catalog, dispatch} = this.props;
-    const {model, title, createTitle, editTitle, isModalOpen, isBtnDisabled, itemList, currentItem, modalType, roleList, measureList, visibleColumns} = catalog;
+    const {model, title, createTitle, editTitle, isModalOpen, isBtnDisabled, itemList, currentItem, modalType, roleList, measureList, currencyList, visibleColumns} = catalog;
 
     const getFormItems = () => {
       switch (model) {
@@ -193,6 +193,35 @@ class Catalog extends Component {
             obj: <DatePicker format={'DD.MM.YYYY'} locale={locale}/>
           }
         ];
+        case 'Kassa': return [
+          {
+            label: 'Название',
+            name: 'name',
+            width: 14,
+            rules: [{required: true, message: 'Этот поля не должно быть пустое',},],
+            obj: <Input placeholder='Название'/>
+          },{
+            label: 'Валюта учёта',
+            name: 'currencyId',
+            width: 10,
+            rules: [{required: true, message: 'Выберите валюту',},],
+            obj: <Select placeholder='валюта' showSearch
+                         filterOption={(input, option) =>
+                           option.children.toLocaleLowerCase().indexOf(input.toLocaleLowerCase()) >= 0 }>
+              {currencyList.map(currency => <Select.Option key={currency.id} value={currency.id}>{currency.nameRu}</Select.Option>)}
+            </Select>
+          }
+        ];
+        case 'OtherAgents': return [
+          {
+            label: 'Название',
+            name: 'nameRu',
+            width: 24,
+            rules: [{required: true, message: 'Этот поля не должно быть пустое',},],
+            obj: <Input placeholder='Название'/>
+          }
+        ];
+
 
         default: return [
           {
@@ -307,6 +336,8 @@ class Catalog extends Component {
             <TabPane tab="Тип оформление груза" key="CargoRegType"><TabBody /></TabPane>
             <TabPane tab="Вид транспорта" key="TransportKind"><TabBody /></TabPane>
             <TabPane tab="Условие транспорта" key="TransportCondition"><TabBody /></TabPane>
+            <TabPane tab="Касса" key="Kassa"><TabBody /></TabPane>
+            <TabPane tab="Прочие контрагенты" key="OtherAgents"><TabBody /></TabPane>
 
 
           </Tabs>

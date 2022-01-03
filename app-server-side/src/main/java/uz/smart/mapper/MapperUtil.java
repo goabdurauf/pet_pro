@@ -160,4 +160,9 @@ public abstract class MapperUtil {
 
     public abstract ResInvoice toResInvoice(InvoiceEntity entity);
 
+    // Kassa
+    public abstract KassaEntity toKassaEntity(KassaDto dto, @MappingTarget KassaEntity entity);
+
+    public abstract KassaDto toKassaDto(KassaEntity entity);
+
 }

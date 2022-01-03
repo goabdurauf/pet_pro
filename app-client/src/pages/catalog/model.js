@@ -1,5 +1,5 @@
 import {saveListItem, deleteListItemById, getListItems, getListItemById, getUserList, getRoleList, saveUser, getUserById, deleteUserById, getProductList, saveProduct,
-  getProductById, deleteProductById
+  getProductById, deleteProductById, saveKassa, getKassaById, getKassaList, deleteKassaById
 } from '@/services/service'
 import {notification} from 'antd'
 import moment from "moment";
@@ -18,6 +18,7 @@ export default ({
     modalType: 'create',
     isBtnDisabled: false,
     measureList: [],
+    currencyList: [],
     visibleColumns: []
   },
   subscriptions: {
@@ -1296,7 +1297,213 @@ export default ({
         });
       }
     },
+    * queryKassa({payload}, {call, put, select}) {
+      let data = yield call(getKassaList);
+      let currency = yield call(getListItems, 4);
 
+      if (data.success) {
+        yield put({
+          type: 'updateState',
+          payload: {
+            model: 'Kassa',
+            title: 'Касса',
+            createTitle: 'Создать касса',
+            editTitle: 'Редактировать касса',
+            isModalOpen: false,
+            itemList: data.list,
+            currencyList: currency.list,
+            currentItem: null,
+            modalType: 'create',
+            isBtnDisabled: false,
+            visibleColumns: [
+              {
+                title: '№',
+                dataIndex: 'num',
+                key: 'num',
+                align: 'center',
+                render: (value, item, index) => index + 1
+              },
+              {
+                title: 'Название',
+                dataIndex: 'name',
+                key: 'name',
+              },
+              {
+                title: 'Валюта',
+                dataIndex: 'currencyName',
+                key: 'currencyName'
+              }
+            ]
+          }
+        })
+      }
+    },
+    * saveKassa({payload}, {call, put, select}) {
+      const result = yield call(saveKassa, payload);
+      if (result.success) {
+        yield put({
+          type: 'queryKassa'
+        })
+        notification.info({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#d8ffe9'}
+        });
+      } else {
+        // yield put({
+        //   type: 'updateState',
+        //   payload: {isBtnDisabled: false}
+        // })
+        notification.error({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#ffd9d9'}
+        });
+      }
+    },
+    * getKassaById({payload}, {call, put, select}) {
+      const result = yield call(getKassaById, payload.id);
+      if (result.success) {
+        yield put({
+          type: 'updateState',
+          payload: {
+            currentItem: result,
+            isModalOpen: true,
+            modalType: 'update'
+          }
+        })
+      } else {
+        notification.error({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#ffd9d9'}
+        });
+      }
+    },
+    * deleteKassa({payload}, {call, put, select}) {
+      const result = yield call(deleteKassaById, payload.id);
+      if (result.success) {
+        yield put({
+          type: 'queryKassa'
+        })
+        notification.info({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#d8ffe9'}
+        });
+      } else {
+        notification.error({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#ffd9d9'}
+        });
+      }
+    },
+    * queryOtherAgents({payload}, {call, put, select}) {
+      let data = yield call(getListItems, 12);
+
+      if (data.success) {
+        yield put({
+          type: 'updateState',
+          payload: {
+            model: 'OtherAgents',
+            title: 'Прочие контрагенты',
+            createTitle: 'Создать прочие контрагенты',
+            editTitle: 'Редактировать прочие контрагенты',
+            isModalOpen: false,
+            itemList: data.list,
+            currentItem: null,
+            modalType: 'create',
+            isBtnDisabled: false,
+            visibleColumns: [
+              {
+                title: '№',
+                dataIndex: 'num',
+                key: 'num',
+                align: 'center',
+                render: (value, item, index) => index + 1
+              },
+              {
+                title: 'Название',
+                dataIndex: 'nameRu',
+                key: 'nameRu',
+              }
+            ]
+          }
+        })
+      }
+    },
+    * saveOtherAgents({payload}, {call, put, select}) {
+      const result = yield call(saveListItem, {...payload, typeId: 12});
+      if (result.success) {
+        yield put({
+          type: 'queryOtherAgents'
+        })
+        notification.info({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#d8ffe9'}
+        });
+      } else {
+        // yield put({
+        //   type: 'updateState',
+        //   payload: {isBtnDisabled: false}
+        // })
+        notification.error({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#ffd9d9'}
+        });
+      }
+    },
+    * getOtherAgentsById({payload}, {call, put, select}) {
+      const result = yield call(getListItemById, payload.id);
+      if (result.success) {
+        yield put({
+          type: 'updateState',
+          payload: {
+            currentItem: result,
+            isModalOpen: true,
+            modalType: 'update'
+          }
+        })
+      } else {
+        notification.error({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#ffd9d9'}
+        });
+      }
+    },
+    * deleteOtherAgents({payload}, {call, put, select}) {
+      const result = yield call(deleteListItemById, payload.id);
+      if (result.success) {
+        yield put({
+          type: 'queryOtherAgents'
+        })
+        notification.info({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#d8ffe9'}
+        });
+      } else {
+        notification.error({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#ffd9d9'}
+        });
+      }
+    },
 
   },
   reducers: {

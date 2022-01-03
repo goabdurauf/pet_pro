@@ -16,6 +16,7 @@ public enum ListType
     CargoRegType            (9),
     TransportKind           (10),
     TransportCondition      (11),
+    OtherAgents             (12),
 
     ;
 

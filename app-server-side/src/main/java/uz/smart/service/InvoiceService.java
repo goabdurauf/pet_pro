@@ -9,18 +9,12 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import uz.smart.dto.InvoiceDto;
-import uz.smart.entity.ExpenseEntity;
-import uz.smart.entity.InvoiceEntity;
-import uz.smart.entity.ListEntity;
-import uz.smart.entity.ShippingEntity;
+import uz.smart.entity.*;
 import uz.smart.exception.ResourceNotFoundException;
 import uz.smart.mapper.MapperUtil;
 import uz.smart.payload.ApiResponse;
 import uz.smart.payload.ResInvoice;
-import uz.smart.repository.ExpenseRepository;
-import uz.smart.repository.InvoiceRepository;
-import uz.smart.repository.ListRepository;
-import uz.smart.repository.ShippingRepository;
+import uz.smart.repository.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,6 +31,8 @@ public class InvoiceService {
     ExpenseRepository expenseRepository;
     @Autowired
     ShippingRepository shippingRepository;
+    @Autowired
+    CarrierRepository carrierRepository;
     @Autowired
     MapperUtil mapperUtil;
 
@@ -75,7 +71,7 @@ public class InvoiceService {
 
     public List<ResInvoice> getAll() {
         List<ResInvoice> list = new ArrayList<>();
-        List<InvoiceEntity> entities = repository.findAll();
+        List<InvoiceEntity> entities = repository.getAllInvoices();
         for (InvoiceEntity invoice : entities) {
             list.add(getResInvoice(invoice));
         }
@@ -89,15 +85,23 @@ public class InvoiceService {
         res.setShipNum(shipping.getNum());
         res.setTransportNum(shipping.getShippingNum());
         res.setInvoiceDate(entity.getCreatedAt());
+        if (shipping.getCarrierId() != null) {
+            CarrierEntity carrier = carrierRepository.findById(entity.getCarrierId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Carrier", "carrierId", entity.getCarrierId()));
+            res.setCarrierName(carrier.getName());
+        }
+
+        expenseRepository.findTopByInvoiceId(res.getId()).ifPresent(expense -> res.setName(expense.getName()));
 
         return res;
     }
 
     public HttpEntity<?> delete(UUID id) {
-        ExpenseEntity expense = expenseRepository.findTopByInvoiceId(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Expense", "invoiceId", id));
-        expense.setInvoiceId(null);
-        expenseRepository.saveAndFlush(expense);
+        ExpenseEntity expense = expenseRepository.findTopByInvoiceId(id).orElse(null);
+        if (expense != null) {
+            expense.setInvoiceId(null);
+            expenseRepository.saveAndFlush(expense);
+        }
         repository.deleteById(id);
 
         return ResponseEntity.ok().body(new ApiResponse("Удалено успешно", true));

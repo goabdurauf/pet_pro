@@ -9,7 +9,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import uz.smart.entity.template.BaseEntity;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.ManyToOne;
 import java.math.BigDecimal;
 import java.util.UUID;
 
@@ -25,6 +28,7 @@ public class InvoiceEntity extends BaseEntity {
     private BigDecimal finalPrice;
     private String comment;
     private UUID carrierId;
+    private int type;   // 1 - Трансортная услуга (рейс), 2 - Расход рейса
 
     @ManyToOne(fetch = FetchType.LAZY)
     private ShippingEntity shipping;

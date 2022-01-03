@@ -3,6 +3,7 @@ import PropTypes from 'prop-types'
 import {connect} from 'dva'
 import {Card, Col, notification, Popconfirm, Row, Space, Table, Tabs, Tooltip} from "antd";
 import {DeleteOutlined, FormOutlined, PlusOutlined, ApartmentOutlined, FileDoneOutlined} from "@ant-design/icons";
+import { MdOutlineDoneAll } from "react-icons/md";
 import DocumentModal from './modals/documentModal'
 import ExpenseModal from '../../$order_detail/modals/expenseModal'
 import DivideModal from './modals/divideModal'
@@ -198,7 +199,9 @@ const ShippingDetail = ({dispatch, shippingDetail}) => {
     })
 
     if (currentItem !== null)
-      values = {...values, expenseId: currentItem.expenseId}
+      values = {...values, expenseId: currentItem.expenseId, type: 2}
+    else
+      values = {...values, type: 1}
 
     dispatch({
       type: 'shippingDetail/saveInvoice',
@@ -218,20 +221,44 @@ const ShippingDetail = ({dispatch, shippingDetail}) => {
       align: 'center',
       render: (text, record) => (
         <Space size="middle">
-          {model === 'Expense' &&
-            <Tooltip title="Разбить" placement={"bottom"} color={"purple"}>
-              <ApartmentOutlined onClick={() => openDivideModal(record.id)}/>
-            </Tooltip>
-          }
-          {model === 'Expense' &&
-            <Tooltip title="Добавить полученный счёт" placement={"bottom"} color={"cyan"}>
-              <FileDoneOutlined onClick={() => openExpenseInvoiceModal(record.id)} />
-            </Tooltip>
-          }
           {model !== 'Cargo' ?
             <Tooltip title="Редактировать" placement={"bottom"} color={"#1f75a8"}>
               <FormOutlined onClick={() => handleEdit(record.id)}/>
             </Tooltip>: ''}
+          <Popconfirm title="Удалить?" onConfirm={() => handleDelete(record.id)} okText="Да" cancelText="Нет">
+            <Tooltip title="Удалить" placement={"bottom"} color={"red"}>
+              <DeleteOutlined style={{color: 'red'}}/>
+            </Tooltip>
+          </Popconfirm>
+        </Space>
+      )
+    }
+  ];
+  const expenseColumns = [
+    ...visibleColumns,
+    {
+      title: 'Операции',
+      key: 'operation',
+      width: 100,
+      // fixed: 'right',
+      align: 'center',
+      render: (text, record) => (
+        <Space size="middle">
+          <Tooltip title="Разбить" placement={"bottom"} color={"purple"}>
+            <ApartmentOutlined onClick={() => openDivideModal(record.id)}/>
+          </Tooltip>
+          {record.invoiceId === null
+            ? <Tooltip title="Добавить полученный счёт" placement={"bottom"} color={"cyan"}>
+              <FileDoneOutlined onClick={() => openExpenseInvoiceModal(record.id)}/>
+            </Tooltip>
+            : <div>
+              <MdOutlineDoneAll style={{color:'green'}}/>
+              <FileDoneOutlined />
+            </div>
+          }
+          <Tooltip title="Редактировать" placement={"bottom"} color={"#1f75a8"}>
+            <FormOutlined onClick={() => handleEdit(record.id)}/>
+          </Tooltip>
           <Popconfirm title="Удалить?" onConfirm={() => handleDelete(record.id)} okText="Да" cancelText="Нет">
             <Tooltip title="Удалить" placement={"bottom"} color={"red"}>
               <DeleteOutlined style={{color: 'red'}}/>
@@ -293,9 +320,14 @@ const ShippingDetail = ({dispatch, shippingDetail}) => {
 
   const carrierColumns = [
     {
-      title: 'Перевозчик',
+      title: 'Название',
       dataIndex: 'name',
       key: 'name',
+    },
+    {
+      title: 'Перевозчик',
+      dataIndex: 'carrierName',
+      key: 'carrierName',
     },
     {
       title: 'Цена',
@@ -319,7 +351,8 @@ const ShippingDetail = ({dispatch, shippingDetail}) => {
   const carrierData = [
     {
       id: currentModel && currentModel.id,
-      name: currentModel && currentModel.carrierName,
+      name: 'Транспортная услуга ( рейс)',
+      carrierName: currentModel && currentModel.carrierName,
       price: currentModel && currentModel.finalPrice !== null && (currentModel.finalPrice + ' USD (' + currentModel.price + ' ' + currentModel.currencyName + ')')
     }
   ]
@@ -419,7 +452,7 @@ const ShippingDetail = ({dispatch, shippingDetail}) => {
                         pagination={false}/>
                       <Button className="float-right" outline color="primary" size="sm" onClick={openModal}><PlusOutlined/> Добавить</Button>
                       <Table
-                        columns={columns} dataSource={expenseList} bordered size="middle" rowKey={record => record.id}
+                        columns={expenseColumns} dataSource={expenseList} bordered size="middle" rowKey={record => record.id}
                         pagination={false}/>
                     </Tabs.TabPane>
 

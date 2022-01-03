@@ -2,31 +2,98 @@ import React, {Component} from 'react';
 import {Card, Col, Popconfirm, Row, Space, Table, Tabs, Tooltip, Typography} from 'antd';
 import {connect} from "react-redux";
 import {Button} from "reactstrap";
-import {DeleteOutlined, FormOutlined, PlusOutlined} from "@ant-design/icons";
+import {DeleteOutlined, FormOutlined, PlusOutlined, MinusOutlined} from "@ant-design/icons";
+import InvoiceModal from "../order/shipping/$shipping_detail/modals/invoiceModal";
+import KassaInModal from "./modals/kassaInModal";
 const { TabPane } = Tabs;
 
 @connect(({app, finance}) => ({app, finance}))
 class Finance extends Component {
   render() {
     const {dispatch, finance} = this.props;
-    const {model, isModalOpen, itemList, currentItem, modalType, isBtnDisabled, visibleColumns} = finance;
+    const {model, isModalOpen, itemList, currentItem, modalType, isBtnDisabled, currencyList, visibleColumns,
+      createTitle, editTitle, modalWidth} = finance;
 
     const onChange = (key) => {
-      if (key === 'ReceivedInvoices') {
-
+      if (key === 'ReceivedInvoices' || key === 'Kassa') {
+        dispatch({
+          type: 'finance/query' + key
+        })
+      } else {
+        dispatch({
+          type: 'finance/updateState',
+          payload: {
+            currentItem: null
+          }
+        })
       }
     }
     const openModal = () => {
       /*dispatch({
-        type: 'order/updateState',
+        type: 'finance/updateState',
         payload: {
           isModalOpen: !isModalOpen,
-          currentItem: model === 'Shipping' ? {rate:1} : null,
+          currentItem: null,
           modalType: 'create',
           isBtnDisabled: false
         }
       })*/
     };
+    const closeAddInvoiceModal = () => {
+      dispatch({
+        type: 'finance/updateState',
+        payload: {
+          isModalOpen: !isModalOpen,
+          currentItem: null,
+        }
+      })
+    }
+    const invoiceModalProps = {
+      title: modalType === 'create' ? 'Добавить полученный счёт' : 'Редактировать полученный счёт',
+      visible: isModalOpen,
+      onCancel: closeAddInvoiceModal
+    }
+    const modalProps = {
+      visible: isModalOpen,
+      title: modalType === 'create' ? createTitle : editTitle,
+      width: modalWidth,
+      onCancel() {
+        dispatch({
+          type: 'finance/updateState',
+          payload: {
+            isModalOpen: false
+          }
+        })
+      }
+    };
+    const handleSubmit = (values) => {
+      dispatch({
+        type: 'finance/updateState',
+        payload: {isBtnDisabled: true}
+      })
+
+      dispatch({
+        type: 'finance/save' + model,
+        payload: {
+          ...currentItem,
+          ...values
+        }
+      })
+    }
+    const handleKassaInSubmit = (values) => {
+      dispatch({
+        type: 'finance/updateState',
+        payload: {isBtnDisabled: true}
+      })
+
+      dispatch({
+        type: 'finance/save' + model,
+        payload: {
+          ...currentItem,
+          ...values
+        }
+      })
+    }
     const columns = [
       ...visibleColumns,
       {
@@ -49,16 +116,16 @@ class Finance extends Component {
       }
     ];
     const handleEdit = (id) => {
-      /*dispatch({
-        type: 'order/get' + model + 'ById',
+      dispatch({
+        type: 'finance/get' + model + 'ById',
         payload: {id}
-      })*/
+      })
     };
     const handleDelete = (id) => {
-      /*dispatch({
-        type: 'order/delete' + model + 'ById',
+      dispatch({
+        type: 'finance/delete' + model + 'ById',
         payload: {id}
-      })*/
+      })
     }
 
     const TabBody = () => {
@@ -89,17 +156,38 @@ class Finance extends Component {
       <div className="order-page">
         <Card style={{width: '100%'}} bordered={false}>
           <Tabs onChange={onChange} defaultActiveKey="Order">
-            <TabPane tab="Выписанные счёта" key="one"><TabBody /></TabPane>
+            <TabPane tab="Выписанные счёта" key="one">Пока нет данных</TabPane>
             <TabPane tab="Полученные счёта" key="ReceivedInvoices"><TabBody /></TabPane>
-            <TabPane tab="Акты" key="three"><TabBody /></TabPane>
-            <TabPane tab="Платёжи" key="four"><TabBody /></TabPane>
-            <TabPane tab="Произведенные платежи" key="five"><TabBody /></TabPane>
+            <TabPane tab="Акты" key="three">Пока нет данных</TabPane>
+            <TabPane tab="Платёжи" key="four">Пока нет данных</TabPane>
+            <TabPane tab="Произведенные платежи" key="five">Пока нет данных</TabPane>
+            <TabPane tab="Касса" key="Kassa">
+              <Row>
+                <Col span={3}>
+                  <Button className="float-left" outline color="primary" size="sm" onClick={openModal}><PlusOutlined/> Поступление</Button>
+                </Col>
+                <Col span={3}>
+                  <Button className="float-left" outline color="primary" size="sm" onClick={openModal}><MinusOutlined style={{color: 'red'}}/> Расход</Button>
+                </Col>
+              </Row>
+              <Table columns={columns} dataSource={itemList} bordered size="middle" rowKey={record => record.id}
+                     pagination={{position: ["bottomCenter"]}} style={{marginBottom: '0.5em'}}/>
+            </TabPane>
           </Tabs>
-
-
-
-
         </Card>
+
+        {isModalOpen && model === 'ReceivedInvoices' &&
+          <InvoiceModal
+            {...invoiceModalProps}
+            currencyList={currencyList} currentItem={currentItem} handleSubmit={handleSubmit} isBtnDisabled={isBtnDisabled}
+          />
+        }
+        {isModalOpen && model === 'Kassa' &&
+          <KassaInModal
+            {...modalProps}
+            isBtnDisabled={isBtnDisabled} handleSubmit={handleKassaInSubmit} currentItem={currentItem} currencyList={currencyList}
+          />
+        }
       </div>
     );
   }

@@ -1,7 +1,7 @@
 package uz.smart.dto;
 
 /*
-    Created by Ilhom Ahmadjonov on 28.12.2021. 
+    Created by Ilhom Ahmadjonov on 02.01.2022.
 */
 
 import lombok.AllArgsConstructor;
@@ -12,16 +12,10 @@ import java.math.BigDecimal;
 import java.util.UUID;
 
 @Data @NoArgsConstructor @AllArgsConstructor
-public class InvoiceDto {
+public class KassaDto {
     private UUID id;
+    private String name;
     private Long currencyId;
     private String currencyName;
-    private BigDecimal price;
-    private BigDecimal rate;
-    private BigDecimal finalPrice;
-    private String comment;
-    private int type;
-
-    private UUID expenseId;
-    private UUID shippingId;
+    private BigDecimal balans;
 }

@@ -13,8 +13,10 @@ import java.util.Date;
 
 @Data @NoArgsConstructor @AllArgsConstructor
 public class ResInvoice extends InvoiceDto {
+    private String name;
     private Date invoiceDate;
     private String shipNum;
     private String transportNum;
+    private String carrierName;
 
 }

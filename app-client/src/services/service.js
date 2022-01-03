@@ -89,5 +89,10 @@ export function getInvoiceList() {return request({url: '/api/invoice/list', meth
 export function getInvoiceById(id) {return request({url: '/api/invoice/' + id, method: 'get',})}
 export function deleteInvoiceById(id) {return request({url: '/api/invoice/' + id, method: 'delete',})}
 
+export function saveKassa(data) {return request({url: '/api/kassa/save', method: 'post', data})}
+export function getKassaList() {return request({url: '/api/kassa/list', method: 'get',})}
+export function getKassaById(id) {return request({url: '/api/kassa/' + id, method: 'get',})}
+export function deleteKassaById(id) {return request({url: '/api/kassa/' + id, method: 'delete',})}
+
 
 

@@ -1,19 +1,6 @@
 import React, {Component} from 'react';
 import {
-  Card,
-  Row,
-  Col,
-  Tabs,
-  Form,
-  Input,
-  Select,
-  Space,
-  Popconfirm,
-  Table,
-  DatePicker,
-  Modal,
-  Tooltip,
-  Typography
+  Card, Row, Col, Tabs, Form, Input, Select, Space, Popconfirm, Table, DatePicker, Modal, Tooltip
 } from 'antd';
 import {connect} from "react-redux";
 import {DeleteOutlined, FormOutlined, PlusOutlined} from "@ant-design/icons";

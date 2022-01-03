@@ -1,5 +1,5 @@
-import {getInvoiceList} from '@/services/service'
-// import {notification} from 'antd'
+import {getInvoiceList, getListItems, saveInvoice, getInvoiceById, deleteInvoiceById} from '@/services/service'
+import {notification} from 'antd'
 
 export default ({
   namespace: 'finance',
@@ -10,52 +10,11 @@ export default ({
     currentItem: null,
     modalType: 'create',
     isBtnDisabled: false,
-    visibleColumns : [
-      {
-        title: '№',
-        dataIndex: 'num',
-        key: 'num',
-        align: 'center',
-        render: (value, item, index) => index+1
-      },
-      {
-        title: 'Название расхода',
-        dataIndex: 'name',
-        key: 'name',
-        render: () => 'Трансортная услуга (рейс)'
-      },
-      {
-        title: 'Счёт выписан (дата)',
-        dataIndex: 'invoiceDate',
-        key: 'invoiceDate',
-      },
-      {
-        title: 'Сумма (валюта)',
-        dataIndex: 'summa',
-        key: 'summa',
-        render: (value, item, index) => item.price + ' ' + item.currencyName
-      },
-      {
-        title: 'Рейс',
-        dataIndex: 'shipNum',
-        key: 'shipNum',
-      },
-      {
-        title: 'Номер транспорта',
-        dataIndex: 'transportNum',
-        key: 'transportNum',
-      },
-      {
-        title: 'Баланс платёжа',
-        dataIndex: 'balance',
-        key: 'balance',
-      },
-      {
-        title: 'Комментарии',
-        dataIndex: 'comment',
-        key: 'comment',
-      }
-    ]
+    createTitle:'',
+    editTitle: '',
+    modalWidth: 500,
+    currencyList: [],
+    visibleColumns: []
   },
   subscriptions: {
     setup({dispatch, history}) {
@@ -63,6 +22,9 @@ export default ({
         if (location.pathname === '/finance') {
           dispatch({
             type: 'queryReceivedInvoices',
+          });
+          dispatch({
+            type: 'getAdditionals',
           });
         }
       });
@@ -81,33 +43,80 @@ export default ({
             currentItem: null,
             isModalOpen: false,
             isBtnDisabled: false,
-            modalType: 'create'
+            modalType: 'update',
+            visibleColumns: [
+              {
+                title: '№',
+                dataIndex: 'num',
+                key: 'num',
+                align: 'center',
+                render: (value, item, index) => index + 1
+              },
+              {
+                title: 'Название расхода',
+                dataIndex: 'name',
+                key: 'name',
+                render: (value, item) => item.type === 1 ? 'Трансортная услуга (рейс)' : item.name
+              },
+              {
+                title: 'Перевозчик',
+                dataIndex: 'carrierName',
+                key: 'carrierName'
+              },
+              {
+                title: 'Счёт выписан (дата)',
+                dataIndex: 'invoiceDate',
+                key: 'invoiceDate',
+              },
+              {
+                title: 'Сумма (валюта)',
+                dataIndex: 'summa',
+                key: 'summa',
+                render: (value, item, index) => item.price + ' ' + item.currencyName
+              },
+              {
+                title: 'Рейс',
+                dataIndex: 'shipNum',
+                key: 'shipNum',
+              },
+              {
+                title: 'Номер транспорта',
+                dataIndex: 'transportNum',
+                key: 'transportNum',
+              },
+              {
+                title: 'Баланс платёжа',
+                dataIndex: 'balance',
+                key: 'balance',
+              },
+              {
+                title: 'Комментарии',
+                dataIndex: 'comment',
+                key: 'comment',
+              }
+            ]
           }
         })
       }
     },
-    /*
     * getAdditionals({payload}, {call, put, select}) {
-      let manager = yield call(getManagers);
-      let county = yield call(getListItems, 2);
-      let about = yield call(getListItems, 3);
+      let currency = yield call(getListItems, 4);
 
-      if (manager.success && county.success) {
+      if (currency.success) {
         yield put({
           type: 'updateState',
           payload: {
-            managerList: manager.list,
-            countryList: county.list,
-            aboutList: about.list
+            currencyList: currency.list,
+
           }
         })
       }
     },
-    * save({payload}, {call, put, select}) {
-      const result = yield call(saveCarrier, payload);
+    * saveReceivedInvoices({payload}, {call, put, select}) {
+      const result = yield call(saveInvoice, payload);
       if (result.success) {
         yield put({
-          type: 'query'
+          type: 'queryReceivedInvoices'
         })
         notification.info({
           description: result.message,
@@ -116,10 +125,10 @@ export default ({
           style: {backgroundColor: '#d8ffe9'}
         });
       } else {
-        // yield put({
-        //   type: 'updateState',
-        //   payload: {isBtnDisabled: false,}
-        // })
+        yield put({
+          type: 'updateState',
+          payload: {isBtnDisabled: false,}
+        })
         notification.error({
           description: result.message,
           placement: 'topRight',
@@ -128,8 +137,8 @@ export default ({
         });
       }
     },
-    * getById({payload}, {call, put, select}) {
-      const result = yield call(getCarrierById, payload.id);
+    * getReceivedInvoicesById({payload}, {call, put, select}) {
+      const result = yield call(getInvoiceById, payload.id);
       if (result.success) {
         yield put({
           type: 'updateState',
@@ -148,11 +157,11 @@ export default ({
         });
       }
     },
-    * deleteById({payload}, {call, put, select}) {
-      const result = yield call(deleteCarrierById, payload.id);
+    * deleteReceivedInvoicesById({payload}, {call, put, select}) {
+      const result = yield call(deleteInvoiceById, payload.id);
       if (result.success) {
         yield put({
-          type: 'query'
+          type: 'queryReceivedInvoices'
         })
         notification.info({
           description: result.message,
@@ -168,8 +177,29 @@ export default ({
           style: {backgroundColor: '#ffd9d9'}
         });
       }
-    }
-    */
+    },
+    * queryKassa({payload}, {call, put, select}) {
+      // let data = yield call(getInvoiceList);
+
+      // if (data.success) {
+        yield put({
+          type: 'updateState',
+          payload: {
+            model: 'Kassa',
+            itemList: [],
+            currentItem: null,
+            isModalOpen: false,
+            isBtnDisabled: false,
+            modalType: 'create',
+            createTitle:'Добавить поступление в кассу',
+            editTitle: 'Редактировать поступление в кассу',
+            modalWidth: 700,
+            visibleColumns:[]
+          }
+        })
+      // }
+    },
+
   },
   reducers: {
     updateState(state, {payload}) {
