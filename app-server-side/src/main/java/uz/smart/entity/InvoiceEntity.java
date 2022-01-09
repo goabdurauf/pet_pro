@@ -28,9 +28,13 @@ public class InvoiceEntity extends BaseEntity {
     private BigDecimal finalPrice;
     private String comment;
     private UUID carrierId;
-    private int type;   // 1 - Трансортная услуга (рейс), 2 - Расход рейса
+    private UUID clientId;
+    private int type;   // 1 - Трансортная услуга (рейс), 2 - Расход рейса, 3 - расход груза, 4 - расход груза по рейсам
 
     @ManyToOne(fetch = FetchType.LAZY)
     private ShippingEntity shipping;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    private CargoEntity cargo;
 
 }

@@ -292,6 +292,34 @@ body {
         }
       }
 
+      .receivedInvoices {
+        margin-bottom: 10px;
+        padding-left: 0;
+        padding-right: 0;
+        border-top: 1px dashed #cdcdcd;
+        padding-top: 10px;
+
+        .receivedInvoicesHeader {
+          padding-bottom: 10px;
+        }
+
+        .ant-col-4 {
+          svg {
+            margin: 0 10px;
+          }
+        }
+      }
+
+      .debit-summa {
+        min-height: 32px;
+        padding: 4px 11px;
+        text-align: left;
+        background-color: #f5f5f5;
+        border-radius: 4px;
+        border: 1px solid #d9d9d9;
+        margin-bottom: 20px;
+      }
+
       .sides {
         border-right: 1px dashed #cdcdcd;
         margin-bottom: 10px;

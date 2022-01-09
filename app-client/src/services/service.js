@@ -85,7 +85,7 @@ export function getExpenseById(id) {return request({url: '/api/expense/' + id, m
 export function getExpenseForInvoiceById(id) {return request({url: '/api/expense/' + id + '/invoice', method: 'get',})}
 
 export function saveInvoice(data) {return request({url: '/api/invoice/save', method: 'post', data})}
-export function getInvoiceList() {return request({url: '/api/invoice/list', method: 'get',})}
+export function getInvoiceList(data) {return request({url: '/api/invoice/list/' + data.type, method: 'get',})}
 export function getInvoiceById(id) {return request({url: '/api/invoice/' + id, method: 'get',})}
 export function deleteInvoiceById(id) {return request({url: '/api/invoice/' + id, method: 'delete',})}
 

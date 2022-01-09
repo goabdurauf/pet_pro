@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Card, Col, Popconfirm, Row, Space, Table, Tabs, Tooltip, Typography} from 'antd';
+import {Card, Col, Popconfirm, Row, Space, Table, Tabs, Tooltip} from 'antd';
 import {connect} from "react-redux";
 import {Button} from "reactstrap";
 import {DeleteOutlined, FormOutlined, PlusOutlined, MinusOutlined} from "@ant-design/icons";
@@ -11,11 +11,21 @@ const { TabPane } = Tabs;
 class Finance extends Component {
   render() {
     const {dispatch, finance} = this.props;
-    const {model, isModalOpen, itemList, currentItem, modalType, isBtnDisabled, currencyList, visibleColumns,
-      createTitle, editTitle, modalWidth} = finance;
+    const {model, isModalOpen, itemList, currentItem, modalType, isBtnDisabled, currencyList, visibleColumns, clientList, kassaList, agentList,
+      createTitle, editTitle, modalWidth, carrierList, kassaInType} = finance;
 
     const onChange = (key) => {
-      if (key === 'ReceivedInvoices' || key === 'Kassa') {
+      if (key === 'ReceivedInvoices') {
+        dispatch({
+          type: 'finance/query' + key,
+          payload: {type: 'in'}
+        })
+      } else if (key === 'SentInvoices') {
+        dispatch({
+          type: 'finance/query' + key,
+          payload: {type: 'out'}
+        })
+      } else if (key === 'Kassa') {
         dispatch({
           type: 'finance/query' + key
         })
@@ -29,15 +39,15 @@ class Finance extends Component {
       }
     }
     const openModal = () => {
-      /*dispatch({
+      dispatch({
         type: 'finance/updateState',
         payload: {
           isModalOpen: !isModalOpen,
-          currentItem: null,
+          currentItem: {receivedInvoices: [{credit: ''}]},
           modalType: 'create',
           isBtnDisabled: false
         }
-      })*/
+      })
     };
     const closeAddInvoiceModal = () => {
       dispatch({
@@ -45,6 +55,14 @@ class Finance extends Component {
         payload: {
           isModalOpen: !isModalOpen,
           currentItem: null,
+        }
+      })
+    }
+    const handleDocument = (val) => {
+      dispatch({
+        type: 'finance/updateState',
+        payload: {
+          currentItem: val,
         }
       })
     }
@@ -94,6 +112,14 @@ class Finance extends Component {
         }
       })
     }
+    const handleInTypeChange = (val) => {
+      dispatch({
+        type: 'finance/updateState',
+        payload: {
+          kassaInType: val
+        }
+      })
+    }
     const columns = [
       ...visibleColumns,
       {
@@ -116,16 +142,16 @@ class Finance extends Component {
       }
     ];
     const handleEdit = (id) => {
-      dispatch({
+     /* dispatch({
         type: 'finance/get' + model + 'ById',
         payload: {id}
-      })
+      })*/
     };
     const handleDelete = (id) => {
-      dispatch({
+     /* dispatch({
         type: 'finance/delete' + model + 'ById',
         payload: {id}
-      })
+      })*/
     }
 
     const TabBody = () => {
@@ -156,7 +182,7 @@ class Finance extends Component {
       <div className="order-page">
         <Card style={{width: '100%'}} bordered={false}>
           <Tabs onChange={onChange} defaultActiveKey="Order">
-            <TabPane tab="Выписанные счёта" key="one">Пока нет данных</TabPane>
+            <TabPane tab="Выписанные счёта" key="SentInvoices"><TabBody /></TabPane>
             <TabPane tab="Полученные счёта" key="ReceivedInvoices"><TabBody /></TabPane>
             <TabPane tab="Акты" key="three">Пока нет данных</TabPane>
             <TabPane tab="Платёжи" key="four">Пока нет данных</TabPane>
@@ -186,6 +212,8 @@ class Finance extends Component {
           <KassaInModal
             {...modalProps}
             isBtnDisabled={isBtnDisabled} handleSubmit={handleKassaInSubmit} currentItem={currentItem} currencyList={currencyList}
+            clientList={clientList} kassaList={kassaList} agentList={agentList} carrierList={carrierList} kassaInType={kassaInType}
+            handleInTypeChange={handleInTypeChange} invoiceList={itemList} handleDocumentChange={handleDocument}
           />
         }
       </div>

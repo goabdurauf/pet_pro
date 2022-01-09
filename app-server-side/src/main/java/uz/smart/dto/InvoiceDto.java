@@ -24,4 +24,5 @@ public class InvoiceDto {
 
     private UUID expenseId;
     private UUID shippingId;
+    private UUID orderId;
 }

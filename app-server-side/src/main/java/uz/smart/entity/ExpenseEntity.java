@@ -28,7 +28,8 @@ public class ExpenseEntity extends BaseEntity {
     private String oldNum;
     private ExpenseType type;
 
-    private UUID invoiceId;
+    private UUID invoiceInId;
+    private UUID invoiceOutId;
 
     private Long fromCurrencyId;
     private String fromCurrencyName;

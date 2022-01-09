@@ -34,6 +34,12 @@ public class InvoiceService {
     @Autowired
     CarrierRepository carrierRepository;
     @Autowired
+    ClientRepository clientRepository;
+    @Autowired
+    OrderRepository orderRepository;
+    @Autowired
+    CargoRepository cargoRepository;
+    @Autowired
     MapperUtil mapperUtil;
 
     public HttpEntity<?> saveInvoice(InvoiceDto dto) {
@@ -52,12 +58,24 @@ public class InvoiceService {
             entity.setShipping(shipping);
             entity.setCarrierId(shipping.getCarrierId());
         }
+        if (dto.getOrderId() != null) {
+            OrderEntity order = orderRepository.findById(dto.getOrderId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Order", "id", dto.getOrderId()));
+            entity.setClientId(order.getClientId());
+        }
         entity = repository.saveAndFlush(entity);
         if (dto.getExpenseId() != null) {
             ExpenseEntity expense = expenseRepository.findById(dto.getExpenseId())
                     .orElseThrow(() -> new ResourceNotFoundException("Expense", "Id", dto.getExpenseId()));
 
-            expense.setInvoiceId(entity.getId());
+            if (entity.getType() == 1 || entity.getType() == 2 || entity.getType() == 3)
+                expense.setInvoiceInId(entity.getId());
+            else
+                expense.setInvoiceOutId(entity.getId());
+
+            if (entity.getType() == 3 || entity.getType() == 4)
+                cargoRepository.findByExpenseListIn(List.of(expense)).ifPresent(entity::setCargo);
+
             expenseRepository.saveAndFlush(expense);
         }
 
@@ -69,9 +87,9 @@ public class InvoiceService {
                 .orElseThrow(() -> new ResourceNotFoundException("Invoice", "Id", id)));
     }
 
-    public List<ResInvoice> getAll() {
+    public List<ResInvoice> getByType(String type) {
         List<ResInvoice> list = new ArrayList<>();
-        List<InvoiceEntity> entities = repository.getAllInvoices();
+        List<InvoiceEntity> entities = repository.getAllInvoices(type.equals("in") ? List.of(1, 2, 3) : List.of(4));
         for (InvoiceEntity invoice : entities) {
             list.add(getResInvoice(invoice));
         }
@@ -81,27 +99,56 @@ public class InvoiceService {
 
     public ResInvoice getResInvoice(InvoiceEntity entity) {
         ResInvoice res = mapperUtil.toResInvoice(entity);
-        ShippingEntity shipping = entity.getShipping();
-        res.setShipNum(shipping.getNum());
-        res.setTransportNum(shipping.getShippingNum());
-        res.setInvoiceDate(entity.getCreatedAt());
-        if (shipping.getCarrierId() != null) {
-            CarrierEntity carrier = carrierRepository.findById(entity.getCarrierId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Carrier", "carrierId", entity.getCarrierId()));
-            res.setCarrierName(carrier.getName());
-        }
+        if (entity.getType() == 1 || entity.getType() == 2) {
+            ExpenseEntity expense = expenseRepository.findTopByInvoiceInId(res.getId()).orElse(null);//.ifPresent(expense -> res.setName(expense.getName()));
+            ShippingEntity shipping = entity.getShipping();
+            res.setShipNum(shipping.getNum());
+            res.setTransportNum(shipping.getShippingNum());
+            res.setInvoiceDate(entity.getCreatedAt());
+            if (shipping.getCarrierId() != null) {
+                CarrierEntity carrier = carrierRepository.findById(entity.getCarrierId())
+                        .orElseThrow(() -> new ResourceNotFoundException("Carrier", "carrierId", entity.getCarrierId()));
+                res.setCarrierName(carrier.getName());
+            }
+            res.setName(expense != null ? expense.getName() : "Трансортная услуга (рейс)");
+        } else {
+            ExpenseEntity expense = entity.getType() == 3
+                    ? expenseRepository.findTopByInvoiceInId(res.getId()).orElse(new ExpenseEntity())
+                    : expenseRepository.findTopByInvoiceOutId(res.getId()).orElse(new ExpenseEntity());
 
-        expenseRepository.findTopByInvoiceId(res.getId()).ifPresent(expense -> res.setName(expense.getName()));
+            CargoEntity cargo = entity.getCargo();
+
+            ClientEntity client = clientRepository.findById(cargo.getOrder().getClientId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Order", "clientId", cargo.getOrder().getClientId()));
+            res.setClientName(client.getName());
+            res.setName(expense.getName());
+
+            ShippingEntity shipping = cargo.getShipping();
+            res.setShipNum(shipping.getNum());
+            res.setTransportNum(shipping.getShippingNum());
+            res.setInvoiceDate(entity.getCreatedAt());
+            if (shipping.getCarrierId() != null) {
+                CarrierEntity carrier = carrierRepository.findById(shipping.getCarrierId())
+                        .orElseThrow(() -> new ResourceNotFoundException("Carrier", "carrierId", shipping.getCarrierId()));
+                res.setCarrierName(carrier.getName());
+            }
+        }
 
         return res;
     }
 
     public HttpEntity<?> delete(UUID id) {
-        ExpenseEntity expense = expenseRepository.findTopByInvoiceId(id).orElse(null);
+        ExpenseEntity expense = expenseRepository.findTopByInvoiceInId(id).orElse(null);
         if (expense != null) {
-            expense.setInvoiceId(null);
+            expense.setInvoiceInId(null);
             expenseRepository.saveAndFlush(expense);
         }
+        expense = expenseRepository.findTopByInvoiceOutId(id).orElse(null);
+        if (expense != null) {
+            expense.setInvoiceOutId(null);
+            expenseRepository.saveAndFlush(expense);
+        }
+
         repository.deleteById(id);
 
         return ResponseEntity.ok().body(new ApiResponse("Удалено успешно", true));

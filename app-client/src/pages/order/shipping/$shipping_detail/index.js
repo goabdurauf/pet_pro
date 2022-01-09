@@ -2,8 +2,9 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import {connect} from 'dva'
 import {Card, Col, notification, Popconfirm, Row, Space, Table, Tabs, Tooltip} from "antd";
-import {DeleteOutlined, FormOutlined, PlusOutlined, ApartmentOutlined, FileDoneOutlined} from "@ant-design/icons";
+import {DeleteOutlined, FormOutlined, PlusOutlined, ApartmentOutlined} from "@ant-design/icons";
 import { MdOutlineDoneAll } from "react-icons/md";
+import { BsJournalArrowDown } from "react-icons/bs";
 import DocumentModal from './modals/documentModal'
 import ExpenseModal from '../../$order_detail/modals/expenseModal'
 import DivideModal from './modals/divideModal'
@@ -64,12 +65,9 @@ const ShippingDetail = ({dispatch, shippingDetail}) => {
       });
       return;
     }
-    let isValid = true;
     let fPrice = 0;
     expenseDivideList.forEach(divide => {
       fPrice += Number.parseFloat(divide.finalPrice);
-      if (divide.finalPrice <= 0)
-        isValid = false;
     })
     if (fPrice !== expenseDivide.expensePrice) {
       notification.error({
@@ -80,32 +78,23 @@ const ShippingDetail = ({dispatch, shippingDetail}) => {
       });
       return;
     }
-    if (isValid) {
-      dispatch({
-        type: 'shippingDetail/updateState',
-        payload: {
-          isBtnDisabled: true
-        }
-      })
-      dispatch({
-        type: 'shippingDetail/divideExpense',
-        payload: {
-          id: expenseDivide.id,
-          typeId: document.getElementById("selectedId").value,
-          expensePrice: expenseDivide.expensePrice,
-          totalWeight: expenseDivide.totalWeight,
-          totalCapacity: expenseDivide.totalCapacity,
-          divideList: expenseDivideList
-        }
-      })
-    } else {
-      notification.error({
-        description: 'Сумма должно быть больше 0',
-        placement: 'topRight',
-        duration: 3,
-        style: {backgroundColor: '#ffd9d9'}
-      });
-    }
+    dispatch({
+      type: 'shippingDetail/updateState',
+      payload: {
+        isBtnDisabled: true
+      }
+    })
+    dispatch({
+      type: 'shippingDetail/divideExpense',
+      payload: {
+        id: expenseDivide.id,
+        typeId: document.getElementById("selectedId").value,
+        expensePrice: expenseDivide.expensePrice,
+        totalWeight: expenseDivide.totalWeight,
+        totalCapacity: expenseDivide.totalCapacity,
+        divideList: expenseDivideList
+      }
+    })
   }
   const modalDivideProps = {
     title: 'Разбить',
@@ -247,13 +236,13 @@ const ShippingDetail = ({dispatch, shippingDetail}) => {
           <Tooltip title="Разбить" placement={"bottom"} color={"purple"}>
             <ApartmentOutlined onClick={() => openDivideModal(record.id)}/>
           </Tooltip>
-          {record.invoiceId === null
+          {record.invoiceInId === null
             ? <Tooltip title="Добавить полученный счёт" placement={"bottom"} color={"cyan"}>
-              <FileDoneOutlined onClick={() => openExpenseInvoiceModal(record.id)}/>
+              <BsJournalArrowDown onClick={() => openExpenseInvoiceModal(record.id)}/>
             </Tooltip>
             : <div>
               <MdOutlineDoneAll style={{color:'green'}}/>
-              <FileDoneOutlined />
+              <BsJournalArrowDown />
             </div>
           }
           <Tooltip title="Редактировать" placement={"bottom"} color={"#1f75a8"}>
@@ -342,7 +331,7 @@ const ShippingDetail = ({dispatch, shippingDetail}) => {
       render: (text, record) => (
         <Space size="middle">
           <Tooltip title="Добавить полученный счёт" placement={"bottom"} color={"cyan"}>
-            <FileDoneOutlined onClick={openInvoiceModal} />
+            <BsJournalArrowDown onClick={openInvoiceModal} />
           </Tooltip>
         </Space>
       )

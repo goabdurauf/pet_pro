@@ -31,9 +31,9 @@ public class InvoiceController {
         return service.getOne(id);
     }
 
-    @GetMapping("/list")
-    public List<ResInvoice> getList() {
-        return service.getAll();
+    @GetMapping("/list/{type}")
+    public List<ResInvoice> getList(@PathVariable String type) {
+        return service.getByType(type);
     }
 
     @DeleteMapping("/{id}")

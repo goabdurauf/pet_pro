@@ -10,10 +10,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
 import uz.smart.entity.CargoEntity;
 import uz.smart.entity.DocumentEntity;
+import uz.smart.entity.ExpenseEntity;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 public interface CargoRepository extends JpaRepository<CargoEntity, UUID> {
 
@@ -32,4 +31,6 @@ public interface CargoRepository extends JpaRepository<CargoEntity, UUID> {
     List<CargoEntity> getAllByShippingIsNullOrderByCreatedAt();
 
     Optional<CargoEntity> findByDocumentListIn(List<DocumentEntity> documentList);
+
+    Optional<CargoEntity> findByExpenseListIn(List<ExpenseEntity> expenseList);
 }

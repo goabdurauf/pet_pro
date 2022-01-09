@@ -27,7 +27,8 @@ public class ExpenseDto {
     private String ownerName;
     private String ownerNum;
     private ExpenseType type;
-    private UUID invoiceId;
+    private UUID invoiceInId;
+    private UUID invoiceOutId;
 
     private List<ResDividedExpense> dividedExpenseList = new ArrayList<>();
 

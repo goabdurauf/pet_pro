@@ -18,5 +18,6 @@ public class ResInvoice extends InvoiceDto {
     private String shipNum;
     private String transportNum;
     private String carrierName;
+    private String clientName;
 
 }

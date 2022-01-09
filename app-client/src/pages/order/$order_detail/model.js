@@ -18,8 +18,16 @@ import {
   addAttachmentToDocument,
   deleteAttachmentFromDocumentById,
   getCargoDocumentByOrderId,
-  deleteDocumentFromCargo, cloneCargo, getSelectOrderCargos, addCargoDocument, getCargoDocument,
-  addCargoExpense, getCargoExpenseByOrderId, getExpenseById, deleteExpenseFromCargoById
+  deleteDocumentFromCargo,
+  cloneCargo,
+  getSelectOrderCargos,
+  addCargoDocument,
+  getCargoDocument,
+  addCargoExpense,
+  getCargoExpenseByOrderId,
+  getExpenseById,
+  deleteExpenseFromCargoById,
+  saveInvoice, getExpenseForInvoiceById
 } from '@/services/service'
 import modelExtend from 'dva-model-extend'
 import {Image, notification} from 'antd'
@@ -54,10 +62,11 @@ export default modelExtend(tableModel, {
     transportKindList: [],
     transportConditionList: [],
     isBtnDisabled: false,
+    isAddInvoiceModalOpen: false,
     isLoading: false,
     isPlanning: false,
     visibleColumns : [],
-    visibleColumns1 : []
+    visibleExpenseColumns : []
   },
   subscriptions: {
     setup({dispatch, history}) {
@@ -717,6 +726,7 @@ export default modelExtend(tableModel, {
             currentItem: null,
             isModalOpen: false,
             isBtnDisabled: false,
+            isAddInvoiceModalOpen: false,
             modalType: 'create',
             modalWidth: 700,
             createTitle: 'Создать расход',
@@ -733,6 +743,11 @@ export default modelExtend(tableModel, {
                 title: 'Название',
                 dataIndex: 'name',
                 key: 'name',
+              },
+              {
+                title: 'Номер груза',
+                dataIndex: 'ownerNum',
+                key: 'ownerNum',
               },
               {
                 title: 'Перевозчик',
@@ -762,7 +777,7 @@ export default modelExtend(tableModel, {
                 key: 'comment',
               }
             ],
-            visibleColumns1 : [
+            visibleExpenseColumns : [
               {
                 title: '№',
                 dataIndex: 'nomer',
@@ -774,6 +789,11 @@ export default modelExtend(tableModel, {
                 title: 'Название',
                 dataIndex: 'name',
                 key: 'name',
+              },
+              {
+                title: 'Номер груза',
+                dataIndex: 'ownerNum',
+                key: 'ownerNum',
               },
               {
                 title: 'Номер Рейса',
@@ -872,6 +892,54 @@ export default modelExtend(tableModel, {
           duration: 3,
           style: {backgroundColor: '#d8ffe9'}
         });
+      } else {
+        notification.error({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#ffd9d9'}
+        });
+      }
+    },
+    * saveInvoice({payload}, {call, put, select}) {
+      const result = yield call(saveInvoice, payload);
+      if (result.success) {
+        yield put({
+          type: 'queryExpense',
+          payload:{id: payload.orderId}
+        })
+        notification.info({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#d8ffe9'}
+        });
+      } else {
+        yield put({
+          type: 'updateState',
+          payload: {isBtnDisabled: false}
+        })
+        notification.error({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#ffd9d9'}
+        });
+      }
+    },
+    * getExpenseForInvoiceById({payload}, {call, put, select}) {
+      const result = yield call(getExpenseForInvoiceById, payload.id);
+      if (result.success) {
+        yield put({
+          type: 'updateState',
+          payload: {
+            currentItem: result,
+            isAddInvoiceModalOpen: true,
+            modalType: payload.modalType,
+            createTitle: 'Добавить выписанный счёт',
+            editTitle: 'Добавить полученный счёт'
+          }
+        })
       } else {
         notification.error({
           description: result.message,
