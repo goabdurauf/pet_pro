@@ -6,27 +6,24 @@ import 'moment/locale/ru';
 import locale from "antd/es/date-picker/locale/ru_RU";
 import {MinusCircleOutlined, PlusOutlined} from "@ant-design/icons";
 
-const modal = ({ currentItem, isBtnDisabled, handleSubmit, currencyList, clientList, kassaList, agentList, carrierList, kassaInType, invoiceList,
+const modal = ({ currentItem, isBtnDisabled, handleSubmit, currencyList, clientList, kassaList, agentList, carrierList, kassaInType, invoiceList, getClientInvoices,
                  handleInTypeChange, handleDocumentChange, ...modalProps }) => {
   const [form] = Form.useForm()
   function handleFormSubmit (values) {
-    if (values.finalPrice === currentItem.totalCredit) {
-      notification.info({
-        description: "Правильно!",
-        placement: 'topRight',
-        duration: 3,
-        style: {backgroundColor: '#d8ffe9'}
-      });
-    } else {
+    if (values.kassaType === 101 && values.finalPrice !== currentItem.totalCredit) {
       notification.error({
         description: "Сумма итог получение должно бить равно к сумма договора",
         placement: 'topRight',
         duration: 3,
         style: {backgroundColor: '#ffd9d9'}
       });
+      return;
     }
-    console.log(values);
-    // handleSubmit(values);
+    if (values.kassaType !== 101)
+      values.invoices = [];
+    if (values.date !== undefined && values.date !== '')
+      values.date = values.date.format('DD.MM.YYYY HH:mm:ss');
+    handleSubmit(values);
   }
   function handleSave () {
     form.submit()
@@ -42,8 +39,8 @@ const modal = ({ currentItem, isBtnDisabled, handleSubmit, currencyList, clientL
   const handleInType = (val) => {
     handleInTypeChange(val)
   }
-  const handleClient = (val) => {
-    console.log(val)
+  const handleClient = (id) => {
+    getClientInvoices(id, 'out')
   }
   const handleKassa = (val) => {
     console.log(val)
@@ -51,15 +48,14 @@ const modal = ({ currentItem, isBtnDisabled, handleSubmit, currencyList, clientL
   const handleDocument = (id, index) => {
     let sum = 0;
     invoiceList.forEach(item => { if (item.id === id) sum = item.finalPrice; })
-    let invoices = currentItem.receivedInvoices;
+    let invoices = currentItem.invoices;
     invoices[index] = {...invoices[index], debit: sum};
     let totalDebit = 0;
     invoices.forEach(item => {totalDebit += item.debit ? item.debit : 0;})
-    handleDocumentChange({...currentItem, receivedInvoices: invoices, totalDebit: totalDebit})
-    // form.setFieldsValue({totalDebit: sum});
+    handleDocumentChange({...currentItem, invoices: invoices, totalDebit: totalDebit})
   }
   const removeItem = (index) => {
-    let invoices = currentItem.receivedInvoices;
+    let invoices = currentItem.invoices;
     let totalDebit = 0;
     let totalCredit = 0;
     invoices.splice(index, 1);
@@ -68,14 +64,14 @@ const modal = ({ currentItem, isBtnDisabled, handleSubmit, currencyList, clientL
     });
     for (let i = 0; i < invoices.length + 1; i++) {
       if (i !== index)
-        totalCredit += Number(document.getElementById("receivedInvoices_" + i + "_credit").value);
+        totalCredit += Number(document.getElementById("invoices_" + i + "_credit").value);
     }
-    handleDocumentChange({...currentItem, receivedInvoices: invoices, totalDebit: totalDebit, totalCredit: totalCredit});
+    handleDocumentChange({...currentItem, invoices: invoices, totalDebit: totalDebit, totalCredit: totalCredit});
   }
   const handleCreditChange = (item) => {
     let totalCredit = 0;
-    currentItem.receivedInvoices.forEach((item, index) => {
-      totalCredit += Number(document.getElementById("receivedInvoices_" + index + "_credit").value);
+    currentItem.invoices.forEach((item, index) => {
+      totalCredit += Number(document.getElementById("invoices_" + index + "_credit").value);
     });
     handleDocumentChange({...currentItem, totalCredit: totalCredit})
   }
@@ -83,12 +79,12 @@ const modal = ({ currentItem, isBtnDisabled, handleSubmit, currencyList, clientL
   return (<Modal {...modalProps} onOk={handleSave} okButtonProps={{disabled: isBtnDisabled}} okText={"Добавить"} cancelText={"Отмена"}>
     <Form form={form} initialValues={currentItem !== null ? currentItem : ''} onFinish={handleFormSubmit} onValuesChange={handleChangeForm}>
       <Row>
-        <Col span={8} key={'kassaInType'}><Label>Источник</Label>
-          <Form.Item key={'kassaInType'} name={'kassaInType'} rules={[{required: true, message: 'Выберите источника'}]}>
+        <Col span={8} key={'kassaType'}><Label>Источник</Label>
+          <Form.Item key={'kassaType'} name={'kassaType'} rules={[{required: true, message: 'Выберите источника'}]}>
             <Select placeholder='источник' onChange={handleInType}>
-              <Select.Option key={1} value={1}>От клиента</Select.Option>
-              <Select.Option key={2} value={2}>Прочие контрагенты</Select.Option>
-              <Select.Option key={3} value={3}>Перевозчик (возврат)</Select.Option>
+              <Select.Option key={101} value={101}>От клиента</Select.Option>
+              <Select.Option key={102} value={102}>Прочие контрагенты</Select.Option>
+              <Select.Option key={103} value={103}>Перевозчик (возврат)</Select.Option>
             </Select>
           </Form.Item>
         </Col>
@@ -104,21 +100,21 @@ const modal = ({ currentItem, isBtnDisabled, handleSubmit, currencyList, clientL
         </Col>
       </Row>
       <Row>
-        {(kassaInType === 0 || kassaInType === 1 ) && <Col span={8} key={'clientId'}><Label>Клиент</Label>
+        {(kassaInType === 0 || kassaInType === 101 ) && <Col span={8} key={'clientId'}><Label>Клиент</Label>
           <Form.Item key={'clientId'} name={'clientId'} rules={[{required: true, message: 'Выберите клиента'}]}>
             <Select placeholder='клиент' onChange={handleClient}>
               {clientList && clientList.map(client => <Select.Option key={client.id} value={client.id}>{client.name}</Select.Option>)}
             </Select>
           </Form.Item>
         </Col>}
-        {kassaInType === 2 && <Col span={8} key={'agentId'}><Label>Контрагент</Label>
+        {kassaInType === 102 && <Col span={8} key={'agentId'}><Label>Контрагент</Label>
           <Form.Item key={'agentId'} name={'agentId'} rules={[{required: true, message: 'Выберите контрагента'}]}>
             <Select placeholder='контрагент'>
               {agentList && agentList.map(agent => <Select.Option key={agent.id} value={agent.id}>{agent.nameRu}</Select.Option>)}
             </Select>
           </Form.Item>
         </Col>}
-        {kassaInType === 3 && <Col span={8} key={'carrierId'}><Label>Перевозчик</Label>
+        {kassaInType === 103 && <Col span={8} key={'carrierId'}><Label>Перевозчик</Label>
           <Form.Item key={'carrierId'} name={'carrierId'} rules={[{required: true, message: 'Выберите перевозчика'}]}>
             <Select placeholder='перевозчик'>
               {carrierList && carrierList.map(carrier => <Select.Option key={carrier.id} value={carrier.id}>{carrier.name}</Select.Option>)}
@@ -162,27 +158,27 @@ const modal = ({ currentItem, isBtnDisabled, handleSubmit, currencyList, clientL
           </Form.Item>
         </Col>
       </Row>
-      {(kassaInType === 0 || kassaInType === 1 ) && <Row>
-        <Col span={24} key={'receivedInvoices'} id={'receivedInvoices'} className={'receivedInvoices'}>
-          <Row className={'receivedInvoicesHeader'}>
+      {(kassaInType === 0 || kassaInType === 101 ) && <Row>
+        <Col span={24} key={'invoices'} id={'invoices'} className={'invoices'}>
+          <Row className={'invoicesHeader'}>
             <Col span={10}>Документ</Col>
             <Col span={6}>Сумма долга </Col>
             <Col span={6}>Сумма получение</Col>
           </Row>
-          <Form.List name={'receivedInvoices'}>
+          <Form.List name={'invoices'}>
             {(fields, { add, remove }) =>
               fields.map((field, index) => (
                 <Row key={field.key}>
                   <Col span={10}>
-                    <Form.Item name={[index, 'documentId']} rules={[{ required: true, message: 'Выберите документа' }]}>
-                      <Select placeholder='документ' onChange={(item) => handleDocument(item, index)}>
+                    <Form.Item name={[index, 'invoiceId']} rules={[{ required: true, message: 'Выберите счёта' }]}>
+                      <Select placeholder='выписанный счёт' onChange={(item) => handleDocument(item, index)}>
                         {invoiceList && invoiceList.map(invoice => <Select.Option key={invoice.id} value={invoice.id}>{invoice.name} - {invoice.shipNum}</Select.Option>)}
                       </Select>
                     </Form.Item>
                   </Col>
                   <Col span={6}>
-                      <div className="debit-summa">{currentItem && currentItem.receivedInvoices && currentItem.receivedInvoices.length > index
-                        ? currentItem.receivedInvoices[index].debit : '0'}</div>
+                      <div className="debit-summa">{currentItem && currentItem.invoices && currentItem.invoices.length > index
+                        ? currentItem.invoices[index].debit : '0'}</div>
                   </Col>
                   <Col span={6}>
                     <Form.Item name={[index, 'credit']} rules={[{ required: true, message: 'Введите сумму' }]}>

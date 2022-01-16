@@ -258,7 +258,7 @@ const OrderDetail = ({dispatch, orderDetail}) => {
             </Tooltip>
             : <div>
               <MdOutlineDoneAll style={{color:'green'}}/>
-              <BsJournalArrowDown />
+              <BsJournalArrowUp />
             </div>
           }
           <Tooltip title="Редактировать" placement={"bottom"} color={"#1f75a8"}>
@@ -333,20 +333,14 @@ const OrderDetail = ({dispatch, orderDetail}) => {
   }
   const openInvoiceInModal = (id) => {
     dispatch({
-      type: 'orderDetail/getExpenseForInvoiceById',
-      payload: {
-        id,
-        modalType: 'create'
-      }
+      type: 'orderDetail/getExpenseForInvoiceInById',
+      payload: {id, modalType: 'create'}
     })
   }
   const openInvoiceOutModal = (id) => {
     dispatch({
-      type: 'orderDetail/getExpenseForInvoiceById',
-      payload: {
-        id,
-        modalType: 'update'
-      }
+      type: 'orderDetail/getExpenseForInvoiceOutById',
+      payload: {id, modalType: 'update'}
     })
   }
   const closeAddInvoiceModal = () => {
@@ -359,7 +353,7 @@ const OrderDetail = ({dispatch, orderDetail}) => {
     })
   }
   const modalAddInvoiceProps = {
-    title: modalType === 'create' ? createTitle : editTitle,
+    title: createTitle,
     visible: isAddInvoiceModalOpen,
     onCancel: closeAddInvoiceModal
   }
@@ -543,7 +537,7 @@ const OrderDetail = ({dispatch, orderDetail}) => {
       }
       {isAddInvoiceModalOpen &&
         <InvoiceModal
-          {...modalAddInvoiceProps}
+          {...modalAddInvoiceProps} headerText={editTitle}
           currencyList={currencyList} currentItem={currentItem} handleSubmit={handleInvoiceSubmit} isBtnDisabled={isBtnDisabled}
         />
       }

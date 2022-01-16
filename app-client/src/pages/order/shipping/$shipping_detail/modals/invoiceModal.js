@@ -1,9 +1,9 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import {Col, Form, Input, Modal, Row, Select, InputNumber} from 'antd'
+import {Col, Form, Input, Modal, Row, Select, InputNumber, Typography} from 'antd'
 import {Label} from "reactstrap";
 
-const modal = ({ currentItem, isBtnDisabled, handleSubmit, currencyList,
+const modal = ({ currentItem, isBtnDisabled, handleSubmit, currencyList, headerText,
                  ...modalProps }) => {
   const [form] = Form.useForm()
   function handleFormSubmit (values) {
@@ -23,6 +23,11 @@ const modal = ({ currentItem, isBtnDisabled, handleSubmit, currencyList,
 
   return (<Modal {...modalProps} onOk={handleSave} okButtonProps={{disabled: isBtnDisabled}} okText={"Добавить"} cancelText={"Отмена"}>
     <Form form={form} initialValues={currentItem !== null ? currentItem : ''} onFinish={handleFormSubmit} onValuesChange={handleChangeForm}>
+      <Row>
+        <Col span={24} >
+          <Typography.Title level={5} className={'invoice-header'}>{headerText}</Typography.Title>
+        </Col>
+      </Row>
       <Row>
         <Col span={12}><Label>Расход (Цена)</Label>
           <Form.Item key={'price'} name={'price'} rules={[{required: true, message: 'Введите цену'}]}>

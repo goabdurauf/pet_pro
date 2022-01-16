@@ -473,7 +473,7 @@ const ShippingDetail = ({dispatch, shippingDetail}) => {
       }
       {isAddInvoiceModalOpen &&
         <InvoiceModal
-          {...modalAddInvoiceProps}
+          {...modalAddInvoiceProps} headerText={currentItem ? currentItem.carrierName : currentModel ? currentModel.carrierName : ''}
           currencyList={currencyList} currentItem={currentItem} handleSubmit={handleInvoiceSubmit} isBtnDisabled={isBtnDisabled}
         />
       }

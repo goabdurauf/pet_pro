@@ -1,7 +1,7 @@
 package uz.smart.entity;
 
 /*
-    Created by Ilhom Ahmadjonov on 28.12.2021. 
+    Created by Ilhom Ahmadjonov on 15.01.2022.
 */
 
 import lombok.AllArgsConstructor;
@@ -14,11 +14,23 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
 import java.math.BigDecimal;
-import java.util.UUID;
+import java.sql.Timestamp;
 
 @Data @NoArgsConstructor @AllArgsConstructor
-@Entity(name = "invoices")
-public class InvoiceEntity extends BaseEntity {
+@Entity(name = "transactions")
+public class TransactionsEntity extends BaseEntity {
+
+    private Integer kassaType;     //  100+ - in, 200+ - out | 101 - client, 102 - agent, 103 - carrier
+    private String num;
+    private Timestamp date;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    private ClientEntity client;
+    @ManyToOne(fetch = FetchType.LAZY)
+    private KassaEntity kassa;
+    @ManyToOne(fetch = FetchType.LAZY)
+    private CarrierEntity carrier;
+    private Long agentId;
 
     private Long currencyId;
     private String currencyName;
@@ -27,16 +39,5 @@ public class InvoiceEntity extends BaseEntity {
     private BigDecimal rate;
     private BigDecimal finalPrice;
     private String comment;
-    private UUID carrierId;
-    private UUID clientId;
-    private int type;   // 1 - Трансортная услуга (рейс), 2 - Расход рейса, 3 - расход груза, 4 - расход груза по рейсам
-
-    private BigDecimal balance = BigDecimal.ZERO;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    private ShippingEntity shipping;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    private CargoEntity cargo;
 
 }

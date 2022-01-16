@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import uz.smart.dto.ExpenseDto;
-import uz.smart.dto.InvoiceDto;
+import uz.smart.payload.ResInvoice;
 import uz.smart.service.ExpenseService;
 
 import java.util.UUID;
@@ -26,6 +26,10 @@ public class ExpenseController {
     public ExpenseDto get(@PathVariable UUID id) { return service.getExpenseDto(id); }
 
     @GetMapping("/{id}/invoice")
-    public InvoiceDto getForInvoice(@PathVariable UUID id) { return service.getForInvoice(id); }
+    public ResInvoice getForInvoice(@PathVariable UUID id) { return service.getForInvoice(id); }
+
+    @GetMapping("/{id}/invoicein")
+    public ResInvoice getForInvoiceIn(@PathVariable UUID id) { return service.getForInvoiceIn(id); }
+
 
 }

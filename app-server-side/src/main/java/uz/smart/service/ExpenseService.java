@@ -7,18 +7,13 @@ package uz.smart.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uz.smart.dto.ExpenseDto;
-import uz.smart.dto.InvoiceDto;
-import uz.smart.entity.CargoEntity;
-import uz.smart.entity.CarrierEntity;
-import uz.smart.entity.ExpenseEntity;
-import uz.smart.entity.ListEntity;
+import uz.smart.entity.*;
+import uz.smart.entity.enums.ExpenseType;
 import uz.smart.exception.ResourceNotFoundException;
 import uz.smart.mapper.MapperUtil;
 import uz.smart.payload.ResDividedExpense;
-import uz.smart.repository.CargoRepository;
-import uz.smart.repository.CarrierRepository;
-import uz.smart.repository.ExpenseRepository;
-import uz.smart.repository.ListRepository;
+import uz.smart.payload.ResInvoice;
+import uz.smart.repository.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,6 +31,8 @@ public class ExpenseService {
     CarrierRepository carrierRepository;
     @Autowired
     ListRepository listRepository;
+    @Autowired
+    ClientRepository clientRepository;
     @Autowired
     MapperUtil mapperUtil;
 
@@ -109,17 +106,43 @@ public class ExpenseService {
                 .orElseThrow(() -> new ResourceNotFoundException("Expense", "Id", id)), "", "");
     }
 
-    public InvoiceDto getForInvoice(UUID id) {
+    public ResInvoice getForInvoice(UUID id) {
         ExpenseEntity expense = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Expense", "Id", id));
-        InvoiceDto dto = new InvoiceDto();
+        ResInvoice dto = new ResInvoice();
         dto.setExpenseId(expense.getId());
         dto.setPrice(expense.getToPrice());
         dto.setRate(expense.getToRate());
         dto.setFinalPrice(expense.getToFinalPrice());
         dto.setCurrencyId(expense.getToCurrencyId());
         dto.setComment(expense.getComment());
+        dto.setCarrierName(expense.getCarrier().getName());
 
+        if (expense.getType().equals(ExpenseType.Cargo)) {
+            CargoEntity cargo = cargoRepository.getCargoById(expense.getOwnerId()).orElse(new CargoEntity());
+            ClientEntity client = clientRepository.getClientById(cargo.getOrder().getClientId()).orElse(new ClientEntity());
+            dto.setClientName(client.getName());
+        }
+        return dto;
+    }
+
+    public ResInvoice getForInvoiceIn(UUID id) {
+        ExpenseEntity expense = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Expense", "Id", id));
+        ResInvoice dto = new ResInvoice();
+        dto.setExpenseId(expense.getId());
+        dto.setPrice(expense.getFromPrice());
+        dto.setRate(expense.getFromRate());
+        dto.setFinalPrice(expense.getFromFinalPrice());
+        dto.setCurrencyId(expense.getFromCurrencyId());
+        dto.setComment(expense.getComment());
+        dto.setCarrierName(expense.getCarrier().getName());
+
+        if (expense.getType().equals(ExpenseType.Cargo)) {
+            CargoEntity cargo = cargoRepository.getCargoById(expense.getOwnerId()).orElse(new CargoEntity());
+            ClientEntity client = clientRepository.getClientById(cargo.getOrder().getClientId()).orElse(new ClientEntity());
+            dto.setClientName(client.getName());
+        }
         return dto;
     }
 

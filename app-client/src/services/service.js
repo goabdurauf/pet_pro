@@ -83,9 +83,12 @@ export function divideShippingExpenseToCargos(data) {return request({url: '/api/
 
 export function getExpenseById(id) {return request({url: '/api/expense/' + id, method: 'get',})}
 export function getExpenseForInvoiceById(id) {return request({url: '/api/expense/' + id + '/invoice', method: 'get',})}
+export function getExpenseForInvoiceInById(id) {return request({url: '/api/expense/' + id + '/invoicein', method: 'get',})}
 
 export function saveInvoice(data) {return request({url: '/api/invoice/save', method: 'post', data})}
+export function updateInvoice(data) {return request({url: '/api/invoice/update', method: 'put', data})}
 export function getInvoiceList(data) {return request({url: '/api/invoice/list/' + data.type, method: 'get',})}
+export function getInvoicesByTypeAndClientId(data) {return request({url: '/api/invoice/' + data.type + '/' + data.clientId, method: 'get'})}
 export function getInvoiceById(id) {return request({url: '/api/invoice/' + id, method: 'get',})}
 export function deleteInvoiceById(id) {return request({url: '/api/invoice/' + id, method: 'delete',})}
 
@@ -94,5 +97,8 @@ export function getKassaList() {return request({url: '/api/kassa/list', method: 
 export function getKassaById(id) {return request({url: '/api/kassa/' + id, method: 'get',})}
 export function deleteKassaById(id) {return request({url: '/api/kassa/' + id, method: 'delete',})}
 
-
+export function saveTransactionIn(data) {return request({url: '/api/transaction/in/save', method: 'post', data})}
+export function updateTransactionIn(data) {return request({url: '/api/transaction/in/update', method: 'put', data})}
+export function getTransactionList() {return request({url: '/api/transaction/list', method: 'get',})}
+export function getTransactionById(id) {return request({url: '/api/transaction/' + id, method: 'get',})}
 

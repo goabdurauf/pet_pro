@@ -16,6 +16,7 @@ import uz.smart.payload.ApiResponse;
 import uz.smart.payload.ResInvoice;
 import uz.smart.repository.*;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -47,6 +48,7 @@ public class InvoiceService {
                 ? mapperUtil.toInvoiceEntity(dto, new InvoiceEntity())
                 : mapperUtil.toInvoiceEntity(dto, repository.findById(dto.getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Invoice", "Id", dto.getId())));
+        entity.setBalance(BigDecimal.ZERO.subtract(entity.getFinalPrice()));
         if (dto.getCurrencyId() != null) {
             ListEntity currency = listRepository.findById(dto.getCurrencyId())
                     .orElseThrow(() -> new ResourceNotFoundException("List", "currencyId", dto.getCurrencyId()));
@@ -67,19 +69,44 @@ public class InvoiceService {
         if (dto.getExpenseId() != null) {
             ExpenseEntity expense = expenseRepository.findById(dto.getExpenseId())
                     .orElseThrow(() -> new ResourceNotFoundException("Expense", "Id", dto.getExpenseId()));
+            entity.setCarrierId(expense.getCarrier().getId());
 
-            if (entity.getType() == 1 || entity.getType() == 2 || entity.getType() == 3)
+            if (entity.getType() == 1 || entity.getType() == 2 || entity.getType() == 3) {
                 expense.setInvoiceInId(entity.getId());
-            else
+                entity.setClientId(null);
+            } else {
                 expense.setInvoiceOutId(entity.getId());
+                entity.setCarrierId(null);
+            }
 
             if (entity.getType() == 3 || entity.getType() == 4)
                 cargoRepository.findByExpenseListIn(List.of(expense)).ifPresent(entity::setCargo);
 
             expenseRepository.saveAndFlush(expense);
+
+            repository.saveAndFlush(entity);
         }
 
         return ResponseEntity.ok().body(new ApiResponse("Сохранено успешно", true));
+    }
+
+    public HttpEntity<?> updateInvoice(InvoiceDto dto) {
+        InvoiceEntity entity = repository.findById(dto.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Invoice", "Id", dto.getId()));
+        if (dto.getCurrencyId() != null) {
+            ListEntity currency = listRepository.findById(dto.getCurrencyId())
+                    .orElseThrow(() -> new ResourceNotFoundException("List", "currencyId", dto.getCurrencyId()));
+            entity.setCurrencyName(currency.getNameRu());
+        }
+        entity.setCurrencyId(dto.getCurrencyId());
+        entity.setPrice(dto.getPrice());
+        entity.setRate(dto.getRate());
+        entity.setBalance(BigDecimal.ZERO.subtract(dto.getFinalPrice().subtract(entity.getFinalPrice().add(entity.getBalance()))));
+        entity.setFinalPrice(dto.getFinalPrice());
+        entity.setComment(dto.getComment());
+        repository.save(entity);
+
+        return ResponseEntity.ok().body(new ApiResponse("Изменено успешно", true));
     }
 
     public ResInvoice getOne(UUID id) {
@@ -99,9 +126,9 @@ public class InvoiceService {
 
     public ResInvoice getResInvoice(InvoiceEntity entity) {
         ResInvoice res = mapperUtil.toResInvoice(entity);
-        if (entity.getType() == 1 || entity.getType() == 2) {
+        if (entity.getType() == 1 || entity.getType() == 2 || entity.getType() == 3) {
             ExpenseEntity expense = expenseRepository.findTopByInvoiceInId(res.getId()).orElse(null);//.ifPresent(expense -> res.setName(expense.getName()));
-            ShippingEntity shipping = entity.getShipping();
+            ShippingEntity shipping = entity.getType() != 3 ? entity.getShipping() : entity.getCargo().getShipping();
             res.setShipNum(shipping.getNum());
             res.setTransportNum(shipping.getShippingNum());
             res.setInvoiceDate(entity.getCreatedAt());
@@ -112,14 +139,12 @@ public class InvoiceService {
             }
             res.setName(expense != null ? expense.getName() : "Трансортная услуга (рейс)");
         } else {
-            ExpenseEntity expense = entity.getType() == 3
-                    ? expenseRepository.findTopByInvoiceInId(res.getId()).orElse(new ExpenseEntity())
-                    : expenseRepository.findTopByInvoiceOutId(res.getId()).orElse(new ExpenseEntity());
+            ExpenseEntity expense = expenseRepository.findTopByInvoiceOutId(res.getId()).orElse(new ExpenseEntity());
 
             CargoEntity cargo = entity.getCargo();
 
-            ClientEntity client = clientRepository.findById(cargo.getOrder().getClientId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Order", "clientId", cargo.getOrder().getClientId()));
+            ClientEntity client = clientRepository.findById(entity.getClientId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Invoice", "clientId", entity.getClientId()));
             res.setClientName(client.getName());
             res.setName(expense.getName());
 
@@ -127,11 +152,11 @@ public class InvoiceService {
             res.setShipNum(shipping.getNum());
             res.setTransportNum(shipping.getShippingNum());
             res.setInvoiceDate(entity.getCreatedAt());
-            if (shipping.getCarrierId() != null) {
+            /*if (shipping.getCarrierId() != null) {
                 CarrierEntity carrier = carrierRepository.findById(shipping.getCarrierId())
                         .orElseThrow(() -> new ResourceNotFoundException("Carrier", "carrierId", shipping.getCarrierId()));
                 res.setCarrierName(carrier.getName());
-            }
+            }*/
         }
 
         return res;
@@ -152,5 +177,15 @@ public class InvoiceService {
         repository.deleteById(id);
 
         return ResponseEntity.ok().body(new ApiResponse("Удалено успешно", true));
+    }
+
+    public List<ResInvoice> getByClientIdAndType(String type, UUID clientId) {
+        List<ResInvoice> list = new ArrayList<>();
+        List<InvoiceEntity> entities = repository.findAllByClientIdAndType(clientId, type.equals("in") ? List.of(1, 2, 3) : List.of(4));
+        for (InvoiceEntity invoice : entities) {
+            list.add(getResInvoice(invoice));
+        }
+
+        return list;
     }
 }

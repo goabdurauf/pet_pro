@@ -26,6 +26,11 @@ public class InvoiceController {
         return service.saveInvoice(dto);
     }
 
+    @PutMapping("/update")
+    public HttpEntity<?> updateInvoice(@RequestBody InvoiceDto dto) {
+        return service.updateInvoice(dto);
+    }
+
     @GetMapping("/{id}")
     public ResInvoice getOne(@PathVariable UUID id) {
         return service.getOne(id);
@@ -34,6 +39,11 @@ public class InvoiceController {
     @GetMapping("/list/{type}")
     public List<ResInvoice> getList(@PathVariable String type) {
         return service.getByType(type);
+    }
+
+    @GetMapping("/{type}/{clientId}")
+    public List<ResInvoice> getListByClientId(@PathVariable String type, @PathVariable UUID clientId) {
+        return service.getByClientIdAndType(type, clientId);
     }
 
     @DeleteMapping("/{id}")

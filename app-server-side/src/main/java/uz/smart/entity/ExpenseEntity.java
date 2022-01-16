@@ -23,7 +23,7 @@ public class ExpenseEntity extends BaseEntity {
     @ManyToOne
     private CarrierEntity carrier;
     
-    private UUID ownerId;
+    private UUID ownerId;    // type = 0  -> CargoEntity, type = 1  -> ShippingEntity
     private UUID oldId;
     private String oldNum;
     private ExpenseType type;

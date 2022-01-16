@@ -11,7 +11,7 @@ const { TabPane } = Tabs;
 class Finance extends Component {
   render() {
     const {dispatch, finance} = this.props;
-    const {model, isModalOpen, itemList, currentItem, modalType, isBtnDisabled, currencyList, visibleColumns, clientList, kassaList, agentList,
+    const {model, isModalOpen, itemList, invoiceList, currentItem, modalType, isBtnDisabled, currencyList, visibleColumns, clientList, kassaList, agentList,
       createTitle, editTitle, modalWidth, carrierList, kassaInType} = finance;
 
     const onChange = (key) => {
@@ -43,7 +43,7 @@ class Finance extends Component {
         type: 'finance/updateState',
         payload: {
           isModalOpen: !isModalOpen,
-          currentItem: {receivedInvoices: [{credit: ''}]},
+          currentItem: {invoices: [{credit: ''}]},
           modalType: 'create',
           isBtnDisabled: false
         }
@@ -90,10 +90,12 @@ class Finance extends Component {
         payload: {isBtnDisabled: true}
       })
 
+      if (model === 'ReceivedInvoices' || model === 'SentInvoices')
+        values = {...values, id: currentItem.id};
+
       dispatch({
         type: 'finance/save' + model,
         payload: {
-          ...currentItem,
           ...values
         }
       })
@@ -132,26 +134,33 @@ class Finance extends Component {
             <Tooltip title="Редактировать" placement={"bottom"} color={"#1f75a8"}>
               <FormOutlined onClick={() => handleEdit(record.id)}/>
             </Tooltip>
+            {model !== 'Kassa' &&
             <Popconfirm title="Удалить?" onConfirm={() => handleDelete(record.id)} okText="Да" cancelText="Нет">
               <Tooltip title="Удалить" placement={"bottom"} color={"red"}>
                 <DeleteOutlined style={{color: 'red'}}/>
               </Tooltip>
-            </Popconfirm>
+            </Popconfirm>}
           </Space>
         )
       }
     ];
     const handleEdit = (id) => {
-     /* dispatch({
+      dispatch({
         type: 'finance/get' + model + 'ById',
         payload: {id}
-      })*/
+      })
     };
     const handleDelete = (id) => {
-     /* dispatch({
+      dispatch({
         type: 'finance/delete' + model + 'ById',
         payload: {id}
-      })*/
+      })
+    }
+    const getClientInvoices = (id, type) => {
+      dispatch({
+        type: 'finance/getClientInvoices',
+        payload: {clientId: id, type}
+      })
     }
 
     const TabBody = () => {
@@ -193,7 +202,7 @@ class Finance extends Component {
                   <Button className="float-left" outline color="primary" size="sm" onClick={openModal}><PlusOutlined/> Поступление</Button>
                 </Col>
                 <Col span={3}>
-                  <Button className="float-left" outline color="primary" size="sm" onClick={openModal}><MinusOutlined style={{color: 'red'}}/> Расход</Button>
+                  <Button className="float-left" outline color="primary" size="sm" ><MinusOutlined style={{color: 'red'}}/> Расход</Button>
                 </Col>
               </Row>
               <Table columns={columns} dataSource={itemList} bordered size="middle" rowKey={record => record.id}
@@ -202,7 +211,7 @@ class Finance extends Component {
           </Tabs>
         </Card>
 
-        {isModalOpen && model === 'ReceivedInvoices' &&
+        {isModalOpen && (model === 'ReceivedInvoices' || model === 'SentInvoices') &&
           <InvoiceModal
             {...invoiceModalProps}
             currencyList={currencyList} currentItem={currentItem} handleSubmit={handleSubmit} isBtnDisabled={isBtnDisabled}
@@ -213,7 +222,7 @@ class Finance extends Component {
             {...modalProps}
             isBtnDisabled={isBtnDisabled} handleSubmit={handleKassaInSubmit} currentItem={currentItem} currencyList={currencyList}
             clientList={clientList} kassaList={kassaList} agentList={agentList} carrierList={carrierList} kassaInType={kassaInType}
-            handleInTypeChange={handleInTypeChange} invoiceList={itemList} handleDocumentChange={handleDocument}
+            handleInTypeChange={handleInTypeChange} invoiceList={invoiceList} handleDocumentChange={handleDocument} getClientInvoices={getClientInvoices}
           />
         }
       </div>

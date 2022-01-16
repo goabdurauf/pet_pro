@@ -9,6 +9,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import uz.smart.dto.InvoiceDto;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 @Data @NoArgsConstructor @AllArgsConstructor
@@ -19,5 +20,6 @@ public class ResInvoice extends InvoiceDto {
     private String transportNum;
     private String carrierName;
     private String clientName;
+    private BigDecimal balance;
 
 }
