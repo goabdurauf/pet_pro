@@ -32,6 +32,8 @@ public class TransactionsDto {
     private String sourceName;
     private String sourceType;
 
+    private Long currencyInId;
+    private String currencyInName;
     private Long currencyId;
     private String currencyName;
     private BigDecimal price;

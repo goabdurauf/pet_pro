@@ -16,5 +16,10 @@ public class TransactionsInvoicesDto {
 
     private UUID invoiceId;
     private BigDecimal credit;
+    private BigDecimal debit = BigDecimal.ZERO;
 
+    public TransactionsInvoicesDto(UUID invoiceId, BigDecimal credit) {
+        this.invoiceId = invoiceId;
+        this.credit = credit;
+    }
 }

@@ -15,7 +15,7 @@ import { BsJournalArrowDown, BsJournalArrowUp } from "react-icons/bs";
 
 const OrderDetail = ({dispatch, orderDetail}) => {
   const {
-    model, orderId, isModalOpen, isLoading, isBtnDisabled, itemList, selectOrderList, isAddInvoiceModalOpen,
+    model, orderId, isModalOpen, isLoading, isBtnDisabled, itemList, cargoList, selectOrderList, isAddInvoiceModalOpen,
     currentModel, currentItem, modalType, modalWidth, countryList, orderStatusList, managerList, createTitle, editTitle, visibleColumns, visibleExpenseColumns, cargoSelectList,
     cargoRegTypeList, isPlanning, transportKindList, transportConditionList, documentAttachments, packageTypeList, carrierList, currencyList, shipTypeList, shippingExpenseList
   } = orderDetail;
@@ -357,6 +357,43 @@ const OrderDetail = ({dispatch, orderDetail}) => {
     visible: isAddInvoiceModalOpen,
     onCancel: closeAddInvoiceModal
   }
+  const cargoColumns = [
+    {
+      title: 'Номер',
+      dataIndex: 'code',
+      key: 'code',
+    },
+    {
+      title: 'Название',
+      dataIndex: 'stavka',
+      key: 'stavka',
+      render: (text, record) => 'Ставка за груз'
+    },
+    {
+      title: 'Номер груза',
+      dataIndex: 'num',
+      key: 'num',
+    },
+    {
+      title: 'Цена',
+      dataIndex: 'price1',
+      key: 'price1',
+      render: (text, record) => record.finalPrice !== null ? record.finalPrice : 0
+    },
+    {
+      title: 'Операции',
+      key: 'operation',
+      width: 100,
+      align: 'center',
+      render: (text, record) => (
+        <Space size="middle">
+          <Tooltip title="Добавить выписанный счёт" placement={"bottom"} color={"orange"}>
+            <BsJournalArrowUp onClick={openInvoiceOutModal} />
+          </Tooltip>
+        </Space>
+      )
+    }
+  ];
 
   return (
     <div className="order-page">
@@ -454,7 +491,7 @@ const OrderDetail = ({dispatch, orderDetail}) => {
                         </Col>
                       </Row>
                       <Table rowClassName={(record, index) => record.shippingStatusId === 1 ? 'planning-row' : ''}
-                             columns={columns} dataSource={itemList} bordered size="middle" rowKey={record => record.id}
+                             columns={columns} dataSource={cargoList} bordered size="middle" rowKey={record => record.id}
                              pagination={false}/>
                     </Tabs.TabPane>
                     <Tabs.TabPane tab="Рейсы" key="Shipping">
@@ -466,6 +503,9 @@ const OrderDetail = ({dispatch, orderDetail}) => {
                         pagination={false}/>
                     </Tabs.TabPane>
                     <Tabs.TabPane tab="Финансы" key="Expense">
+                      <Table style={{marginBottom: '15px'}}
+                             columns={cargoColumns} dataSource={cargoList} bordered size="middle" rowKey={record => record.id}
+                             pagination={false}/>
                       <Typography.Title className="float-left" level={5}>Расходы по грузам</Typography.Title>
                       <Button className="float-right" outline color="primary" size="sm"
                               onClick={openModal}><PlusOutlined/> Добавить</Button>

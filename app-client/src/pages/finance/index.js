@@ -12,7 +12,7 @@ class Finance extends Component {
   render() {
     const {dispatch, finance} = this.props;
     const {model, isModalOpen, itemList, invoiceList, currentItem, modalType, isBtnDisabled, currencyList, visibleColumns, clientList, kassaList, agentList,
-      createTitle, editTitle, modalWidth, carrierList, kassaInType} = finance;
+      createTitle, editTitle, modalWidth, carrierList, kassaInType, clientId, currencyId} = finance;
 
     const onChange = (key) => {
       if (key === 'ReceivedInvoices') {
@@ -44,6 +44,7 @@ class Finance extends Component {
         payload: {
           isModalOpen: !isModalOpen,
           currentItem: {invoices: [{credit: ''}]},
+          kassaInType: 101,
           modalType: 'create',
           isBtnDisabled: false
         }
@@ -79,7 +80,8 @@ class Finance extends Component {
         dispatch({
           type: 'finance/updateState',
           payload: {
-            isModalOpen: false
+            isModalOpen: false,
+            currentItem: null
           }
         })
       }
@@ -107,7 +109,7 @@ class Finance extends Component {
       })
 
       dispatch({
-        type: 'finance/save' + model,
+        type: (modalType === 'create' ? 'finance/save' : 'finance/update') + model,
         payload: {
           ...currentItem,
           ...values
@@ -157,10 +159,31 @@ class Finance extends Component {
       })
     }
     const getClientInvoices = (id, type) => {
+
+    }
+    const setClient = (id) => {
       dispatch({
-        type: 'finance/getClientInvoices',
-        payload: {clientId: id, type}
+        type: 'finance/updateState',
+        payload: {clientId: id}
       })
+      if (currencyId !== null) {
+        dispatch({
+          type: 'finance/getClientInvoices',
+          payload: {clientId: id, type: 'out', currencyId}
+        })
+      }
+    }
+    const setCurrency = (id) => {
+      dispatch({
+        type: 'finance/updateState',
+        payload: {currencyId: id}
+      })
+      if (kassaInType === 101) {
+        dispatch({
+          type: 'finance/getClientInvoices',
+          payload: {clientId, type: 'out', currencyId: id}
+        })
+      }
     }
 
     const TabBody = () => {
@@ -223,6 +246,7 @@ class Finance extends Component {
             isBtnDisabled={isBtnDisabled} handleSubmit={handleKassaInSubmit} currentItem={currentItem} currencyList={currencyList}
             clientList={clientList} kassaList={kassaList} agentList={agentList} carrierList={carrierList} kassaInType={kassaInType}
             handleInTypeChange={handleInTypeChange} invoiceList={invoiceList} handleDocumentChange={handleDocument} getClientInvoices={getClientInvoices}
+            clientId={clientId} currencyId={currencyId} setClient={setClient} setCurrency={setCurrency}
           />
         }
       </div>

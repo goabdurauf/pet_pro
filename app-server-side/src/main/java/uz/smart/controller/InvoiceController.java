@@ -46,6 +46,11 @@ public class InvoiceController {
         return service.getByClientIdAndType(type, clientId);
     }
 
+    @GetMapping("/{type}/{clientId}/{currencyId}")
+    public List<ResInvoice> getListByClientId(@PathVariable String type, @PathVariable UUID clientId, @PathVariable Long currencyId) {
+        return service.getByClientIdAndTypeAndCurrency(type, clientId, currencyId);
+    }
+
     @DeleteMapping("/{id}")
     public HttpEntity<?> delete(@PathVariable UUID id) {
         return service.delete(id);

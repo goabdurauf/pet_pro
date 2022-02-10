@@ -43,6 +43,7 @@ export default modelExtend(tableModel, {
     orderId: '',
     isModalOpen: false,
     itemList: [],
+    cargoList: [],
     shippingExpenseList: [],
     selectOrderList: [],
     cargoSelectList: [],
@@ -108,7 +109,7 @@ export default modelExtend(tableModel, {
           type: 'updateState',
           payload: {
             model: 'Cargo',
-            itemList: data.list,
+            cargoList: data.list,
             modalWidth: 1200,
             currentItem: {cargoDetails:[{weight:'', capacity:'', packageTypeId:'', packageAmount:''}]},
             isModalOpen: false,

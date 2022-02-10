@@ -6,7 +6,7 @@ import {
   deleteCargoFromShippingById,
   deleteDocumentFromShippingById,
   addShippingDocument,
-  deleteAttachmentFromDocumentById, saveInvoice, getExpenseForInvoiceById,
+  deleteAttachmentFromDocumentById, saveInvoice, getExpenseForInvoiceInById,
   addAttachmentToDocument, getShippingExpenseDivide, divideShippingExpenseToCargos,
   getShippingExpenses, addShippingExpense, getExpenseById, deleteExpenseFromShippingById, getCarrierList, getListItems
 } from '@/services/service'
@@ -612,7 +612,7 @@ export default modelExtend(tableModel, {
       }
     },
     * getExpenseForInvoiceById({payload}, {call, put, select}) {
-      const result = yield call(getExpenseForInvoiceById, payload.id);
+      const result = yield call(getExpenseForInvoiceInById, payload.id);
       if (result.success) {
         yield put({
           type: 'updateState',

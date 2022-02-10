@@ -7,7 +7,7 @@ import locale from "antd/es/date-picker/locale/ru_RU";
 import {MinusCircleOutlined, PlusOutlined} from "@ant-design/icons";
 
 const modal = ({ currentItem, isBtnDisabled, handleSubmit, currencyList, clientList, kassaList, agentList, carrierList, kassaInType, invoiceList, getClientInvoices,
-                 handleInTypeChange, handleDocumentChange, ...modalProps }) => {
+                 handleInTypeChange, handleDocumentChange, setClient, clientId, setCurrency, currencyId, ...modalProps }) => {
   const [form] = Form.useForm()
   function handleFormSubmit (values) {
     if (values.kassaType === 101 && values.finalPrice !== currentItem.totalCredit) {
@@ -40,10 +40,16 @@ const modal = ({ currentItem, isBtnDisabled, handleSubmit, currencyList, clientL
     handleInTypeChange(val)
   }
   const handleClient = (id) => {
-    getClientInvoices(id, 'out')
+    setClient(id)
   }
   const handleKassa = (val) => {
-    console.log(val)
+    kassaList.forEach(item => {
+      if (item.id === val)
+        form.setFieldsValue({currencyInId: item.currencyId});
+    })
+  }
+  const handleCurrency = (val) => {
+    setCurrency(val)
   }
   const handleDocument = (id, index) => {
     let sum = 0;
@@ -100,7 +106,7 @@ const modal = ({ currentItem, isBtnDisabled, handleSubmit, currencyList, clientL
         </Col>
       </Row>
       <Row>
-        {(kassaInType === 0 || kassaInType === 101 ) && <Col span={8} key={'clientId'}><Label>Клиент</Label>
+        {( kassaInType === 101 ) && <Col span={8} key={'clientId'}><Label>Клиент</Label>
           <Form.Item key={'clientId'} name={'clientId'} rules={[{required: true, message: 'Выберите клиента'}]}>
             <Select placeholder='клиент' onChange={handleClient}>
               {clientList && clientList.map(client => <Select.Option key={client.id} value={client.id}>{client.name}</Select.Option>)}
@@ -140,14 +146,14 @@ const modal = ({ currentItem, isBtnDisabled, handleSubmit, currencyList, clientL
             <Input placeholder='цена' onChange={getPrice} />
           </Form.Item>
         </Col>
-        <Col span={6}><Label>Валюта</Label>
-          <Form.Item key={'currencyId'} name={'currencyId'} rules={[{required: true, message: 'Выберите валюту'}]}>
-            <Select placeholder='валюта'>
+        <Col span={4}><Label>Валюта</Label>
+          <Form.Item key={'currencyInId'} name={'currencyInId'}>
+            <Select placeholder='валюта' disabled={true}>
               {currencyList.map(currency => <Select.Option key={currency.id} value={currency.id}>{currency.nameRu}</Select.Option>)}
             </Select>
           </Form.Item>
         </Col>
-        <Col span={6}><Label>Курс</Label>
+        <Col span={4}><Label>Курс</Label>
           <Form.Item key={'rate'} name={'rate'} rules={[{required: true, message: 'Введите курса'}]} >
             <InputNumber placeholder='курс' onChange={getPrice} precision={4} />
           </Form.Item>
@@ -157,8 +163,15 @@ const modal = ({ currentItem, isBtnDisabled, handleSubmit, currencyList, clientL
             <InputNumber placeholder='конечное цена' precision={2} />
           </Form.Item>
         </Col>
+        <Col span={4}><Label>Валюта</Label>
+          <Form.Item key={'currencyId'} name={'currencyId'} rules={[{required: true, message: 'Выберите валюту'}]}>
+            <Select placeholder='валюта' onChange={handleCurrency}>
+              {currencyList.map(currency => <Select.Option key={currency.id} value={currency.id}>{currency.nameRu}</Select.Option>)}
+            </Select>
+          </Form.Item>
+        </Col>
       </Row>
-      {(kassaInType === 0 || kassaInType === 101 ) && <Row>
+      {( kassaInType === 101 ) && <Row>
         <Col span={24} key={'invoices'} id={'invoices'} className={'invoices'}>
           <Row className={'invoicesHeader'}>
             <Col span={10}>Документ</Col>

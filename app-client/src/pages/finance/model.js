@@ -1,5 +1,5 @@
 import {getInvoiceList, getListItems, updateInvoice, getInvoiceById, deleteInvoiceById, getClientList, getKassaList, getCarrierList,
-  saveTransactionIn, updateTransactionIn, getTransactionList, getTransactionById, getInvoicesByTypeAndClientId
+  saveTransactionIn, updateTransactionIn, getTransactionList, getTransactionById, getInvoicesByTypeAndClientIdAndCurrencyId, getInvoicesByTypeAndClientId
 } from '@/services/service'
 import {notification} from 'antd'
 import moment from "moment";
@@ -16,6 +16,8 @@ export default ({
     isBtnDisabled: false,
     createTitle:'',
     editTitle: '',
+    clientId: null,
+    currencyId: null,
     modalWidth: 500,
     kassaInType: 0,
     currencyList: [],
@@ -63,7 +65,7 @@ export default ({
       }
     },
     * getClientInvoices({payload}, {call, put, select}) {
-      let invoices = yield call(getInvoicesByTypeAndClientId, payload);
+      let invoices = yield call(getInvoicesByTypeAndClientIdAndCurrencyId, payload);
       if (invoices.success) {
         yield put({
           type: 'updateState',
@@ -112,10 +114,10 @@ export default ({
                 key: 'invoiceDate',
               },
               {
-                title: 'Сумма (валюта)',
+                title: 'Сумма',
                 dataIndex: 'summa',
                 key: 'summa',
-                render: (value, item, index) => item.price + ' ' + item.currencyName
+                render: (value, item, index) => item.finalPrice + ' ' + item.currencyName
               },
               {
                 title: 'Рейс',
@@ -131,6 +133,7 @@ export default ({
                 title: 'Баланс платёжа',
                 dataIndex: 'balance',
                 key: 'balance',
+                render: (value, item, index) => (item.finalPrice + item.balance).toFixed(2) + ' / ' + Math.abs(item.balance).toFixed(2)
               },
               {
                 title: 'Комментарии',
@@ -248,10 +251,10 @@ export default ({
                 key: 'invoiceDate',
               },
               {
-                title: 'Сумма (валюта)',
+                title: 'Сумма',
                 dataIndex: 'summa',
                 key: 'summa',
-                render: (value, item, index) => item.price + ' ' + item.currencyName
+                render: (value, item, index) => item.finalPrice + ' ' + item.currencyName
               },
               {
                 title: 'Рейс',
@@ -267,6 +270,7 @@ export default ({
                 title: 'Баланс платёжа',
                 dataIndex: 'balance',
                 key: 'balance',
+                render: (value, item, index) => (item.finalPrice + item.balance).toFixed(2) + ' / ' + Math.abs(item.balance).toFixed(2)
               },
               {
                 title: 'Комментарии',
@@ -427,6 +431,31 @@ export default ({
         });
       }
     },
+    * updateKassa({payload}, {call, put, select}) {
+      const result = yield call(updateTransactionIn, payload);
+      if (result.success) {
+        yield put({
+          type: 'queryKassa'
+        })
+        notification.info({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#d8ffe9'}
+        });
+      } else {
+        yield put({
+          type: 'updateState',
+          payload: {isBtnDisabled: false,}
+        })
+        notification.error({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#ffd9d9'}
+        });
+      }
+    },
     * getKassaById({payload}, {call, put, select}) {
       const result = yield call(getTransactionById, payload.id);
       if (result.success) {
@@ -435,10 +464,29 @@ export default ({
           type: 'updateState',
           payload: {
             currentItem: result,
+            kassaInType: result.kassaType,
             isModalOpen: true,
             modalType: 'update'
           }
         })
+        if (result.kassaType === 101) {
+          let invoices = yield call(getInvoicesByTypeAndClientId, {clientId: result.clientId, type: 'out'});
+          if (invoices.success) {
+            let totalCredit = 0;
+            let totalDebit = 0;
+            result.invoices.forEach(item => {
+              totalCredit += item.credit;
+              totalDebit += item.debit;
+            })
+            yield put({
+              type: 'updateState',
+              payload: {
+                currentItem: {...result, totalCredit, totalDebit},
+                invoiceList: invoices.list
+              }
+            })
+          }
+        }
       } else {
         notification.error({
           description: result.message,

@@ -43,6 +43,8 @@ public class CargoService {
     ShippingRepository shippingRepository;
     @Autowired
     ExpenseRepository expenseRepository;
+    @Autowired
+    InvoiceRepository invoiceRepository;
 
     @Autowired
     DocumentService documentService;
@@ -251,7 +253,7 @@ public class CargoService {
 
     public List<ResCargo> getCargoListForSelectByOrderId(UUID orderId) {
         List<ResCargo> list = new ArrayList<>();
-        List<CargoEntity> entityList = repository.getAllByOrder_IdAndStateGreaterThanOrderByCreatedAt(orderId, 0);
+        List<CargoEntity> entityList = repository.getAllByOrder_IdAndShippingIsNotNullAndStateGreaterThanOrderByCreatedAt(orderId, 0);
         for (CargoEntity cargo : entityList) {
             list.add(new ResCargo(cargo.getId(), cargo.getName(), cargo.getNum()));
         }
@@ -404,6 +406,12 @@ public class CargoService {
                 .orElseThrow(() -> new ResourceNotFoundException("Cargo", "Id", expenseEntity.getOwnerId()));
         cargoEntity.getExpenseList().remove(expenseEntity);
         repository.saveAndFlush(cargoEntity);
+
+        if (expenseEntity.getInvoiceInId() != null)
+            invoiceRepository.deleteById(expenseEntity.getInvoiceInId());
+        if (expenseEntity.getInvoiceOutId() != null)
+            invoiceRepository.deleteById(expenseEntity.getInvoiceOutId());
+
         expenseRepository.delete(expenseEntity);
 
         return ResponseEntity.ok().body(new ApiResponse("Удалено успешно", true));

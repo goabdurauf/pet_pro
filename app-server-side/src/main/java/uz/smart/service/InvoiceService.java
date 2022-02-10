@@ -188,4 +188,16 @@ public class InvoiceService {
 
         return list;
     }
+
+    public List<ResInvoice> getByClientIdAndTypeAndCurrency(String type, UUID clientId, Long currencyId) {
+        List<ResInvoice> list = new ArrayList<>();
+        List<InvoiceEntity> entities = repository.findAllByClientIdAndTypeAndCurrency(clientId, type.equals("in") ? List.of(1, 2, 3) : List.of(4), currencyId);
+        for (InvoiceEntity invoice : entities) {
+            list.add(getResInvoice(invoice));
+        }
+
+        return list;
+    }
+
+
 }

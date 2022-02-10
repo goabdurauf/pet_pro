@@ -79,7 +79,7 @@ public class TransactionService {
             }
         }
 
-        kassa.setBalance(kassa.getBalance().add(entity.getFinalPrice()));
+        kassa.setBalance(kassa.getBalance().add(entity.getPrice()));
         kassaRepository.saveAndFlush(kassa);
 
         return ResponseEntity.ok().body(new ApiResponse("Сохранено успешно", true));
@@ -272,6 +272,8 @@ public class TransactionService {
                 .orElseThrow(() -> new ResourceNotFoundException("Transaction", "Id", id));
         TransactionsDto dto = mapperUtil.toTransactionDto(entity);
         dto.setKassaId(entity.getKassa().getId());
+        dto.setCurrencyInId(entity.getKassa().getCurrencyId());
+        dto.setCurrencyInName(entity.getKassa().getCurrencyName());
         if (entity.getClient() != null)
             dto.setClientId(entity.getClient().getId());
         if (entity.getCarrier() != null)
@@ -279,7 +281,9 @@ public class TransactionService {
 
         List<TransactionsInvoicesEntity> trInvList = trInvRepository.findAllByTransactionId(id);
         for (TransactionsInvoicesEntity inv : trInvList) {
-            dto.getInvoices().add(new TransactionsInvoicesDto(inv.getInvoiceId(), inv.getPrice()));
+            TransactionsInvoicesDto transact = new TransactionsInvoicesDto(inv.getInvoiceId(), inv.getPrice());
+            invoiceRepository.findById(inv.getInvoiceId()).ifPresent(invoice -> transact.setDebit(invoice.getFinalPrice()));
+            dto.getInvoices().add(transact);
         }
 
         return dto;
@@ -289,6 +293,8 @@ public class TransactionService {
         TransactionsDto dto = mapperUtil.toTransactionDto(entity);
         dto.setKassaId(entity.getKassa().getId());
         dto.setKassaName(entity.getKassa().getName() + " (" + entity.getKassa().getCurrencyName() + ")");
+        dto.setCurrencyInId(entity.getKassa().getCurrencyId());
+        dto.setCurrencyInName(entity.getKassa().getCurrencyName());
         if (entity.getClient() != null) {
             dto.setClientId(entity.getClient().getId());
             dto.setSourceName(entity.getClient().getName());

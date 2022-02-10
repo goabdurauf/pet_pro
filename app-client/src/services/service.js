@@ -89,6 +89,7 @@ export function saveInvoice(data) {return request({url: '/api/invoice/save', met
 export function updateInvoice(data) {return request({url: '/api/invoice/update', method: 'put', data})}
 export function getInvoiceList(data) {return request({url: '/api/invoice/list/' + data.type, method: 'get',})}
 export function getInvoicesByTypeAndClientId(data) {return request({url: '/api/invoice/' + data.type + '/' + data.clientId, method: 'get'})}
+export function getInvoicesByTypeAndClientIdAndCurrencyId(data) {return request({url: '/api/invoice/' + data.type + '/' + data.clientId + '/' + data.currencyId, method: 'get'})}
 export function getInvoiceById(id) {return request({url: '/api/invoice/' + id, method: 'get',})}
 export function deleteInvoiceById(id) {return request({url: '/api/invoice/' + id, method: 'delete',})}
 
