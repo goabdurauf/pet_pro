@@ -45,6 +45,8 @@ public class CargoService {
     ExpenseRepository expenseRepository;
     @Autowired
     InvoiceRepository invoiceRepository;
+    @Autowired
+    ClientRepository clientRepository;
 
     @Autowired
     DocumentService documentService;
@@ -450,6 +452,22 @@ public class CargoService {
         }
 
         return ResponseEntity.ok().body(new ApiResponse("Разделено успешно", true));
+    }
+
+    public ResInvoice getForInvoice(UUID id) {
+        CargoEntity cargo = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Cargo", "Id", id));
+        ResInvoice dto = new ResInvoice();
+        dto.setExpenseId(cargo.getId());
+        dto.setPrice(cargo.getPrice());
+        dto.setRate(cargo.getRate());
+        dto.setFinalPrice(cargo.getFinalPrice());
+        dto.setCurrencyId(cargo.getCurrencyId());
+        dto.setComment(cargo.getComment());
+
+        clientRepository.findById(cargo.getOrder().getClientId()).ifPresent(client -> dto.setClientName(client.getName()));
+
+        return dto;
     }
 
 }

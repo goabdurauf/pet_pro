@@ -37,6 +37,7 @@ public class CargoDto {
     private Timestamp unloadDate;
 
     private Long currencyId;
+    private String currencyName;
     private BigDecimal price;
     private BigDecimal rate;
     private BigDecimal finalPrice;

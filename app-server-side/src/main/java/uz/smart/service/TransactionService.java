@@ -57,12 +57,24 @@ public class TransactionService {
             ClientEntity client = clientRepository.getClientById(dto.getClientId())
                     .orElseThrow(() -> new ResourceNotFoundException("Transaction", "clientId", dto.getClientId()));
             entity.setClient(client);
+
+            if (client.getBalance() == null)
+                client.setBalance(BigDecimal.ZERO);
+
+            client.setBalance(client.getBalance().add(entity.getFinalPrice()));
+            clientRepository.save(client);
         }
 
         if (dto.getCarrierId() != null) {
             CarrierEntity carrier = carrierRepository.getCarrierById(dto.getCarrierId())
                     .orElseThrow(() -> new ResourceNotFoundException("Transaction", "carrierId", dto.getCarrierId()));
             entity.setCarrier(carrier);
+
+            if (carrier.getBalance() == null)
+                carrier.setBalance(BigDecimal.ZERO);
+
+            carrier.setBalance(carrier.getBalance().add(entity.getFinalPrice()));
+            carrierRepository.save(carrier);
         }
 
         entity = repository.saveAndFlush(entity);
@@ -100,6 +112,20 @@ public class TransactionService {
 
             kassa.setBalance(kassa.getBalance().add(dto.getFinalPrice()));
         }
+        if (entity.getClient() != null) {
+            ClientEntity client = entity.getClient();
+            if (client.getBalance() == null)
+                client.setBalance(BigDecimal.ZERO);
+            client.setBalance(client.getBalance().subtract(entity.getFinalPrice()));
+            clientRepository.saveAndFlush(client);
+        }
+        if (entity.getCarrier() != null) {
+            CarrierEntity carrier = entity.getCarrier();
+            if (carrier.getBalance() == null)
+                carrier.setBalance(BigDecimal.ZERO);
+            carrier.setBalance(carrier.getBalance().subtract(entity.getFinalPrice()));
+            carrierRepository.saveAndFlush(carrier);
+        }
 
         entity = mapperUtil.toTransactionsEntity(dto, entity);
         entity.setKassa(kassa);
@@ -112,6 +138,12 @@ public class TransactionService {
             ClientEntity client = clientRepository.getClientById(dto.getClientId())
                     .orElseThrow(() -> new ResourceNotFoundException("Transaction", "clientId", dto.getClientId()));
             entity.setClient(client);
+
+            if (client.getBalance() == null)
+                client.setBalance(BigDecimal.ZERO);
+
+            client.setBalance(client.getBalance().add(entity.getFinalPrice()));
+            clientRepository.save(client);
         } else
             entity.setClient(null);
 
@@ -119,6 +151,12 @@ public class TransactionService {
             CarrierEntity carrier = carrierRepository.getCarrierById(dto.getCarrierId())
                     .orElseThrow(() -> new ResourceNotFoundException("Transaction", "carrierId", dto.getCarrierId()));
             entity.setCarrier(carrier);
+
+            if (carrier.getBalance() == null)
+                carrier.setBalance(BigDecimal.ZERO);
+
+            carrier.setBalance(carrier.getBalance().add(entity.getFinalPrice()));
+            carrierRepository.save(carrier);
         } else
             entity.setCarrier(null);
 
@@ -170,11 +208,23 @@ public class TransactionService {
             ClientEntity client = clientRepository.getClientById(dto.getClientId())
                     .orElseThrow(() -> new ResourceNotFoundException("Transaction", "clientId", dto.getClientId()));
             entity.setClient(client);
+
+            if (client.getBalance() == null)
+                client.setBalance(BigDecimal.ZERO);
+
+            client.setBalance(client.getBalance().subtract(entity.getFinalPrice()));
+            clientRepository.save(client);
         }
         if (dto.getCarrierId() != null) {
             CarrierEntity carrier = carrierRepository.getCarrierById(dto.getCarrierId())
                     .orElseThrow(() -> new ResourceNotFoundException("Transaction", "carrierId", dto.getCarrierId()));
             entity.setCarrier(carrier);
+
+            if (carrier.getBalance() == null)
+                carrier.setBalance(BigDecimal.ZERO);
+
+            carrier.setBalance(carrier.getBalance().subtract(entity.getFinalPrice()));
+            carrierRepository.save(carrier);
         }
 
         entity = repository.saveAndFlush(entity);
@@ -216,6 +266,21 @@ public class TransactionService {
 
             kassa.setBalance(kassa.getBalance().subtract(dto.getFinalPrice()));
         }
+        if (entity.getClient() != null) {
+            ClientEntity client = entity.getClient();
+            if (client.getBalance() == null)
+                client.setBalance(BigDecimal.ZERO);
+            client.setBalance(client.getBalance().add(entity.getFinalPrice()));
+            clientRepository.saveAndFlush(client);
+        }
+        if (entity.getCarrier() != null) {
+            CarrierEntity carrier = entity.getCarrier();
+            if (carrier.getBalance() == null)
+                carrier.setBalance(BigDecimal.ZERO);
+            carrier.setBalance(carrier.getBalance().add(entity.getFinalPrice()));
+            carrierRepository.saveAndFlush(carrier);
+        }
+
         entity = mapperUtil.toTransactionsEntity(dto, entity);
         entity.setKassa(kassa);
         if (dto.getCurrencyId() != null) {
@@ -227,12 +292,24 @@ public class TransactionService {
             ClientEntity client = clientRepository.getClientById(dto.getClientId())
                     .orElseThrow(() -> new ResourceNotFoundException("Transaction", "clientId", dto.getClientId()));
             entity.setClient(client);
+
+            if (client.getBalance() == null)
+                client.setBalance(BigDecimal.ZERO);
+
+            client.setBalance(client.getBalance().subtract(entity.getFinalPrice()));
+            clientRepository.save(client);
         } else
             entity.setClient(null);
         if (dto.getCarrierId() != null) {
             CarrierEntity carrier = carrierRepository.getCarrierById(dto.getCarrierId())
                     .orElseThrow(() -> new ResourceNotFoundException("Transaction", "carrierId", dto.getCarrierId()));
             entity.setCarrier(carrier);
+
+            if (carrier.getBalance() == null)
+                carrier.setBalance(BigDecimal.ZERO);
+
+            carrier.setBalance(carrier.getBalance().subtract(entity.getFinalPrice()));
+            carrierRepository.save(carrier);
         } else
             entity.setCarrier(null);
 
@@ -298,18 +375,24 @@ public class TransactionService {
         if (entity.getClient() != null) {
             dto.setClientId(entity.getClient().getId());
             dto.setSourceName(entity.getClient().getName());
-            dto.setSourceType("От клиента");
         }
         if (entity.getCarrier() != null) {
             dto.setCarrierId(entity.getCarrier().getId());
             dto.setSourceName(entity.getCarrier().getName());
-            dto.setSourceType("От перевозчика (возврат)");
         }
         if (entity.getAgentId() != null) {
             ListEntity agent = listRepository.findById(entity.getAgentId())
                     .orElseThrow(() -> new ResourceNotFoundException("Agent", "Id", entity.getAgentId()));
             dto.setSourceName(agent.getNameRu());
-            dto.setSourceType("От прочие контрагента");
+        }
+
+        switch (entity.getKassaType()) {
+            case 101 -> dto.setSourceType("От клиента");
+            case 102 -> dto.setSourceType("От прочие контрагента");
+            case 103 -> dto.setSourceType("От перевозчика (возврат)");
+            case 201 -> dto.setSourceType("Перевозчик");
+            case 202 -> dto.setSourceType("Возврат клиенту");
+            case 203 -> dto.setSourceType("Прочие расходы");
         }
 
         return dto;

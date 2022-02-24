@@ -10,8 +10,7 @@ import InvoiceModal from '../shipping/$shipping_detail/modals/invoiceModal'
 import {Button} from "reactstrap";
 import {DeleteOutlined, FormOutlined, PlusOutlined, CopyOutlined} from "@ant-design/icons";
 import 'moment/locale/ru';
-import { MdOutlineDoneAll } from "react-icons/md";
-import { BsJournalArrowDown, BsJournalArrowUp } from "react-icons/bs";
+import { BsJournalArrowDown, BsJournalArrowUp, BsCircleFill } from "react-icons/bs";
 
 const OrderDetail = ({dispatch, orderDetail}) => {
   const {
@@ -209,10 +208,11 @@ const OrderDetail = ({dispatch, orderDetail}) => {
           {model === 'Expense' && <div>
             {record.invoiceInId === null
               ? <Tooltip title="Добавить полученный счёт" placement={"bottom"} color={"cyan"}>
-                  <BsJournalArrowDown onClick={() => openInvoiceOutModal(record.id)}/>
+                <BsCircleFill style={{color: 'gold'}}/>
+                <BsJournalArrowDown onClick={() => openInvoiceOutModal(record.id)}/>
                 </Tooltip>
               : <div>
-                  <MdOutlineDoneAll style={{color:'green'}}/>
+                  <BsCircleFill style={{color:'springgreen'}}/>
                   <BsJournalArrowDown />
                 </div>
               }
@@ -221,10 +221,11 @@ const OrderDetail = ({dispatch, orderDetail}) => {
           {model === 'Expense' && <div>
             {record.invoiceOutId === null
               ? <Tooltip title="Добавить выписанный счёт" placement={"bottom"} color={"orange"}>
-                  <BsJournalArrowUp onClick={() => openInvoiceInModal(record.id)}/>
+                <BsCircleFill style={{color:'gold'}}/>
+                <BsJournalArrowUp onClick={() => openInvoiceInModal(record.id)}/>
                 </Tooltip>
               : <div>
-                  <MdOutlineDoneAll style={{color:'green'}}/>
+                  <BsCircleFill style={{color:'springgreen'}}/>
                   <BsJournalArrowUp />
                 </div>
               }
@@ -254,10 +255,11 @@ const OrderDetail = ({dispatch, orderDetail}) => {
         <Space size="middle">
           {record.invoiceOutId === null
             ? <Tooltip title="Добавить выписанный счёт" placement={"bottom"} color={"orange"}>
+              <BsCircleFill style={{color:'gold'}}/>
               <BsJournalArrowUp onClick={() => openInvoiceInModal(record.id)}/>
             </Tooltip>
             : <div>
-              <MdOutlineDoneAll style={{color:'green'}}/>
+              <BsCircleFill style={{color:'springgreen'}}/>
               <BsJournalArrowUp />
             </div>
           }
@@ -326,7 +328,7 @@ const OrderDetail = ({dispatch, orderDetail}) => {
       payload: {
         ...values,
         expenseId: currentItem.expenseId,
-        type: modalType === 'create' ? 4 : 3,
+        type: modalType === 'cargo' ? 5 : modalType === 'create' ? 4 : 3,
         orderId
       }
     })
@@ -335,6 +337,12 @@ const OrderDetail = ({dispatch, orderDetail}) => {
     dispatch({
       type: 'orderDetail/getExpenseForInvoiceInById',
       payload: {id, modalType: 'create'}
+    })
+  }
+  const openCargoInvoiceModal = (id) => {
+    dispatch({
+      type: 'orderDetail/getCargoForInvoiceInById',
+      payload: {id, modalType: 'cargo'}
     })
   }
   const openInvoiceOutModal = (id) => {
@@ -378,7 +386,7 @@ const OrderDetail = ({dispatch, orderDetail}) => {
       title: 'Цена',
       dataIndex: 'price1',
       key: 'price1',
-      render: (text, record) => record.finalPrice !== null ? record.finalPrice : 0
+      render: (text, record) => (record.price !== null ? record.price : 0) + ' ' + (record.currencyName !== null ? record.currencyName : '')
     },
     {
       title: 'Операции',
@@ -387,9 +395,16 @@ const OrderDetail = ({dispatch, orderDetail}) => {
       align: 'center',
       render: (text, record) => (
         <Space size="middle">
-          <Tooltip title="Добавить выписанный счёт" placement={"bottom"} color={"orange"}>
-            <BsJournalArrowUp onClick={openInvoiceOutModal} />
-          </Tooltip>
+          {record.invoiceOutId === null
+            ? <Tooltip title="Добавить выписанный счёт" placement={"bottom"} color={"orange"}>
+              <BsCircleFill style={{color:'gold', display: "block"}}/>
+              <BsJournalArrowUp onClick={() => openCargoInvoiceModal(record.id)}/>
+            </Tooltip>
+            : <div>
+              <BsCircleFill style={{color:'springgreen', display: "block"}}/>
+              <BsJournalArrowUp />
+            </div>
+          }
         </Space>
       )
     }

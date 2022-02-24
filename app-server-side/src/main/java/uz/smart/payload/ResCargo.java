@@ -27,6 +27,7 @@ public class ResCargo extends CargoDto {
     private String statusName;
     private List<DocumentDto> documentList;
     private int shippingStatusId;
+    private UUID invoiceOutId;
 
     public ResCargo(UUID id, String name, String num) {
         super.setId(id);

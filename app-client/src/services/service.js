@@ -80,6 +80,7 @@ export function addCargoExpense(data) {return request({url: '/api/cargo/expense'
 export function getCargoExpenseByOrderId(id) {return request({url: '/api/cargo/expense/' + id, method: 'get',})}
 export function deleteExpenseFromCargoById(id) {return request({url: '/api/cargo/expense/' + id, method: 'delete',})}
 export function divideShippingExpenseToCargos(data) {return request({url: '/api/cargo/expense/divide', method: 'post', data})}
+export function getCargoForInvoiceById(id) {return request({url: '/api/cargo/' + id + '/invoice', method: 'get',})}
 
 export function getExpenseById(id) {return request({url: '/api/expense/' + id, method: 'get',})}
 export function getExpenseForInvoiceById(id) {return request({url: '/api/expense/' + id + '/invoice', method: 'get',})}
@@ -100,6 +101,8 @@ export function deleteKassaById(id) {return request({url: '/api/kassa/' + id, me
 
 export function saveTransactionIn(data) {return request({url: '/api/transaction/in/save', method: 'post', data})}
 export function updateTransactionIn(data) {return request({url: '/api/transaction/in/update', method: 'put', data})}
+export function saveTransactionOut(data) {return request({url: '/api/transaction/out/save', method: 'post', data})}
+export function updateTransactionOut(data) {return request({url: '/api/transaction/out/update', method: 'put', data})}
 export function getTransactionList() {return request({url: '/api/transaction/list', method: 'get',})}
 export function getTransactionById(id) {return request({url: '/api/transaction/' + id, method: 'get',})}
 

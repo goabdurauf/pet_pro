@@ -49,6 +49,7 @@ public class InvoiceService {
                 : mapperUtil.toInvoiceEntity(dto, repository.findById(dto.getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Invoice", "Id", dto.getId())));
         entity.setBalance(BigDecimal.ZERO.subtract(entity.getFinalPrice()));
+        entity = repository.saveAndFlush(entity);
         if (dto.getCurrencyId() != null) {
             ListEntity currency = listRepository.findById(dto.getCurrencyId())
                     .orElseThrow(() -> new ResourceNotFoundException("List", "currencyId", dto.getCurrencyId()));
@@ -59,6 +60,10 @@ public class InvoiceService {
                     .orElseThrow(() -> new ResourceNotFoundException("Shipping", "id", dto.getShippingId()));
             entity.setShipping(shipping);
             entity.setCarrierId(shipping.getCarrierId());
+            if (dto.getType() == 1) {
+                shipping.setInvoiceInId(entity.getId());
+                shippingRepository.save(shipping);
+            }
         }
         if (dto.getOrderId() != null) {
             OrderEntity order = orderRepository.findById(dto.getOrderId())
@@ -66,7 +71,7 @@ public class InvoiceService {
             entity.setClientId(order.getClientId());
         }
         entity = repository.saveAndFlush(entity);
-        if (dto.getExpenseId() != null) {
+        if (dto.getExpenseId() != null && dto.getType() != 5) {
             ExpenseEntity expense = expenseRepository.findById(dto.getExpenseId())
                     .orElseThrow(() -> new ResourceNotFoundException("Expense", "Id", dto.getExpenseId()));
             entity.setCarrierId(expense.getCarrier().getId());
@@ -85,6 +90,16 @@ public class InvoiceService {
             expenseRepository.saveAndFlush(expense);
 
             repository.saveAndFlush(entity);
+        }
+        if (dto.getType() == 5) {
+            CargoEntity cargo = cargoRepository.findById(dto.getExpenseId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Cargo", "Id", dto.getExpenseId()));
+            entity.setCargo(cargo);
+            entity.setCarrierId(null);
+            repository.saveAndFlush(entity);
+
+            cargo.setInvoiceOutId(entity.getId());
+            cargoRepository.saveAndFlush(cargo);
         }
 
         return ResponseEntity.ok().body(new ApiResponse("Сохранено успешно", true));
@@ -116,7 +131,7 @@ public class InvoiceService {
 
     public List<ResInvoice> getByType(String type) {
         List<ResInvoice> list = new ArrayList<>();
-        List<InvoiceEntity> entities = repository.getAllInvoices(type.equals("in") ? List.of(1, 2, 3) : List.of(4));
+        List<InvoiceEntity> entities = repository.getAllInvoices(type.equals("in") ? List.of(1, 2, 3) : List.of(4, 5));
         for (InvoiceEntity invoice : entities) {
             list.add(getResInvoice(invoice));
         }
@@ -128,14 +143,16 @@ public class InvoiceService {
         ResInvoice res = mapperUtil.toResInvoice(entity);
         if (entity.getType() == 1 || entity.getType() == 2 || entity.getType() == 3) {
             ExpenseEntity expense = expenseRepository.findTopByInvoiceInId(res.getId()).orElse(null);//.ifPresent(expense -> res.setName(expense.getName()));
-            ShippingEntity shipping = entity.getType() != 3 ? entity.getShipping() : entity.getCargo().getShipping();
-            res.setShipNum(shipping.getNum());
-            res.setTransportNum(shipping.getShippingNum());
             res.setInvoiceDate(entity.getCreatedAt());
-            if (shipping.getCarrierId() != null) {
-                CarrierEntity carrier = carrierRepository.findById(entity.getCarrierId())
-                        .orElseThrow(() -> new ResourceNotFoundException("Carrier", "carrierId", entity.getCarrierId()));
-                res.setCarrierName(carrier.getName());
+            ShippingEntity shipping = entity.getType() != 3 ? entity.getShipping() : entity.getCargo().getShipping();
+            if (shipping != null) {
+                res.setShipNum(shipping.getNum());
+                res.setTransportNum(shipping.getShippingNum());
+                if (shipping.getCarrierId() != null) {
+                    CarrierEntity carrier = carrierRepository.findById(entity.getCarrierId())
+                            .orElseThrow(() -> new ResourceNotFoundException("Carrier", "carrierId", entity.getCarrierId()));
+                    res.setCarrierName(carrier.getName());
+                }
             }
             res.setName(expense != null ? expense.getName() : "Трансортная услуга (рейс)");
         } else {
@@ -149,8 +166,10 @@ public class InvoiceService {
             res.setName(expense.getName());
 
             ShippingEntity shipping = cargo.getShipping();
-            res.setShipNum(shipping.getNum());
-            res.setTransportNum(shipping.getShippingNum());
+            if (shipping != null) {
+                res.setShipNum(shipping.getNum());
+                res.setTransportNum(shipping.getShippingNum());
+            }
             res.setInvoiceDate(entity.getCreatedAt());
             /*if (shipping.getCarrierId() != null) {
                 CarrierEntity carrier = carrierRepository.findById(shipping.getCarrierId())
@@ -181,7 +200,9 @@ public class InvoiceService {
 
     public List<ResInvoice> getByClientIdAndType(String type, UUID clientId) {
         List<ResInvoice> list = new ArrayList<>();
-        List<InvoiceEntity> entities = repository.findAllByClientIdAndType(clientId, type.equals("in") ? List.of(1, 2, 3) : List.of(4));
+        List<InvoiceEntity> entities = type.equals("in")
+                ? repository.findAllByCarrierIdAndType(clientId, List.of(1, 2, 3))
+                : repository.findAllByClientIdAndType(clientId, List.of(4, 5));
         for (InvoiceEntity invoice : entities) {
             list.add(getResInvoice(invoice));
         }
@@ -191,7 +212,9 @@ public class InvoiceService {
 
     public List<ResInvoice> getByClientIdAndTypeAndCurrency(String type, UUID clientId, Long currencyId) {
         List<ResInvoice> list = new ArrayList<>();
-        List<InvoiceEntity> entities = repository.findAllByClientIdAndTypeAndCurrency(clientId, type.equals("in") ? List.of(1, 2, 3) : List.of(4), currencyId);
+        List<InvoiceEntity> entities = type.equals("in")
+                ? repository.findAllByCarrierIdAndTypeAndCurrency(clientId, List.of(1, 2, 3), currencyId)
+                : repository.findAllByClientIdAndTypeAndCurrency(clientId, List.of(4, 5), currencyId);
         for (InvoiceEntity invoice : entities) {
             list.add(getResInvoice(invoice));
         }

@@ -21,13 +21,23 @@ public class TransactionController {
     TransactionService service;
 
     @PostMapping("/in/save")
-    public HttpEntity<?> save(@RequestBody TransactionsDto dto) {
+    public HttpEntity<?> saveIn(@RequestBody TransactionsDto dto) {
         return service.saveInTransaction(dto);
     }
 
     @PutMapping("/in/update")
-    public HttpEntity<?> update(@RequestBody TransactionsDto dto) {
+    public HttpEntity<?> updateIn(@RequestBody TransactionsDto dto) {
         return service.updateInTransaction(dto);
+    }
+
+    @PostMapping("/out/save")
+    public HttpEntity<?> saveOut(@RequestBody TransactionsDto dto) {
+        return service.saveOutTransaction(dto);
+    }
+
+    @PutMapping("/out/update")
+    public HttpEntity<?> updateOut(@RequestBody TransactionsDto dto) {
+        return service.updateOutTransaction(dto);
     }
 
     @GetMapping("/{id}")

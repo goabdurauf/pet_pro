@@ -11,10 +11,7 @@ import uz.smart.dto.CargoDto;
 import uz.smart.dto.CargoStatusDto;
 import uz.smart.dto.DocumentDto;
 import uz.smart.dto.ExpenseDto;
-import uz.smart.payload.ResCargo;
-import uz.smart.payload.ResCargoExpenses;
-import uz.smart.payload.ResDocument;
-import uz.smart.payload.ResShippingDivide;
+import uz.smart.payload.*;
 import uz.smart.service.CargoService;
 
 import java.util.List;
@@ -76,5 +73,8 @@ public class CargoController {
 
     @PostMapping("/expense/divide")
     public HttpEntity<?> divideExpense(@RequestBody ResShippingDivide divide){ return service.divideExpense(divide);}
+
+    @GetMapping("/{id}/invoice")
+    public ResInvoice getForInvoice(@PathVariable UUID id) { return service.getForInvoice(id); }
 
 }

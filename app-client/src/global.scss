@@ -345,6 +345,16 @@ body {
     background-color: #fff1f1;
   }
 
+  .trasnfered_true {
+    color: green;
+    font-weight: 600;
+  }
+
+  .trasnfered_false {
+    color: goldenrod;
+    font-weight: 600;
+  }
+
   .editable-cell {
     position: relative;
   }

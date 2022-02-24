@@ -27,7 +27,7 @@ import {
   getCargoExpenseByOrderId,
   getExpenseById,
   deleteExpenseFromCargoById,
-  saveInvoice, getExpenseForInvoiceById, getExpenseForInvoiceInById
+  saveInvoice, getExpenseForInvoiceById, getExpenseForInvoiceInById, getCargoForInvoiceById
 } from '@/services/service'
 import modelExtend from 'dva-model-extend'
 import {Image, notification} from 'antd'
@@ -909,6 +909,10 @@ export default modelExtend(tableModel, {
           type: 'queryExpense',
           payload:{id: payload.orderId}
         })
+        yield put({
+          type: 'queryCargo',
+          payload:{id: payload.orderId}
+        })
         notification.info({
           description: result.message,
           placement: 'topRight',
@@ -961,6 +965,28 @@ export default modelExtend(tableModel, {
             createTitle: 'Добавить полученный счёт',
             modalType: payload.modalType,
             editTitle: result.carrierName
+          }
+        })
+      } else {
+        notification.error({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#ffd9d9'}
+        });
+      }
+    },
+    * getCargoForInvoiceInById({payload}, {call, put, select}) {
+      const result = yield call(getCargoForInvoiceById, payload.id);
+      if (result.success) {
+        yield put({
+          type: 'updateState',
+          payload: {
+            currentItem: result,
+            isAddInvoiceModalOpen: true,
+            createTitle: 'Добавить выписанный счёт',
+            modalType: payload.modalType,
+            editTitle: result.clientName
           }
         })
       } else {

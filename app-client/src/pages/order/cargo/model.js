@@ -123,6 +123,7 @@ export default ({
         key: 'docs',
         render: (text, record) => {
           let data = [];
+          data.push(<div key={record.id} className={record.invoiceOutId === null ? 'trasnfered_false' : 'trasnfered_true'}>{record.price} {record.currencyName}</div>)
           record.documentList && record.documentList.forEach(doc => {
             let title = doc.title + ' (' + doc.date.substring(0, doc.date.indexOf(' ')) + ')';
             if (doc.attachments !== null && doc.attachments.length > 0) {

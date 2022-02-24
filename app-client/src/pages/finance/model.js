@@ -1,5 +1,6 @@
 import {getInvoiceList, getListItems, updateInvoice, getInvoiceById, deleteInvoiceById, getClientList, getKassaList, getCarrierList,
-  saveTransactionIn, updateTransactionIn, getTransactionList, getTransactionById, getInvoicesByTypeAndClientIdAndCurrencyId, getInvoicesByTypeAndClientId
+  saveTransactionIn, updateTransactionIn, getTransactionList, getTransactionById, getInvoicesByTypeAndClientIdAndCurrencyId, getInvoicesByTypeAndClientId,
+  saveTransactionOut, updateTransactionOut
 } from '@/services/service'
 import {notification} from 'antd'
 import moment from "moment";
@@ -19,11 +20,13 @@ export default ({
     clientId: null,
     currencyId: null,
     modalWidth: 500,
-    kassaInType: 0,
+    kassaInOutType: 0,
+    kassaBalance: null,
     currencyList: [],
     clientList: [],
     kassaList: [],
     agentList: [],
+    otherExpenseList: [],
     carrierList: [],
     visibleColumns: []
   },
@@ -48,6 +51,7 @@ export default ({
       let client = yield call(getClientList);
       let kassa = yield call(getKassaList);
       let agents = yield call(getListItems, 12);
+      let oExpenses = yield call(getListItems, 13);
       let carriers = yield call(getCarrierList);
 
       if (currency.success) {
@@ -59,7 +63,7 @@ export default ({
             kassaList: kassa.list,
             agentList: agents.list,
             carrierList: carriers.list,
-
+            otherExpenseList: oExpenses.list
           }
         })
       }
@@ -75,7 +79,6 @@ export default ({
         })
       }
     },
-
     * queryReceivedInvoices({payload}, {call, put, select}) {
       let data = yield call(getInvoiceList, payload);
 
@@ -363,10 +366,9 @@ export default ({
             isModalOpen: false,
             isBtnDisabled: false,
             modalType: 'create',
-            createTitle:'Добавить поступление в кассу',
-            editTitle: 'Редактировать поступление в кассу',
             modalWidth: 800,
-            kassaInType: 0,
+            kassaInOutType: 0,
+            kassaBalance: null,
             visibleColumns: [
               {
                 title: '№',
@@ -384,7 +386,8 @@ export default ({
               {
                 title: 'Сумма',
                 dataIndex: 'finalPrice',
-                key: 'finalPrice'
+                key: 'finalPrice',
+                render: (text, record) => text + ' ' + record.currencyName
               },
               {
                 title: 'Откуда / куда',
@@ -397,6 +400,12 @@ export default ({
                 key: 'kassaName',
               },
               {
+                title: 'Вид',
+                dataIndex: 'vid',
+                key: 'vid',
+                render: (text, record) => record.kassaType < 200 ? 'Поступление' : 'Расход'
+              },
+              {
                 title: 'Операция',
                 dataIndex: 'sourceType',
                 key: 'sourceType',
@@ -407,7 +416,7 @@ export default ({
       }
     },
     * saveKassa({payload}, {call, put, select}) {
-      const result = yield call(saveTransactionIn, payload);
+      const result = payload.kassaInOutType < 200 ? yield call(saveTransactionIn, payload) : yield call(saveTransactionOut, payload);
       if (result.success) {
         yield put({
           type: 'queryKassa'
@@ -432,7 +441,7 @@ export default ({
       }
     },
     * updateKassa({payload}, {call, put, select}) {
-      const result = yield call(updateTransactionIn, payload);
+      const result = payload.kassaInOutType < 200 ? yield call(updateTransactionIn, payload) : yield call(updateTransactionOut, payload);
       if (result.success) {
         yield put({
           type: 'queryKassa'
@@ -460,17 +469,21 @@ export default ({
       const result = yield call(getTransactionById, payload.id);
       if (result.success) {
         result.date = moment(result.date, 'DD.MM.YYYY HH:mm:ss');
+        let editTitle = result.kassaType < 200 ? 'Редактировать поступление в кассу' : 'Редактировать расход из кассы'
         yield put({
           type: 'updateState',
           payload: {
             currentItem: result,
-            kassaInType: result.kassaType,
+            kassaInOutType: result.kassaType,
+            editTitle,
             isModalOpen: true,
             modalType: 'update'
           }
         })
-        if (result.kassaType === 101) {
-          let invoices = yield call(getInvoicesByTypeAndClientId, {clientId: result.clientId, type: 'out'});
+        if (result.kassaType === 101 || result.kassaType === 201) {
+          let invoices = result.kassaType === 101
+            ? yield call(getInvoicesByTypeAndClientId, {clientId: result.clientId, type: 'out'})
+            : yield call(getInvoicesByTypeAndClientId, {clientId: result.carrierId, type: 'in'});
           if (invoices.success) {
             let totalCredit = 0;
             let totalDebit = 0;

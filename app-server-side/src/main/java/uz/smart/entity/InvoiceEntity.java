@@ -29,7 +29,7 @@ public class InvoiceEntity extends BaseEntity {
     private String comment;
     private UUID carrierId;
     private UUID clientId;
-    private int type;   // 1 - Трансортная услуга (рейс), 2 - Расход рейса, 3 - расход груза, 4 - расход груза по рейсам
+    private int type;   // 1 - Трансортная услуга (рейс), 2 - Расход рейса, 3 - расход груза, 4 - расход груза по рейсам, 5 - cargo out
 
     private BigDecimal balance = BigDecimal.ZERO;
 

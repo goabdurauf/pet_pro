@@ -1504,6 +1504,107 @@ export default ({
         });
       }
     },
+    * queryOtherExpenses({payload}, {call, put, select}) {
+      let data = yield call(getListItems, 13);
+
+      if (data.success) {
+        yield put({
+          type: 'updateState',
+          payload: {
+            model: 'OtherExpenses',
+            title: 'Прочие расходы',
+            createTitle: 'Создать прочие расходы',
+            editTitle: 'Редактировать прочие расходы',
+            isModalOpen: false,
+            itemList: data.list,
+            currentItem: null,
+            modalType: 'create',
+            isBtnDisabled: false,
+            visibleColumns: [
+              {
+                title: '№',
+                dataIndex: 'num',
+                key: 'num',
+                align: 'center',
+                render: (value, item, index) => index + 1
+              },
+              {
+                title: 'Название',
+                dataIndex: 'nameRu',
+                key: 'nameRu',
+              }
+            ]
+          }
+        })
+      }
+    },
+    * saveOtherExpenses({payload}, {call, put, select}) {
+      const result = yield call(saveListItem, {...payload, typeId: 13});
+      if (result.success) {
+        yield put({
+          type: 'queryOtherExpenses'
+        })
+        notification.info({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#d8ffe9'}
+        });
+      } else {
+        // yield put({
+        //   type: 'updateState',
+        //   payload: {isBtnDisabled: false}
+        // })
+        notification.error({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#ffd9d9'}
+        });
+      }
+    },
+    * getOtherExpensesById({payload}, {call, put, select}) {
+      const result = yield call(getListItemById, payload.id);
+      if (result.success) {
+        yield put({
+          type: 'updateState',
+          payload: {
+            currentItem: result,
+            isModalOpen: true,
+            modalType: 'update'
+          }
+        })
+      } else {
+        notification.error({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#ffd9d9'}
+        });
+      }
+    },
+    * deleteOtherExpenses({payload}, {call, put, select}) {
+      const result = yield call(deleteListItemById, payload.id);
+      if (result.success) {
+        yield put({
+          type: 'queryOtherExpenses'
+        })
+        notification.info({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#d8ffe9'}
+        });
+      } else {
+        notification.error({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#ffd9d9'}
+        });
+      }
+    },
+
 
   },
   reducers: {

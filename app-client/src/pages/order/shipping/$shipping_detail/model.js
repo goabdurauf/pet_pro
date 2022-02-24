@@ -635,10 +635,12 @@ export default modelExtend(tableModel, {
       const result = yield call(saveInvoice, payload);
       if (result.success) {
         let data = yield call(getShippingExpenses, payload.shippingId);
+        const result = yield call(getShippingDetailById, payload.shippingId);
         if (data.success) {
           yield put({
             type: 'updateState',
             payload: {
+              currentModel: result,
               expenseList: data.list,
               currentItem: null,
               isAddInvoiceModalOpen: false,

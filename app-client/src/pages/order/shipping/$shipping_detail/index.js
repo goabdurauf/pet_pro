@@ -3,8 +3,7 @@ import PropTypes from 'prop-types'
 import {connect} from 'dva'
 import {Card, Col, notification, Popconfirm, Row, Space, Table, Tabs, Tooltip} from "antd";
 import {DeleteOutlined, FormOutlined, PlusOutlined, ApartmentOutlined} from "@ant-design/icons";
-import { MdOutlineDoneAll } from "react-icons/md";
-import { BsJournalArrowDown } from "react-icons/bs";
+import {BsCircleFill, BsJournalArrowDown, BsJournalArrowUp} from "react-icons/bs";
 import DocumentModal from './modals/documentModal'
 import ExpenseModal from '../../$order_detail/modals/expenseModal'
 import DivideModal from './modals/divideModal'
@@ -187,7 +186,7 @@ const ShippingDetail = ({dispatch, shippingDetail}) => {
       payload: {isBtnDisabled: true}
     })
 
-    if (currentItem !== null)
+    if (modalType === 'create')
       values = {...values, expenseId: currentItem.expenseId, type: 2}
     else
       values = {...values, type: 1}
@@ -238,10 +237,11 @@ const ShippingDetail = ({dispatch, shippingDetail}) => {
           </Tooltip>
           {record.invoiceInId === null
             ? <Tooltip title="Добавить полученный счёт" placement={"bottom"} color={"cyan"}>
+              <BsCircleFill style={{color:'gold'}}/>
               <BsJournalArrowDown onClick={() => openExpenseInvoiceModal(record.id)}/>
             </Tooltip>
             : <div>
-              <MdOutlineDoneAll style={{color:'green'}}/>
+              <BsCircleFill style={{color:'springgreen'}}/>
               <BsJournalArrowDown />
             </div>
           }
@@ -330,9 +330,16 @@ const ShippingDetail = ({dispatch, shippingDetail}) => {
       align: 'center',
       render: (text, record) => (
         <Space size="middle">
-          <Tooltip title="Добавить полученный счёт" placement={"bottom"} color={"cyan"}>
-            <BsJournalArrowDown onClick={openInvoiceModal} />
-          </Tooltip>
+          {record.invoiceInId === null
+            ? <Tooltip title="Добавить полученный счёт" placement={"bottom"} color={"cyan"}>
+              <BsCircleFill style={{color:'gold', display: "block"}}/>
+              <BsJournalArrowDown onClick={openInvoiceModal} />
+            </Tooltip>
+            : <div>
+              <BsCircleFill style={{color:'springgreen', display: "block"}}/>
+              <BsJournalArrowUp />
+            </div>
+          }
         </Space>
       )
     }
@@ -342,7 +349,8 @@ const ShippingDetail = ({dispatch, shippingDetail}) => {
       id: currentModel && currentModel.id,
       name: 'Транспортная услуга ( рейс)',
       carrierName: currentModel && currentModel.carrierName,
-      price: currentModel && currentModel.finalPrice !== null && (currentModel.finalPrice + ' USD (' + currentModel.price + ' ' + currentModel.currencyName + ')')
+      price: currentModel && currentModel.finalPrice !== null && (currentModel.finalPrice + ' USD (' + currentModel.price + ' ' + currentModel.currencyName + ')'),
+      invoiceInId: currentModel && currentModel.invoiceInId
     }
   ]
   const openExpenseInvoiceModal = (id) => {
@@ -356,8 +364,14 @@ const ShippingDetail = ({dispatch, shippingDetail}) => {
       type: 'shippingDetail/updateState',
       payload: {
         isAddInvoiceModalOpen: !isAddInvoiceModalOpen,
-        modalType: 'create',
-        currentItem: null,
+        modalType: 'update',
+        currentItem: {
+          price: currentModel.price,
+          rate: currentModel.rate,
+          currencyId: currentModel.currencyId,
+          finalPrice: currentModel.finalPrice,
+          comment: currentModel.comment
+        },
       }
     })
   }

@@ -32,6 +32,7 @@ public class ShippingEntity extends BaseEntity {
     private BigDecimal finalPrice;
     private long shippingTypeId;
     private String comment;
+    private UUID invoiceInId;
 
     private Long transportKindId;
     private String transportKindName;

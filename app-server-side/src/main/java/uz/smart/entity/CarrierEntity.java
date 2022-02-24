@@ -9,6 +9,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import uz.smart.entity.template.BaseEntity;
 import javax.persistence.Entity;
+import java.math.BigDecimal;
 import java.util.UUID;
 
 @Data @NoArgsConstructor @AllArgsConstructor
@@ -23,4 +24,5 @@ public class CarrierEntity extends BaseEntity {
     private UUID managerId;
     private Long aboutId;
     private String aboutName;
+    private BigDecimal balance = BigDecimal.ZERO;
 }

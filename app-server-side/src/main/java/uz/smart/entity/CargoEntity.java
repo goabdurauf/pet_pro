@@ -14,6 +14,7 @@ import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 @Data @NoArgsConstructor @AllArgsConstructor
 @Entity(name = "cargo")
@@ -35,6 +36,7 @@ public class CargoEntity extends BaseEntity {
     private String statusName;
     private Long regTypeId;
     private String regTypeName;
+    private UUID invoiceOutId;
 
     private Long transportKindId;
     private String transportKindName;

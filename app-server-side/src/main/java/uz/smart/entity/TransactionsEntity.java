@@ -20,7 +20,7 @@ import java.sql.Timestamp;
 @Entity(name = "transactions")
 public class TransactionsEntity extends BaseEntity {
 
-    private Integer kassaType;     //  100+ - in, 200+ - out | 101 - client, 102 - agent, 103 - carrier
+    private Integer kassaType;     //  100+ - in, 200+ - out | 101 - client, 102 - agent, 103 - carrier | 201 - carrier, 202 - client, 203 - other expenses
     private String num;
     private Timestamp date;
 
@@ -30,7 +30,7 @@ public class TransactionsEntity extends BaseEntity {
     private KassaEntity kassa;
     @ManyToOne(fetch = FetchType.LAZY)
     private CarrierEntity carrier;
-    private Long agentId;
+    private Long agentId; // + ExpenseName in out mode
 
     private Long currencyId;
     private String currencyName;

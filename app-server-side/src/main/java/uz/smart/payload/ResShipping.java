@@ -21,6 +21,7 @@ public class ResShipping {
     private String shippingNum;
     private String managerName;
     private String carrierName;
+    private long currencyId;
     private String currencyName;
     private BigDecimal price;
     private BigDecimal rate;
@@ -30,6 +31,8 @@ public class ResShipping {
     private BigDecimal shippingTypeWeight;
     private String shippingTypeSize;
     private int statusId;
+    private UUID invoiceInId;
+    private String comment;
 
     private Long transportKindId;
     private String transportKindName;
