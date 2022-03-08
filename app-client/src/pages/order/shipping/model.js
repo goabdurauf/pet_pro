@@ -99,12 +99,40 @@ export default ({
         key: 'shippingNum',
       },
       {
+        title: 'Финанс',
+        children: [
+          {
+            title: 'Вы. счёт',
+            dataIndex: 'invoiceIn',
+            key: 'invoiceIn',
+            render: (text, record) => {
+              if (record.price !== null && record.currencyName !== null)
+                return <div key={record.id} className={record.invoiceInId === null ? 'trasnfered_false' : 'trasnfered_true'}>{record.price} {record.currencyName}</div>
+            }
+          },
+          {
+            title: 'Пол. счёт',
+            dataIndex: 'invoiceOut',
+            key: 'invoiceOut',
+            render: (text, record) => {
+              let data = [];
+              if (record.expenseList && record.expenseList.length > 0) {
+                record.expenseList.forEach(ex => {
+                  data.push(<div key={ex.id}
+                                 className={ex.invoiceInId === null ? 'trasnfered_false' : 'trasnfered_true'}>{ex.toPrice} {ex.toCurrencyName}</div>)
+                });
+              }
+              return data;
+            }
+          }
+        ]
+      },
+      {
         title: 'Документы',
         dataIndex: 'docs',
         key: 'docs',
         render: (text, record) => {
           let data = [];
-          data.push(<div key={record.id} className={record.invoiceInId === null ? 'trasnfered_false' : 'trasnfered_true'}>{record.price} {record.currencyName}</div>)
           if (record.documents.length > 0) {
             record.documents.forEach(doc => {
               let title = doc.title + ' (' + doc.date.substring(0, doc.date.indexOf(' ')) + ')';

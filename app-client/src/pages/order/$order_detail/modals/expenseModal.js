@@ -4,7 +4,7 @@ import {Col, Form, Input, InputNumber, Modal, Row, Select} from 'antd'
 import {Label} from "reactstrap";
 import 'moment/locale/ru';
 
-const modal = ({ currentItem, isBtnDisabled, handleSubmit, cargoSelectList, carrierList, currencyList, ownerType,
+const modal = ({ currentItem, isBtnDisabled, handleSubmit, cargoSelectList, carrierList, currencyList, ownerType, expenseNameList,
                  ...modalProps }) => {
   const [form] = Form.useForm()
   function handleFormSubmit (values) {
@@ -27,9 +27,11 @@ const modal = ({ currentItem, isBtnDisabled, handleSubmit, cargoSelectList, carr
   return (<Modal {...modalProps} onOk={handleSave} okButtonProps={{disabled: isBtnDisabled}} okText={"Добавить"} cancelText={"Отмена"}>
     <Form form={form} initialValues={currentItem !== null ? currentItem : ''} onFinish={handleFormSubmit} onValuesChange={handleChangeForm}>
       <Row>
-        <Col span={ownerType === 'Shipping' ? 12 : 8} key={'name'}><Label>Название</Label>
-          <Form.Item key={'name'} name={'name'} rules={[{required: true, message: 'Введите название'}]}>
-            <Input placeholder='название'/>
+        <Col span={ownerType === 'Shipping' ? 12 : 8} key={'nameId'}><Label>Название</Label>
+          <Form.Item key={'nameId'} name={'nameId'} rules={[{required: true, message: 'Выберите название'}]}>
+            <Select placeholder='название' >
+              {expenseNameList && expenseNameList.map(expName => <Select.Option key={expName.id} value={expName.id}>{expName.nameRu}</Select.Option>)}
+            </Select>
           </Form.Item>
         </Col>
         <Col span={ownerType === 'Shipping' ? 12 : 8} key={'carrierId'}><Label>Перевозчик</Label>

@@ -118,12 +118,50 @@ export default ({
         render: (text, record) => <Link to={'/order/shipping/detail/' + record.shippingId}>{text}</Link>
       },
       {
+        title: 'Финанс',
+        children: [
+          {
+            title: 'Вы. счёт',
+            dataIndex: 'invoiceIn',
+            key: 'invoiceIn',
+            render: (text, record) => {
+              let data = [];
+              if (record.price !== null && record.currencyName !== null)
+                data.push(<div key={record.id} className={record.invoiceOutId === null ? 'trasnfered_false' : 'trasnfered_true'}>{record.price + ' ' + record.currencyName}</div>)
+              if (record.expenseList && record.expenseList.length > 0) {
+                record.expenseList.forEach(ex => {
+                  if (ex.type === 'Cargo') {
+                    data.push(<div key={ex.id + 'o'} className={ex.invoiceOutId === null ? 'trasnfered_false' : 'trasnfered_true'}>{ex.toPrice + ' ' + ex.toCurrencyName}</div>)
+                  } else
+                    data.push(<div key={ex.id} className={ex.invoiceOutId === null ? 'trasnfered_false' : 'trasnfered_true'}>{ex.toPrice + ' ' + ex.toCurrencyName}</div>)
+                });
+              }
+              return data;
+            }
+          },
+          {
+            title: 'Пол. счёт',
+            dataIndex: 'invoiceOut',
+            key: 'invoiceOut',
+            render: (text, record) => {
+              let data = [];
+              if (record.expenseList && record.expenseList.length > 0) {
+                record.expenseList.forEach(ex => {
+                  if (ex.type === 'Cargo')
+                    data.push(<div key={ex.id + 'i'} className={ex.invoiceInId === null ? 'trasnfered_false' : 'trasnfered_true'}>{ex.fromPrice + ' ' + ex.fromCurrencyName}</div>)
+                });
+              }
+              return data;
+            }
+          }
+        ]
+      },
+      {
         title: 'Документы',
         dataIndex: 'docs',
         key: 'docs',
         render: (text, record) => {
           let data = [];
-          data.push(<div key={record.id} className={record.invoiceOutId === null ? 'trasnfered_false' : 'trasnfered_true'}>{record.price} {record.currencyName}</div>)
           record.documentList && record.documentList.forEach(doc => {
             let title = doc.title + ' (' + doc.date.substring(0, doc.date.indexOf(' ')) + ')';
             if (doc.attachments !== null && doc.attachments.length > 0) {

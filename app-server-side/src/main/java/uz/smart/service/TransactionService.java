@@ -15,10 +15,12 @@ import uz.smart.exception.ResourceNotFoundException;
 import uz.smart.mapper.MapperUtil;
 import uz.smart.payload.ApiResponse;
 import uz.smart.repository.*;
+import uz.smart.utils.CommonUtils;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -38,6 +40,8 @@ public class TransactionService {
     CarrierRepository carrierRepository;
     @Autowired
     InvoiceRepository invoiceRepository;
+    @Autowired
+    BalancesRepository balancesRepository;
 
     @Autowired
     MapperUtil mapperUtil;
@@ -58,11 +62,10 @@ public class TransactionService {
                     .orElseThrow(() -> new ResourceNotFoundException("Transaction", "clientId", dto.getClientId()));
             entity.setClient(client);
 
-            if (client.getBalance() == null)
-                client.setBalance(BigDecimal.ZERO);
-
-            client.setBalance(client.getBalance().add(entity.getFinalPrice()));
-            clientRepository.save(client);
+            BalancesEntity bEntity = balancesRepository.findById(new BalancesEntityPK(client.getId(), entity.getCurrencyId()))
+                    .orElse(new BalancesEntity(client.getId(), entity.getCurrencyId(), entity.getCurrencyName()));
+            bEntity.setBalance(bEntity.getBalance().subtract(entity.getFinalPrice()));
+            balancesRepository.save(bEntity);
         }
 
         if (dto.getCarrierId() != null) {
@@ -70,11 +73,10 @@ public class TransactionService {
                     .orElseThrow(() -> new ResourceNotFoundException("Transaction", "carrierId", dto.getCarrierId()));
             entity.setCarrier(carrier);
 
-            if (carrier.getBalance() == null)
-                carrier.setBalance(BigDecimal.ZERO);
-
-            carrier.setBalance(carrier.getBalance().add(entity.getFinalPrice()));
-            carrierRepository.save(carrier);
+            BalancesEntity bEntity = balancesRepository.findById(new BalancesEntityPK(carrier.getId(), entity.getCurrencyId()))
+                    .orElse(new BalancesEntity(carrier.getId(), entity.getCurrencyId(), entity.getCurrencyName()));
+            bEntity.setBalance(bEntity.getBalance().add(entity.getFinalPrice()));
+            balancesRepository.save(bEntity);
         }
 
         entity = repository.saveAndFlush(entity);
@@ -114,17 +116,17 @@ public class TransactionService {
         }
         if (entity.getClient() != null) {
             ClientEntity client = entity.getClient();
-            if (client.getBalance() == null)
-                client.setBalance(BigDecimal.ZERO);
-            client.setBalance(client.getBalance().subtract(entity.getFinalPrice()));
-            clientRepository.saveAndFlush(client);
+            BalancesEntity bEntity = balancesRepository.findById(new BalancesEntityPK(client.getId(), entity.getCurrencyId()))
+                    .orElse(new BalancesEntity(client.getId(), entity.getCurrencyId(), entity.getCurrencyName()));
+            bEntity.setBalance(bEntity.getBalance().add(entity.getFinalPrice()));
+            balancesRepository.save(bEntity);
         }
         if (entity.getCarrier() != null) {
             CarrierEntity carrier = entity.getCarrier();
-            if (carrier.getBalance() == null)
-                carrier.setBalance(BigDecimal.ZERO);
-            carrier.setBalance(carrier.getBalance().subtract(entity.getFinalPrice()));
-            carrierRepository.saveAndFlush(carrier);
+            BalancesEntity bEntity = balancesRepository.findById(new BalancesEntityPK(carrier.getId(), entity.getCurrencyId()))
+                    .orElse(new BalancesEntity(carrier.getId(), entity.getCurrencyId(), entity.getCurrencyName()));
+            bEntity.setBalance(bEntity.getBalance().subtract(entity.getFinalPrice()));
+            balancesRepository.save(bEntity);
         }
 
         entity = mapperUtil.toTransactionsEntity(dto, entity);
@@ -139,11 +141,10 @@ public class TransactionService {
                     .orElseThrow(() -> new ResourceNotFoundException("Transaction", "clientId", dto.getClientId()));
             entity.setClient(client);
 
-            if (client.getBalance() == null)
-                client.setBalance(BigDecimal.ZERO);
-
-            client.setBalance(client.getBalance().add(entity.getFinalPrice()));
-            clientRepository.save(client);
+            BalancesEntity bEntity = balancesRepository.findById(new BalancesEntityPK(client.getId(), entity.getCurrencyId()))
+                    .orElse(new BalancesEntity(client.getId(), entity.getCurrencyId(), entity.getCurrencyName()));
+            bEntity.setBalance(bEntity.getBalance().subtract(entity.getFinalPrice()));
+            balancesRepository.save(bEntity);
         } else
             entity.setClient(null);
 
@@ -152,11 +153,10 @@ public class TransactionService {
                     .orElseThrow(() -> new ResourceNotFoundException("Transaction", "carrierId", dto.getCarrierId()));
             entity.setCarrier(carrier);
 
-            if (carrier.getBalance() == null)
-                carrier.setBalance(BigDecimal.ZERO);
-
-            carrier.setBalance(carrier.getBalance().add(entity.getFinalPrice()));
-            carrierRepository.save(carrier);
+            BalancesEntity bEntity = balancesRepository.findById(new BalancesEntityPK(carrier.getId(), entity.getCurrencyId()))
+                    .orElse(new BalancesEntity(carrier.getId(), entity.getCurrencyId(), entity.getCurrencyName()));
+            bEntity.setBalance(bEntity.getBalance().add(entity.getFinalPrice()));
+            balancesRepository.save(bEntity);
         } else
             entity.setCarrier(null);
 
@@ -209,22 +209,20 @@ public class TransactionService {
                     .orElseThrow(() -> new ResourceNotFoundException("Transaction", "clientId", dto.getClientId()));
             entity.setClient(client);
 
-            if (client.getBalance() == null)
-                client.setBalance(BigDecimal.ZERO);
-
-            client.setBalance(client.getBalance().subtract(entity.getFinalPrice()));
-            clientRepository.save(client);
+            BalancesEntity bEntity = balancesRepository.findById(new BalancesEntityPK(client.getId(), entity.getCurrencyId()))
+                    .orElse(new BalancesEntity(client.getId(), entity.getCurrencyId(), entity.getCurrencyName()));
+            bEntity.setBalance(bEntity.getBalance().add(entity.getFinalPrice()));
+            balancesRepository.save(bEntity);
         }
         if (dto.getCarrierId() != null) {
             CarrierEntity carrier = carrierRepository.getCarrierById(dto.getCarrierId())
                     .orElseThrow(() -> new ResourceNotFoundException("Transaction", "carrierId", dto.getCarrierId()));
             entity.setCarrier(carrier);
 
-            if (carrier.getBalance() == null)
-                carrier.setBalance(BigDecimal.ZERO);
-
-            carrier.setBalance(carrier.getBalance().subtract(entity.getFinalPrice()));
-            carrierRepository.save(carrier);
+            BalancesEntity bEntity = balancesRepository.findById(new BalancesEntityPK(carrier.getId(), entity.getCurrencyId()))
+                    .orElse(new BalancesEntity(carrier.getId(), entity.getCurrencyId(), entity.getCurrencyName()));
+            bEntity.setBalance(bEntity.getBalance().subtract(entity.getFinalPrice()));
+            balancesRepository.save(bEntity);
         }
 
         entity = repository.saveAndFlush(entity);
@@ -268,17 +266,17 @@ public class TransactionService {
         }
         if (entity.getClient() != null) {
             ClientEntity client = entity.getClient();
-            if (client.getBalance() == null)
-                client.setBalance(BigDecimal.ZERO);
-            client.setBalance(client.getBalance().add(entity.getFinalPrice()));
-            clientRepository.saveAndFlush(client);
+            BalancesEntity bEntity = balancesRepository.findById(new BalancesEntityPK(client.getId(), entity.getCurrencyId()))
+                    .orElse(new BalancesEntity(client.getId(), entity.getCurrencyId(), entity.getCurrencyName()));
+            bEntity.setBalance(bEntity.getBalance().subtract(entity.getFinalPrice()));
+            balancesRepository.save(bEntity);
         }
         if (entity.getCarrier() != null) {
             CarrierEntity carrier = entity.getCarrier();
-            if (carrier.getBalance() == null)
-                carrier.setBalance(BigDecimal.ZERO);
-            carrier.setBalance(carrier.getBalance().add(entity.getFinalPrice()));
-            carrierRepository.saveAndFlush(carrier);
+            BalancesEntity bEntity = balancesRepository.findById(new BalancesEntityPK(carrier.getId(), entity.getCurrencyId()))
+                    .orElse(new BalancesEntity(carrier.getId(), entity.getCurrencyId(), entity.getCurrencyName()));
+            bEntity.setBalance(bEntity.getBalance().add(entity.getFinalPrice()));
+            balancesRepository.save(bEntity);
         }
 
         entity = mapperUtil.toTransactionsEntity(dto, entity);
@@ -293,11 +291,10 @@ public class TransactionService {
                     .orElseThrow(() -> new ResourceNotFoundException("Transaction", "clientId", dto.getClientId()));
             entity.setClient(client);
 
-            if (client.getBalance() == null)
-                client.setBalance(BigDecimal.ZERO);
-
-            client.setBalance(client.getBalance().subtract(entity.getFinalPrice()));
-            clientRepository.save(client);
+            BalancesEntity bEntity = balancesRepository.findById(new BalancesEntityPK(client.getId(), entity.getCurrencyId()))
+                    .orElse(new BalancesEntity(client.getId(), entity.getCurrencyId(), entity.getCurrencyName()));
+            bEntity.setBalance(bEntity.getBalance().add(entity.getFinalPrice()));
+            balancesRepository.save(bEntity);
         } else
             entity.setClient(null);
         if (dto.getCarrierId() != null) {
@@ -305,11 +302,10 @@ public class TransactionService {
                     .orElseThrow(() -> new ResourceNotFoundException("Transaction", "carrierId", dto.getCarrierId()));
             entity.setCarrier(carrier);
 
-            if (carrier.getBalance() == null)
-                carrier.setBalance(BigDecimal.ZERO);
-
-            carrier.setBalance(carrier.getBalance().subtract(entity.getFinalPrice()));
-            carrierRepository.save(carrier);
+            BalancesEntity bEntity = balancesRepository.findById(new BalancesEntityPK(carrier.getId(), entity.getCurrencyId()))
+                    .orElse(new BalancesEntity(carrier.getId(), entity.getCurrencyId(), entity.getCurrencyName()));
+            bEntity.setBalance(bEntity.getBalance().subtract(entity.getFinalPrice()));
+            balancesRepository.save(bEntity);
         } else
             entity.setCarrier(null);
 
@@ -408,4 +404,9 @@ public class TransactionService {
         return dtoList;
     }
 
+    public String getNextNum() {
+        Optional<TransactionsEntity> optional = repository.getFirstByOrderByCreatedAtDesc();
+        return "20" + optional.map(entity -> CommonUtils.generateNextNum("", entity.getNum().contains("-") ? entity.getNum() : ""))
+                .orElseGet(() -> CommonUtils.generateNextNum("", ""));
+    }
 }

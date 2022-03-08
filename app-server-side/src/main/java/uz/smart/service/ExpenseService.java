@@ -46,6 +46,11 @@ public class ExpenseService {
                 .orElseThrow(() -> new ResourceNotFoundException("Carrier", "Id", dto.getId()));
         entity.setCarrier(carrier);
 
+        if (dto.getNameId() != null) {
+            ListEntity expName = listRepository.findById(dto.getNameId())
+                    .orElseThrow(() -> new ResourceNotFoundException("List", "nameId", dto.getNameId()));
+            entity.setName(expName.getNameRu());
+        }
         if (dto.getFromCurrencyId() != null) {
             ListEntity fromCurrency = listRepository.findById(dto.getFromCurrencyId())
                     .orElseThrow(() -> new ResourceNotFoundException("List", "fromCurrencyId", dto.getFromCurrencyId()));
@@ -67,6 +72,11 @@ public class ExpenseService {
                 .orElseThrow(() -> new ResourceNotFoundException("Carrier", "Id", dto.getId()));
         entity.setCarrier(carrier);
 
+        if (dto.getNameId() != null) {
+            ListEntity expName = listRepository.findById(dto.getNameId())
+                    .orElseThrow(() -> new ResourceNotFoundException("List", "nameId", dto.getNameId()));
+            entity.setName(expName.getNameRu());
+        }
         if (dto.getFromCurrencyId() != null) {
             ListEntity fromCurrency = listRepository.findById(dto.getFromCurrencyId())
                     .orElseThrow(() -> new ResourceNotFoundException("List", "fromCurrencyId", dto.getFromCurrencyId()));

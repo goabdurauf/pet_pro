@@ -14,7 +14,7 @@ import { BsJournalArrowDown, BsJournalArrowUp, BsCircleFill } from "react-icons/
 
 const OrderDetail = ({dispatch, orderDetail}) => {
   const {
-    model, orderId, isModalOpen, isLoading, isBtnDisabled, itemList, cargoList, selectOrderList, isAddInvoiceModalOpen,
+    model, orderId, isModalOpen, isLoading, isBtnDisabled, itemList, cargoList, selectOrderList, isAddInvoiceModalOpen, expenseNameList,
     currentModel, currentItem, modalType, modalWidth, countryList, orderStatusList, managerList, createTitle, editTitle, visibleColumns, visibleExpenseColumns, cargoSelectList,
     cargoRegTypeList, isPlanning, transportKindList, transportConditionList, documentAttachments, packageTypeList, carrierList, currencyList, shipTypeList, shippingExpenseList
   } = orderDetail;
@@ -587,7 +587,7 @@ const OrderDetail = ({dispatch, orderDetail}) => {
         <ExpenseModal
           {...modalProps}
           handleSubmit={handleExpenseSubmit} isBtnDisabled={isBtnDisabled} currentItem={currentItem}
-          cargoSelectList={cargoSelectList}
+          cargoSelectList={cargoSelectList} expenseNameList={expenseNameList}
           carrierList={carrierList} currencyList={currencyList} ownerType={'Cargo'}/>
       }
       {isAddInvoiceModalOpen &&

@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.web.bind.annotation.*;
 import uz.smart.dto.TransactionsDto;
+import uz.smart.payload.ApiResponse;
 import uz.smart.service.TransactionService;
 
 import java.util.List;
@@ -49,5 +50,8 @@ public class TransactionController {
     public List<TransactionsDto> getList() {
         return service.getTransactionList();
     }
+
+    @GetMapping("/num")
+    public ApiResponse getNextNum() { return new ApiResponse(service.getNextNum(), true); }
 
 }

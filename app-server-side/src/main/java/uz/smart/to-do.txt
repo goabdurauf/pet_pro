@@ -5,10 +5,11 @@ done - bug in button disable and file upload
 done - bug in shipping date, hour and minut saving as 0
 done - select orders in shipping that not connected to any shipping
 done - bug in adding cargo detail in edit modes
+done - comment in cargo and shipping
+done - select cargo not connected to shipping in generate shipping
+done - show invoice in and invoice outs in cargo and shipping main tables
 
 
-- comment in cargo and shipping
-- select cargo not connected to shipping in generate shipping
 
 - search and pagination in order, cargo and shipping pages
 

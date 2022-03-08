@@ -8,9 +8,11 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import uz.smart.dto.DocumentDto;
+import uz.smart.dto.ExpenseDto;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -54,4 +56,5 @@ public class ResShipping {
     private List<ResOrder> orderList;
     private List<ResCargo> cargoList;
     private List<DocumentDto> documents;
+    private List<ExpenseDto> expenseList = new ArrayList<>();
 }

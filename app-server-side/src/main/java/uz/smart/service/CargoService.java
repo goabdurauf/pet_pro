@@ -296,31 +296,68 @@ public class CargoService {
     }
 
     public List<ResCargo> getCargoList() {
+        List<ResCargo> list = new ArrayList<>();
         List<CargoEntity> entityList = repository.getAllCargos();
-        return getCargoList(entityList);
+        for (CargoEntity entity : entityList) {
+            ResCargo resCargo = getResCargo(entity);
+            if (entity.getExpenseList() != null && entity.getExpenseList().size() > 0) {
+                List<ExpenseDto> expenseList = new ArrayList<>();
+                for (ExpenseEntity expense : entity.getExpenseList()) {
+                    if (expense.getOldId() == null) {
+                        expenseList.add(new ExpenseDto(
+                                expense.getId(),
+                                ExpenseType.Cargo,
+                                expense.getInvoiceInId(),
+                                expense.getInvoiceOutId(),
+                                expense.getFromCurrencyName(),
+                                expense.getFromPrice(),
+                                expense.getToCurrencyName(),
+                                expense.getToPrice()
+                        ));
+                    } else {
+                        expenseList.add(new ExpenseDto(
+                                expense.getId(),
+                                ExpenseType.Shipping,
+                                expense.getInvoiceInId(),
+                                expense.getInvoiceOutId(),
+                                expense.getToCurrencyName(),
+                                expense.getToPrice()
+                        ));
+                    }
+                }
+                resCargo.setExpenseList(expenseList);
+            }
+            list.add(resCargo);
+        }
+
+        return list;
     }
 
     private List<ResCargo> getCargoList(List<CargoEntity> entityList) {
         List<ResCargo> list = new ArrayList<>();
         for (CargoEntity entity : entityList) {
-            ResCargo resCargo = getCargo(entity);
-            ResOrder resOrder = orderService.getResOrder(entity.getOrder(), true);
-            resCargo.setOrderNum(resOrder.getNum());
-            resCargo.setClientName(resOrder.getClientName());
-
-//            ShippingEntity shippingEntity = shippingRepository.getByCargoEntitiesIn(List.of(entity)).orElse(null);
-            if (entity.getShipping() != null) {
-                ResShipping resShipping = shippingService.getResShipping(entity.getShipping(), false);
-                resCargo.setShippingId(resShipping.getId());
-                resCargo.setCarrierName(resShipping.getCarrierName());
-                resCargo.setShippingNum(resShipping.getNum());
-                resCargo.setShippingStatusId(resShipping.getStatusId());
-            }
-
-            list.add(resCargo);
+            list.add(getResCargo(entity));
         }
 
         return list;
+    }
+
+    public ResCargo getResCargo(CargoEntity entity) {
+        ResCargo resCargo = getCargo(entity);
+        ResOrder resOrder = orderService.getResOrder(entity.getOrder(), true);
+        resCargo.setOrderNum(resOrder.getNum());
+        resCargo.setClientName(resOrder.getClientName());
+
+//            ShippingEntity shippingEntity = shippingRepository.getByCargoEntitiesIn(List.of(entity)).orElse(null);
+        if (entity.getShipping() != null) {
+            ResShipping resShipping = shippingService.getResShipping(entity.getShipping(), false);
+            resCargo.setShippingId(resShipping.getId());
+            resCargo.setCarrierName(resShipping.getCarrierName());
+            resCargo.setShippingNum(resShipping.getNum());
+            resCargo.setShippingStatusId(resShipping.getStatusId());
+        }
+
+        return resCargo;
     }
 
     public ResCargo getCargo(CargoEntity entity) {

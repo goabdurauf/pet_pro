@@ -178,7 +178,31 @@ public class ShippingService {
 
     public List<ResShipping> getShippingList() {
         List<ShippingEntity> entityList = repository.getAllShipping();
-        return getShippingList(entityList, true);
+        return getShippingListWithExpenses(entityList);
+    }
+
+    public List<ResShipping> getShippingListWithExpenses(List<ShippingEntity> entityList) {
+        List<ResShipping> list = new ArrayList<>();
+        for (ShippingEntity entity : entityList) {
+            ResShipping resShipping = getResShipping(entity, true);
+            if (entity.getExpenseList() != null && entity.getExpenseList().size() > 0) {
+                List<ExpenseDto> expenseList = new ArrayList<>();
+                for (ExpenseEntity expense : entity.getExpenseList()) {
+                    expenseList.add(new ExpenseDto(
+                            expense.getId(),
+                            ExpenseType.Shipping,
+                            expense.getInvoiceInId(),
+                            expense.getInvoiceOutId(),
+                            expense.getFromCurrencyName(),
+                            expense.getFromPrice()
+                    ));
+                }
+                resShipping.setExpenseList(expenseList);
+            }
+
+            list.add(resShipping);
+        }
+        return list;
     }
 
     public List<ResShipping> getShippingList(List<ShippingEntity> entityList, boolean hasDetails) {

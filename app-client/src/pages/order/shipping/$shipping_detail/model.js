@@ -36,6 +36,7 @@ export default modelExtend(tableModel, {
     currencyList: [],
     expenseList: [],
     expenseDivideList: [],
+    expenseNameList: [],
     expenseDivide: {},
     isBtnDisabled: false,
     loadingFile: false,
@@ -58,6 +59,7 @@ export default modelExtend(tableModel, {
       const result = yield call(getShippingDetailById, payload.id);
       let carrier = yield call(getCarrierList);
       let currency = yield call(getListItems, 4);
+      let expNameList = yield call(getListItems, 14);
       if (result.success) {
         yield put({
           type: 'updateState',
@@ -69,6 +71,7 @@ export default modelExtend(tableModel, {
             documentList: result.documents,
             carrierList: carrier.list,
             currencyList: currency.list,
+            expenseNameList: expNameList.list,
             visibleColumns : [
               {
                 title: 'Номер груза',

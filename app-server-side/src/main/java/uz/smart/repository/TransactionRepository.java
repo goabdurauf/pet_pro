@@ -7,7 +7,11 @@ package uz.smart.repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import uz.smart.entity.TransactionsEntity;
 
+import java.util.Optional;
 import java.util.UUID;
 
 public interface TransactionRepository extends JpaRepository<TransactionsEntity, UUID> {
+
+    Optional<TransactionsEntity> getFirstByOrderByCreatedAtDesc();
+
 }

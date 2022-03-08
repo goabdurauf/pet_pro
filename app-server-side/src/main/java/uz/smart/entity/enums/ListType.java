@@ -18,6 +18,7 @@ public enum ListType
     TransportCondition      (11),
     OtherAgents             (12),
     OtherExpenses           (13),
+    ExpenseName             (14),
 
     ;
 

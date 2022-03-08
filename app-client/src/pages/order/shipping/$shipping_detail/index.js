@@ -13,7 +13,8 @@ import {Button} from "reactstrap";
 const ShippingDetail = ({dispatch, shippingDetail}) => {
 
   const {model, shippingId, isModalOpen, isDivideModalOpen, loadingFile, cargoList, currentModel, currentItem, modalType, modalWidth, createTitle, editTitle, visibleColumns,
-    isBtnDisabled, documentList, documentAttachments, carrierList, currencyList, expenseList, expenseDivideList, expenseDivide, isAddInvoiceModalOpen} = shippingDetail;
+    isBtnDisabled, documentList, documentAttachments, carrierList, currencyList, expenseList, expenseDivideList, expenseDivide, isAddInvoiceModalOpen, expenseNameList
+  } = shippingDetail;
 
   const openModal = () => {
     dispatch({
@@ -477,7 +478,7 @@ const ShippingDetail = ({dispatch, shippingDetail}) => {
       <ExpenseModal
         {...modalProps}
         handleSubmit={handleSubmit} isBtnDisabled={isBtnDisabled} currentItem={currentItem} ownerType={'Shipping'}
-        carrierList={carrierList} currencyList={currencyList} />
+        carrierList={carrierList} currencyList={currencyList} expenseNameList={expenseNameList}/>
       }
       {isDivideModalOpen &&
         <DivideModal

@@ -62,6 +62,7 @@ export default modelExtend(tableModel, {
     documentAttachments: [],
     transportKindList: [],
     transportConditionList: [],
+    expenseNameList: [],
     isBtnDisabled: false,
     isAddInvoiceModalOpen: false,
     isLoading: false,
@@ -223,6 +224,7 @@ export default modelExtend(tableModel, {
       let cargos = yield call(getSelectOrderCargos, payload.id);
       let trKindList = yield call(getListItems, 10);
       let trCondList = yield call(getListItems, 11);
+      let expNameList = yield call(getListItems, 14);
 
       if (manager.success && client.success) {
         yield put({
@@ -240,6 +242,7 @@ export default modelExtend(tableModel, {
             cargoRegTypeList: cargoRegType.list,
             transportKindList: trKindList.list,
             transportConditionList: trCondList.list,
+            expenseNameList: expNameList.list
           }
         })
       }

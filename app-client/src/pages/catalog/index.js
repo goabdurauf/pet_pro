@@ -230,6 +230,15 @@ class Catalog extends Component {
             obj: <Input placeholder='Название'/>
           }
         ];
+        case 'ExpenseName': return [
+          {
+            label: 'Название',
+            name: 'nameRu',
+            width: 24,
+            rules: [{required: true, message: 'Этот поля не должно быть пустое',},],
+            obj: <Input placeholder='Название'/>
+          }
+        ];
 
 
 
@@ -349,6 +358,7 @@ class Catalog extends Component {
             <TabPane tab="Касса" key="Kassa"><TabBody /></TabPane>
             <TabPane tab="Прочие контрагенты" key="OtherAgents"><TabBody /></TabPane>
             <TabPane tab="Прочие расходы" key="OtherExpenses"><TabBody /></TabPane>
+            <TabPane tab="Название расхода" key="ExpenseName"><TabBody /></TabPane>
 
 
           </Tabs>

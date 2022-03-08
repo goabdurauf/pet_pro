@@ -1,6 +1,6 @@
 import {getInvoiceList, getListItems, updateInvoice, getInvoiceById, deleteInvoiceById, getClientList, getKassaList, getCarrierList,
   saveTransactionIn, updateTransactionIn, getTransactionList, getTransactionById, getInvoicesByTypeAndClientIdAndCurrencyId, getInvoicesByTypeAndClientId,
-  saveTransactionOut, updateTransactionOut
+  saveTransactionOut, updateTransactionOut, getTransactionNextNum
 } from '@/services/service'
 import {notification} from 'antd'
 import moment from "moment";
@@ -120,7 +120,7 @@ export default ({
                 title: 'Сумма',
                 dataIndex: 'summa',
                 key: 'summa',
-                render: (value, item, index) => item.finalPrice + ' ' + item.currencyName
+                render: (value, item, index) => item.price + ' ' + item.currencyName
               },
               {
                 title: 'Рейс',
@@ -136,7 +136,7 @@ export default ({
                 title: 'Баланс платёжа',
                 dataIndex: 'balance',
                 key: 'balance',
-                render: (value, item, index) => (item.finalPrice + item.balance).toFixed(2) + ' / ' + Math.abs(item.balance).toFixed(2)
+                render: (value, item, index) => (item.price + item.balance).toFixed(2) + ' / ' + Math.abs(item.balance).toFixed(2)
               },
               {
                 title: 'Комментарии',
@@ -257,7 +257,7 @@ export default ({
                 title: 'Сумма',
                 dataIndex: 'summa',
                 key: 'summa',
-                render: (value, item, index) => item.finalPrice + ' ' + item.currencyName
+                render: (value, item, index) => item.price + ' ' + item.currencyName
               },
               {
                 title: 'Рейс',
@@ -273,7 +273,7 @@ export default ({
                 title: 'Баланс платёжа',
                 dataIndex: 'balance',
                 key: 'balance',
-                render: (value, item, index) => (item.finalPrice + item.balance).toFixed(2) + ' / ' + Math.abs(item.balance).toFixed(2)
+                render: (value, item, index) => (item.price + item.balance).toFixed(2) + ' / ' + Math.abs(item.balance).toFixed(2)
               },
               {
                 title: 'Комментарии',
@@ -509,6 +509,25 @@ export default ({
         });
       }
     },
+    * getKassaNextNum({payload}, {call, put, select}) {
+      const result = yield call(getTransactionNextNum);
+      if (result.success) {
+        yield put({
+          type: 'updateState',
+          payload: {
+            isModalOpen: true,
+            currentItem: {invoices: [{credit: ''}], num: result.message, date: moment(new Date(), 'DD.MM.YYYY HH:mm:ss')}
+          }
+        })
+      } else {
+        notification.error({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#ffd9d9'}
+        });
+      }
+    }
 
   },
   reducers: {

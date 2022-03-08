@@ -19,6 +19,7 @@ import java.util.UUID;
 public class ExpenseDto {
     private UUID id;
     private String name;
+    private Long nameId;
     private UUID carrierId;
     private String carrierName;
     private UUID ownerId;
@@ -45,4 +46,24 @@ public class ExpenseDto {
     private BigDecimal toFinalPrice;
 
     private String comment;
+
+    public ExpenseDto(UUID id, ExpenseType type, UUID invoiceInId, UUID invoiceOutId, String toCurrencyName, BigDecimal toPrice) {
+        this.id = id;
+        this.toCurrencyName = toCurrencyName;
+        this.toPrice = toPrice;
+        this.invoiceInId = invoiceInId;
+        this.invoiceOutId = invoiceOutId;
+        this.type = type;
+    }
+
+    public ExpenseDto(UUID id, ExpenseType type, UUID invoiceInId, UUID invoiceOutId, String fromCurrencyName, BigDecimal fromPrice, String toCurrencyName, BigDecimal toPrice) {
+        this.id = id;
+        this.type = type;
+        this.invoiceInId = invoiceInId;
+        this.invoiceOutId = invoiceOutId;
+        this.fromCurrencyName = fromCurrencyName;
+        this.fromPrice = fromPrice;
+        this.toCurrencyName = toCurrencyName;
+        this.toPrice = toPrice;
+    }
 }

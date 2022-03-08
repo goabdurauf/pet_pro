@@ -6,7 +6,6 @@ import {DeleteOutlined, FormOutlined, PlusOutlined, MinusOutlined} from "@ant-de
 import InvoiceModal from "../order/shipping/$shipping_detail/modals/invoiceModal";
 import KassaInModal from "./modals/kassaInModal";
 import KassaOutModal from "./modals/kassaOutModal";
-import moment from "moment";
 const { TabPane } = Tabs;
 
 @connect(({app, finance}) => ({app, finance}))
@@ -44,8 +43,6 @@ class Finance extends Component {
       dispatch({
         type: 'finance/updateState',
         payload: {
-          isModalOpen: !isModalOpen,
-          currentItem: {invoices: [{credit: ''}], date: moment(new Date(), 'DD.MM.YYYY HH:mm:ss')},
           kassaInOutType: 101,
           modalType: 'create',
           clientId: null,
@@ -54,13 +51,15 @@ class Finance extends Component {
           isBtnDisabled: false
         }
       })
+      dispatch({
+        type: 'finance/getKassaNextNum'
+      })
+
     };
     const openKassaOutModal = () => {
       dispatch({
         type: 'finance/updateState',
         payload: {
-          isModalOpen: !isModalOpen,
-          currentItem: {invoices: [{credit: ''}], date: moment(new Date(), 'DD.MM.YYYY HH:mm:ss')},
           kassaInOutType: 201,
           modalType: 'create',
           clientId: null,
@@ -69,6 +68,10 @@ class Finance extends Component {
           isBtnDisabled: false
         }
       })
+      dispatch({
+        type: 'finance/getKassaNextNum'
+      })
+
     };
     const closeAddInvoiceModal = () => {
       dispatch({
@@ -240,7 +243,7 @@ class Finance extends Component {
     return (
       <div className="order-page">
         <Card style={{width: '100%'}} bordered={false}>
-          <Tabs onChange={onChange} defaultActiveKey="Order">
+          <Tabs onChange={onChange} defaultActiveKey="SentInvoices">
             <TabPane tab="Выписанные счёта" key="SentInvoices"><TabBody /></TabPane>
             <TabPane tab="Полученные счёта" key="ReceivedInvoices"><TabBody /></TabPane>
             <TabPane tab="Акты" key="three">Пока нет данных</TabPane>

@@ -41,6 +41,8 @@ public class InvoiceService {
     @Autowired
     CargoRepository cargoRepository;
     @Autowired
+    BalancesRepository balancesRepository;
+    @Autowired
     MapperUtil mapperUtil;
 
     public HttpEntity<?> saveInvoice(InvoiceDto dto) {
@@ -48,7 +50,7 @@ public class InvoiceService {
                 ? mapperUtil.toInvoiceEntity(dto, new InvoiceEntity())
                 : mapperUtil.toInvoiceEntity(dto, repository.findById(dto.getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Invoice", "Id", dto.getId())));
-        entity.setBalance(BigDecimal.ZERO.subtract(entity.getFinalPrice()));
+        entity.setBalance(BigDecimal.ZERO.subtract(entity.getPrice()));
         entity = repository.saveAndFlush(entity);
         if (dto.getCurrencyId() != null) {
             ListEntity currency = listRepository.findById(dto.getCurrencyId())
@@ -89,18 +91,27 @@ public class InvoiceService {
 
             expenseRepository.saveAndFlush(expense);
 
-            repository.saveAndFlush(entity);
+            entity = repository.saveAndFlush(entity);
         }
         if (dto.getType() == 5) {
             CargoEntity cargo = cargoRepository.findById(dto.getExpenseId())
                     .orElseThrow(() -> new ResourceNotFoundException("Cargo", "Id", dto.getExpenseId()));
             entity.setCargo(cargo);
             entity.setCarrierId(null);
-            repository.saveAndFlush(entity);
+            entity = repository.saveAndFlush(entity);
 
             cargo.setInvoiceOutId(entity.getId());
             cargoRepository.saveAndFlush(cargo);
         }
+
+        BalancesEntity bEntity = entity.getType() == 1 || entity.getType() == 2 || entity.getType() == 3
+            ? balancesRepository.findById(new BalancesEntityPK(entity.getCarrierId(), entity.getCurrencyId()))
+                    .orElse(new BalancesEntity(entity.getCarrierId(), entity.getCurrencyId(), entity.getCurrencyName()))
+            : balancesRepository.findById(new BalancesEntityPK(entity.getClientId(), entity.getCurrencyId()))
+                    .orElse(new BalancesEntity(entity.getClientId(), entity.getCurrencyId(), entity.getCurrencyName()));
+
+        bEntity.setBalance(bEntity.getBalance().add(entity.getPrice()));
+        balancesRepository.save(bEntity);
 
         return ResponseEntity.ok().body(new ApiResponse("Сохранено успешно", true));
     }
@@ -116,7 +127,7 @@ public class InvoiceService {
         entity.setCurrencyId(dto.getCurrencyId());
         entity.setPrice(dto.getPrice());
         entity.setRate(dto.getRate());
-        entity.setBalance(BigDecimal.ZERO.subtract(dto.getFinalPrice().subtract(entity.getFinalPrice().add(entity.getBalance()))));
+        entity.setBalance(BigDecimal.ZERO.subtract(dto.getPrice().subtract(entity.getPrice().add(entity.getBalance()))));
         entity.setFinalPrice(dto.getFinalPrice());
         entity.setComment(dto.getComment());
         repository.save(entity);
@@ -163,7 +174,7 @@ public class InvoiceService {
             ClientEntity client = clientRepository.findById(entity.getClientId())
                     .orElseThrow(() -> new ResourceNotFoundException("Invoice", "clientId", entity.getClientId()));
             res.setClientName(client.getName());
-            res.setName(expense.getName());
+            res.setName(entity.getType() == 4 ? expense.getName() : "Ставка за груз");
 
             ShippingEntity shipping = cargo.getShipping();
             if (shipping != null) {

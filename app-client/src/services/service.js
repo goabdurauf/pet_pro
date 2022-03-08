@@ -105,4 +105,8 @@ export function saveTransactionOut(data) {return request({url: '/api/transaction
 export function updateTransactionOut(data) {return request({url: '/api/transaction/out/update', method: 'put', data})}
 export function getTransactionList() {return request({url: '/api/transaction/list', method: 'get',})}
 export function getTransactionById(id) {return request({url: '/api/transaction/' + id, method: 'get',})}
+export function getTransactionNextNum() {return request({url: '/api/transaction/num', method: 'get',})}
+
+export function getClientBalances() {return request({url: '/api/balances/client', method: 'get'})}
+export function getCarrierBalances() {return request({url: '/api/balances/carrier', method: 'get'})}
 
