@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotBlank;
+import java.util.List;
 import java.util.UUID;
 
 @Data @NoArgsConstructor @AllArgsConstructor
@@ -16,4 +17,6 @@ public class ProductDto {
     private String code;
     private long measureId;
     private String measureName;
+
+    private List<AttachmentDto> attachments;
 }

@@ -41,6 +41,7 @@ public class TransactionsDto {
     private BigDecimal finalPrice;
     private String comment;
 
+    private String invoiceStatus;
     Set<TransactionsInvoicesDto> invoices = new HashSet<>();
 
 }

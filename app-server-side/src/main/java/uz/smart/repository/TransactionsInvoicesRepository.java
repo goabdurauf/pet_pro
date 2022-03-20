@@ -13,5 +13,6 @@ import java.util.UUID;
 public interface TransactionsInvoicesRepository extends JpaRepository<TransactionsInvoicesEntity, UUID> {
 
     List<TransactionsInvoicesEntity> findAllByTransactionId(UUID transactionId);
+    long countAllByTransactionId(UUID transactionId);
 
 }

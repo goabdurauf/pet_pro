@@ -383,10 +383,18 @@ public class TransactionService {
         }
 
         switch (entity.getKassaType()) {
-            case 101 -> dto.setSourceType("От клиента");
+            case 101 -> {
+                dto.setSourceType("От клиента");
+                if (trInvRepository.countAllByTransactionId(entity.getId()) > 0)
+                    dto.setInvoiceStatus("Выписанный счёт");
+            }
             case 102 -> dto.setSourceType("От прочие контрагента");
             case 103 -> dto.setSourceType("От перевозчика (возврат)");
-            case 201 -> dto.setSourceType("Перевозчик");
+            case 201 -> {
+                dto.setSourceType("Перевозчик");
+                if (trInvRepository.countAllByTransactionId(entity.getId()) > 0)
+                    dto.setInvoiceStatus("Полученный счёт");
+            }
             case 202 -> dto.setSourceType("Возврат клиенту");
             case 203 -> dto.setSourceType("Прочие расходы");
         }

@@ -26,7 +26,7 @@ import {
   addCargoExpense,
   getCargoExpenseByOrderId,
   getExpenseById,
-  deleteExpenseFromCargoById,
+  deleteExpenseFromCargoById, searchProduct, getProductById,
   saveInvoice, getExpenseForInvoiceById, getExpenseForInvoiceInById, getCargoForInvoiceById
 } from '@/services/service'
 import modelExtend from 'dva-model-extend'
@@ -63,6 +63,7 @@ export default modelExtend(tableModel, {
     transportKindList: [],
     transportConditionList: [],
     expenseNameList: [],
+    productList: [],
     isBtnDisabled: false,
     isAddInvoiceModalOpen: false,
     isLoading: false,
@@ -304,17 +305,23 @@ export default modelExtend(tableModel, {
     * getCargoById({payload}, {call, put, select}) {
       const result = yield call(getCargoById, payload.id);
       if (result.success) {
+        let productList = [];
         result.loadDate = moment(result.loadDate, 'DD.MM.YYYY HH:mm:ss');//zone("+05:00")
         result.unloadDate = moment(result.unloadDate, 'DD.MM.YYYY HH:mm:ss');
         if (result.docDate !== null)
           result.docDate = moment(result.docDate, 'DD.MM.YYYY HH:mm:ss');
+        if (result.productId !== null) {
+          const product = yield call(getProductById, result.productId);
+          if (product.success)
+            productList.push(product)
+        }
         yield put({
           type: 'updateState',
           payload: {
             currentItem: result,
             documentAttachments: result.docAttachments !== null ? result.docAttachments : [],
             isModalOpen: true,
-            // modalType: 'update'
+            productList
           }
         })
       } else {
@@ -368,6 +375,15 @@ export default modelExtend(tableModel, {
           duration: 3,
           style: {backgroundColor: '#ffd9d9'}
         });
+      }
+    },
+    * searchProduct({payload}, {call, put, select}) {
+      const result = yield call(searchProduct, payload.word);
+      if (result.success) {
+        yield put({
+          type: 'updateState',
+          payload:{productList: result.list}
+        })
       }
     },
     * queryShipping({payload}, {call, put, select}) {

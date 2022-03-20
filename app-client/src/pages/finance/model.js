@@ -92,6 +92,7 @@ export default ({
             isModalOpen: false,
             isBtnDisabled: false,
             modalType: 'update',
+            editTitle: 'Редактировать полученный счёт',
             visibleColumns: [
               {
                 title: '№',
@@ -229,6 +230,7 @@ export default ({
             isModalOpen: false,
             isBtnDisabled: false,
             modalType: 'update',
+            editTitle: 'Редактировать выписанный счёт',
             visibleColumns: [
               {
                 title: '№',
@@ -398,6 +400,12 @@ export default ({
                 title: 'Касса',
                 dataIndex: 'kassaName',
                 key: 'kassaName',
+              },
+              {
+                title: 'Полученный и Выписанный счёт',
+                dataIndex: 'invoiceStatus',
+                key: 'invoiceStatus',
+                render: (text, record) => record.invoiceStatus !== null ? <div key={record.id} className={'transfered_true'}>{record.invoiceStatus}</div> : ''
               },
               {
                 title: 'Вид',

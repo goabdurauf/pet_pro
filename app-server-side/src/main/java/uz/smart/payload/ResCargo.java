@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 import uz.smart.dto.CargoDto;
 import uz.smart.dto.DocumentDto;
 import uz.smart.dto.ExpenseDto;
+import uz.smart.dto.ProductDto;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +31,7 @@ public class ResCargo extends CargoDto {
     private List<DocumentDto> documentList;
     private int shippingStatusId;
     private UUID invoiceOutId;
+    private ProductDto product;
     private List<ExpenseDto> expenseList = new ArrayList<>();
 
     public ResCargo(UUID id, String name, String num) {

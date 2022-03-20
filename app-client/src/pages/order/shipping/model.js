@@ -104,11 +104,7 @@ export default ({
           {
             title: 'Вы. счёт',
             dataIndex: 'invoiceIn',
-            key: 'invoiceIn',
-            render: (text, record) => {
-              if (record.price !== null && record.currencyName !== null)
-                return <div key={record.id} className={record.invoiceInId === null ? 'trasnfered_false' : 'trasnfered_true'}>{record.price} {record.currencyName}</div>
-            }
+            key: 'invoiceIn'
           },
           {
             title: 'Пол. счёт',
@@ -116,10 +112,12 @@ export default ({
             key: 'invoiceOut',
             render: (text, record) => {
               let data = [];
+              if (record.price !== null && record.currencyName !== null)
+                data.push(<div key={record.id} className={record.invoiceInId === null ? 'transfered_false' : 'transfered_true'}>{record.price} {record.currencyName}</div>);
               if (record.expenseList && record.expenseList.length > 0) {
                 record.expenseList.forEach(ex => {
                   data.push(<div key={ex.id}
-                                 className={ex.invoiceInId === null ? 'trasnfered_false' : 'trasnfered_true'}>{ex.toPrice} {ex.toCurrencyName}</div>)
+                                 className={ex.invoiceInId === null ? 'transfered_false' : 'transfered_true'}>{ex.toPrice} {ex.toCurrencyName}</div>)
                 });
               }
               return data;

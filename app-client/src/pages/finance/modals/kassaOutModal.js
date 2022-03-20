@@ -10,14 +10,33 @@ const modal = ({ currentItem, isBtnDisabled, handleSubmit, currencyList, clientL
                  handleInTypeChange, handleDocumentChange, setCarrier, clientId, setCurrency, currencyId, kassaBalance, setKassaBalance, ...modalProps }) => {
   const [form] = Form.useForm()
   function handleFormSubmit (values) {
-    if (values.kassaType === 201 && values.finalPrice !== currentItem.totalCredit && values.invoices[0].invoiceId !== undefined) {
-      notification.error({
-        description: "Сумма итог расхода должно бить равно к сумма договора",
-        placement: 'topRight',
-        duration: 3,
-        style: {backgroundColor: '#ffd9d9'}
-      });
-      return;
+    if (values.kassaType === 201) {
+      if (values.finalPrice !== currentItem.totalCredit && values.invoices[0].invoiceId !== undefined) {
+        notification.error({
+          description: "Сумма итог расхода должно бить равно к сумма договора",
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#ffd9d9'}
+        });
+        return;
+      }
+      let isDebitValid = true;
+      invoiceList.forEach(item => {
+        values.invoices.forEach(inv => {
+          if (item.id === inv.invoiceId && inv.credit > Math.abs(item.balance)) {
+            isDebitValid = false;
+          }
+        })
+      })
+      if (!isDebitValid) {
+        notification.error({
+          description: "Сумма получение не должно быть больше сумма долга!",
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#ffd9d9'}
+        });
+        return;
+      }
     }
     if (values.kassaType !== 201)
       values.invoices = [];
@@ -57,7 +76,7 @@ const modal = ({ currentItem, isBtnDisabled, handleSubmit, currencyList, clientL
   }
   const handleDocument = (id, index) => {
     let sum = 0;
-    invoiceList.forEach(item => { if (item.id === id) sum = item.finalPrice; })
+    invoiceList.forEach(item => { if (item.id === id) sum = Math.abs(item.balance); })
     let invoices = currentItem.invoices;
     invoices[index] = {...invoices[index], debit: sum};
     let totalDebit = 0;

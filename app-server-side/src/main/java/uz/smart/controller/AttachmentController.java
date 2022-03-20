@@ -33,4 +33,9 @@ public class AttachmentController {
         return attachmentService.deleteFile(id);
     }
 
+    @GetMapping("/test")
+    public HttpEntity<?> test() {
+        return attachmentService.testMethodOne();
+    }
+
 }

@@ -27,8 +27,7 @@ public interface CargoRepository extends JpaRepository<CargoEntity, UUID> {
     @Query("select c from cargo c where c.state > 0 order by c.createdAt desc")
     List<CargoEntity> getAllCargos();
 
-    List<CargoEntity> getAllByOrder_IdAndStateGreaterThanOrderByCreatedAt(UUID order_id, int state);
-    List<CargoEntity> getAllByOrder_IdAndShippingIsNotNullAndStateGreaterThanOrderByCreatedAt(UUID order_id, int state);
+    List<CargoEntity> getAllByOrder_IdAndStateOrderByCreatedAt(UUID order_id, int state);
     List<CargoEntity> getAllByShippingIsNullOrderByCreatedAt();
 
     Optional<CargoEntity> findByDocumentListIn(List<DocumentEntity> documentList);

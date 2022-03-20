@@ -47,6 +47,8 @@ public class CargoService {
     InvoiceRepository invoiceRepository;
     @Autowired
     ClientRepository clientRepository;
+    @Autowired
+    ProductRepository productRepository;
 
     @Autowired
     DocumentService documentService;
@@ -68,11 +70,15 @@ public class CargoService {
                 .orElseThrow(() -> new ResourceNotFoundException("Cargo", "Id", dto.getId())));
 
         OrderEntity order = orderRepository.findById(dto.getOrderId())
-                .orElseThrow(() -> new ResourceNotFoundException("Cargo", "orderId", dto.getId()));
+                .orElseThrow(() -> new ResourceNotFoundException("Cargo", "orderId", dto.getOrderId()));
         entity.setOrder(order);
 
+        if (dto.getProductId() != null)
+            entity.setProduct(productRepository.findById(dto.getProductId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Cargo", "productId", dto.getProductId())));
+
         if (dto.getId() == null) {
-            List<CargoEntity> entityList = repository.getAllByOrder_IdAndStateGreaterThanOrderByCreatedAt(order.getId(), 0);
+            List<CargoEntity> entityList = repository.getAllByOrder_IdAndStateOrderByCreatedAt(order.getId(), 1);
             if (entityList.size() > 0) {
                 String lastNum = entityList.get(entityList.size() - 1).getNum();
                 int num = Integer.parseInt(lastNum.substring(lastNum.lastIndexOf("-") + 1)) + 1;
@@ -246,16 +252,20 @@ public class CargoService {
         CargoEntity entity = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Cargo", "Id", id));
 
-        return getCargo(entity);
+        ResCargo cargo = getCargo(entity);
+        if (entity.getProduct() != null)
+            cargo.setProductId(entity.getProduct().getId());
+
+        return cargo;
     }
 
     public List<ResCargo> getCargoListByOrderId(UUID orderId) {
-        return getCargoList(repository.getAllByOrder_IdAndStateGreaterThanOrderByCreatedAt(orderId, 0));
+        return getCargoList(repository.getAllByOrder_IdAndStateOrderByCreatedAt(orderId, 1));
     }
 
     public List<ResCargo> getCargoListForSelectByOrderId(UUID orderId) {
         List<ResCargo> list = new ArrayList<>();
-        List<CargoEntity> entityList = repository.getAllByOrder_IdAndShippingIsNotNullAndStateGreaterThanOrderByCreatedAt(orderId, 0);
+        List<CargoEntity> entityList = repository.getAllByOrder_IdAndStateOrderByCreatedAt(orderId, 1);
         for (CargoEntity cargo : entityList) {
             list.add(new ResCargo(cargo.getId(), cargo.getName(), cargo.getNum()));
         }
@@ -265,7 +275,7 @@ public class CargoService {
 
     public List<ResDocument> getCargoDocumentsByOrderId(UUID orderId) {
         List<ResDocument> documentList = new ArrayList<>();
-        List<CargoEntity> cargoList = repository.getAllByOrder_IdAndStateGreaterThanOrderByCreatedAt(orderId, 0);
+        List<CargoEntity> cargoList = repository.getAllByOrder_IdAndStateOrderByCreatedAt(orderId, 1);
         if (cargoList == null || cargoList.size() == 0)
             return documentList;
         for (CargoEntity cargo : cargoList) {
@@ -363,6 +373,7 @@ public class CargoService {
     public ResCargo getCargo(CargoEntity entity) {
         ResCargo dto = mapper.toResCargo(entity);
         dto.setOrderId(entity.getOrder().getId());
+        dto.setProduct(mapper.toProductDto(entity.getProduct()));
         dto.setCargoDetails(mapper.toCargoDetailDto(new ArrayList<>(new TreeSet<>(entity.getCargoDetails()))));
         if (entity.getDocumentList() != null && entity.getDocumentList().size() > 0) {
             dto.setDocumentList(documentService.getDocumentDto(entity.getDocumentList()));
@@ -424,7 +435,7 @@ public class CargoService {
 
     public ResCargoExpenses getExpensesByOrderId(UUID orderId) {
         ResCargoExpenses res = new ResCargoExpenses();
-        List<CargoEntity> cargoList = repository.getAllByOrder_IdAndStateGreaterThanOrderByCreatedAt(orderId, 0);
+        List<CargoEntity> cargoList = repository.getAllByOrder_IdAndStateOrderByCreatedAt(orderId, 1);
         for (CargoEntity cargo : cargoList) {
             List<ExpenseDto> dtoList = expenseService.getExpenseDto(cargo.getExpenseList(), cargo.getName(), cargo.getNum());
             for (ExpenseDto dto : dtoList) {

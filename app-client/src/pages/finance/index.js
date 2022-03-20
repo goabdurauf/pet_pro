@@ -91,7 +91,7 @@ class Finance extends Component {
       })
     }
     const invoiceModalProps = {
-      title: modalType === 'create' ? 'Добавить полученный счёт' : 'Редактировать полученный счёт',
+      title: editTitle,
       visible: isModalOpen,
       onCancel: closeAddInvoiceModal
     }

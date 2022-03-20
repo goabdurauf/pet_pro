@@ -1,10 +1,19 @@
 import {
   deleteAttachmentFromDocumentById,
-  deleteCargoById, deleteFile,
+  deleteCargoById,
+  deleteFile,
   getCargoById,
   getCargoList,
   getListItems,
-  saveCargo, uploadFile, setCargoStatus, getManagers, getCarrierList, getSelectOrders, saveShipping
+  saveCargo,
+  uploadFile,
+  setCargoStatus,
+  getManagers,
+  getCarrierList,
+  getSelectOrders,
+  saveShipping,
+  searchProduct,
+  getProductById
 } from '@/services/service'
 import {Link} from "umi";
 import {notification} from "antd";
@@ -45,6 +54,7 @@ export default ({
     shipTypeList: [],
     transportKindList: [],
     transportConditionList: [],
+    productList: [],
     visibleColumns : [
       {
         title: 'Номер заказа',
@@ -127,13 +137,13 @@ export default ({
             render: (text, record) => {
               let data = [];
               if (record.price !== null && record.currencyName !== null)
-                data.push(<div key={record.id} className={record.invoiceOutId === null ? 'trasnfered_false' : 'trasnfered_true'}>{record.price + ' ' + record.currencyName}</div>)
+                data.push(<div key={record.id} className={record.invoiceOutId === null ? 'transfered_false' : 'transfered_true'}>{record.price + ' ' + record.currencyName}</div>)
               if (record.expenseList && record.expenseList.length > 0) {
                 record.expenseList.forEach(ex => {
                   if (ex.type === 'Cargo') {
-                    data.push(<div key={ex.id + 'o'} className={ex.invoiceOutId === null ? 'trasnfered_false' : 'trasnfered_true'}>{ex.toPrice + ' ' + ex.toCurrencyName}</div>)
+                    data.push(<div key={ex.id + 'o'} className={ex.invoiceOutId === null ? 'transfered_false' : 'transfered_true'}>{ex.toPrice + ' ' + ex.toCurrencyName}</div>)
                   } else
-                    data.push(<div key={ex.id} className={ex.invoiceOutId === null ? 'trasnfered_false' : 'trasnfered_true'}>{ex.toPrice + ' ' + ex.toCurrencyName}</div>)
+                    data.push(<div key={ex.id} className={ex.invoiceOutId === null ? 'transfered_false' : 'transfered_true'}>{ex.toPrice + ' ' + ex.toCurrencyName}</div>)
                 });
               }
               return data;
@@ -148,7 +158,7 @@ export default ({
               if (record.expenseList && record.expenseList.length > 0) {
                 record.expenseList.forEach(ex => {
                   if (ex.type === 'Cargo')
-                    data.push(<div key={ex.id + 'i'} className={ex.invoiceInId === null ? 'trasnfered_false' : 'trasnfered_true'}>{ex.fromPrice + ' ' + ex.fromCurrencyName}</div>)
+                    data.push(<div key={ex.id + 'i'} className={ex.invoiceInId === null ? 'transfered_false' : 'transfered_true'}>{ex.fromPrice + ' ' + ex.fromCurrencyName}</div>)
                 });
               }
               return data;
@@ -271,17 +281,24 @@ export default ({
     * getCargoById({payload}, {call, put, select}) {
       const result = yield call(getCargoById, payload.id);
       if (result.success) {
+        let productList = [];
         result.loadDate = moment(result.loadDate, 'DD.MM.YYYY HH:mm:ss');//zone("+05:00")
         result.unloadDate = moment(result.unloadDate, 'DD.MM.YYYY HH:mm:ss');//zone("+05:00")
         if (result.docDate !== null)
           result.docDate = moment(result.docDate, 'DD.MM.YYYY HH:mm:ss');
+        if (result.productId !== null) {
+          const product = yield call(getProductById, result.productId);
+          if (product.success)
+            productList.push(product)
+        }
         yield put({
           type: 'updateState',
           payload: {
             currentItem: result,
             documentAttachments: result.docAttachments !== null ? result.docAttachments : [],
             isModalOpen: true,
-            currentModal: 'Cargo'
+            currentModal: 'Cargo',
+            productList
           }
         })
       } else {
@@ -312,6 +329,15 @@ export default ({
           duration: 3,
           style: {backgroundColor: '#ffd9d9'}
         });
+      }
+    },
+    * searchProduct({payload}, {call, put, select}) {
+      const result = yield call(searchProduct, payload.word);
+      if (result.success) {
+        yield put({
+          type: 'updateState',
+          payload:{productList: result.list}
+        })
       }
     },
     * uploadAttachment({payload}, {call, put, select}) {

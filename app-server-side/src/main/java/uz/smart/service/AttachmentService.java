@@ -109,4 +109,25 @@ public class AttachmentService {
         }
         return null;
     }
+
+    public HttpEntity<?> testMethodOne() {
+        System.out.println("testMethodOne method start");
+
+        testMethodTwo();
+
+        System.out.println("testMethodOne method end");
+        return ResponseEntity.ok().body(new ApiResponse("", true));
+    }
+
+    public void testMethodTwo() {
+        System.out.println("testMethodTwo method start");
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        System.out.println("testMethodTwo method end");
+    }
+
+
 }

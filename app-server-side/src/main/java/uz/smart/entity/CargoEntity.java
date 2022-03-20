@@ -26,9 +26,11 @@ public class CargoEntity extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     private ShippingEntity shipping;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    private ProductEntity product;
+
     private String name;
     private String num;
-    private String code;
     private Timestamp loadDate;
     private Timestamp unloadDate;
     private String comment;

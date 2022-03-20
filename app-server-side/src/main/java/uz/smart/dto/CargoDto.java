@@ -19,7 +19,7 @@ import java.util.UUID;
 public class CargoDto {
     private UUID id;
     private String name;
-    private String code;
+    private UUID productId;
     private String comment;
     private UUID orderId;
     private Long regTypeId;

@@ -71,7 +71,7 @@ public class OrderService {
     public HttpEntity<?> deleteOrder(UUID id) {
         OrderEntity entity = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Order", "Id", id));
-        List<CargoEntity> cargoEntityList = cargoRepository.getAllByOrder_IdAndStateGreaterThanOrderByCreatedAt(id, 0);
+        List<CargoEntity> cargoEntityList = cargoRepository.getAllByOrder_IdAndStateOrderByCreatedAt(id, 1);
         if (cargoEntityList != null && cargoEntityList.size() > 0){
             for (CargoEntity cargoEntity : cargoEntityList) {
                 cargoService.deleteCargo(cargoEntity);

@@ -21,7 +21,7 @@ class Cargo extends Component {
     const {cargo, dispatch} = this.props;
     const {itemList, currentItem, currentModal, selectedStatusId, isModalOpen, isBtnDisabled, isLoading,  countryList, currencyList, packageTypeList, documentAttachments,
       modalType, isTableLoading, pagination, selectedRowKeys, cargoStatusList, cargoRegTypeList, selectOrderList, carrierList, managerList, shipTypeList, visibleColumns,
-      modalWidth, modalTitle, isPlanning, transportKindList, transportConditionList} = cargo;
+      modalWidth, modalTitle, isPlanning, transportKindList, transportConditionList, productList} = cargo;
 
     const onChange = (key) => {
       if (key !== 'Cargo') {
@@ -118,6 +118,12 @@ class Cargo extends Component {
       dispatch({
         type: 'cargo/deleteCargoById',
         payload: {id}
+      })
+    }
+    const searchProduct = (val) => {
+      dispatch({
+        type: 'cargo/searchProduct',
+        payload: {word: val}
       })
     }
     const customRequest = (options) => {
@@ -253,7 +259,7 @@ class Cargo extends Component {
             handleSubmit={handleSubmit} isBtnDisabled={isBtnDisabled} currentItem={currentItem} countryList={countryList}
             customRequest={customRequest} uploadChange={uploadChange} isLoading={isLoading} packageTypeList={packageTypeList}
             documentAttachments={documentAttachments} modalType={modalType} cargoRegTypeList={cargoRegTypeList} currencyList={currencyList}
-            transportKindList={transportKindList} transportConditionList={transportConditionList}
+            transportKindList={transportKindList} transportConditionList={transportConditionList} productList={productList} searchProduct={searchProduct}
           />}
 
           {isModalOpen && currentModal === 'Shipping' &&

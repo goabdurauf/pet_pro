@@ -1,5 +1,22 @@
-import {saveListItem, deleteListItemById, getListItems, getListItemById, getUserList, getRoleList, saveUser, getUserById, deleteUserById, getProductList, saveProduct,
-  getProductById, deleteProductById, saveKassa, getKassaById, getKassaList, deleteKassaById
+import {
+  saveListItem,
+  deleteListItemById,
+  getListItems,
+  getListItemById,
+  getUserList,
+  getRoleList,
+  saveUser,
+  getUserById,
+  deleteUserById,
+  getProductList,
+  saveProduct,
+  getProductById,
+  deleteProductById,
+  saveKassa,
+  getKassaById,
+  getKassaList,
+  deleteKassaById,
+  uploadFile, deleteFile, deleteAttachmentFromProductById
 } from '@/services/service'
 import {notification} from 'antd'
 import moment from "moment";
@@ -17,9 +34,11 @@ export default ({
     currentItem: null,
     modalType: 'create',
     isBtnDisabled: false,
+    isLoading: false,
     measureList: [],
     currencyList: [],
-    visibleColumns: []
+    visibleColumns: [],
+    productAttachments: []
   },
   subscriptions: {
     setup({dispatch, history}) {
@@ -331,7 +350,9 @@ export default ({
           payload: {
             currentItem: result,
             isModalOpen: true,
-            modalType: 'update'
+            modalType: 'update',
+            isLoading: false,
+            productAttachments: result.attachments
           }
         })
       } else {
@@ -362,6 +383,49 @@ export default ({
           duration: 3,
           style: {backgroundColor: '#ffd9d9'}
         });
+      }
+    },
+    * uploadAttachment({payload}, {call, put, select}) {
+      const {productAttachments} = yield select(_ => _.catalog);
+      const result = yield call(uploadFile, payload);
+      if (result.success) {
+        yield put({
+          type: 'updateState',
+          payload: {
+            isLoading: false,
+            productAttachments: [...productAttachments, {...result}]
+          }
+        })
+      } else {
+        // notification
+      }
+    },
+    * deleteAttachment({payload}, {call, put, select}) {
+      const {productAttachments} = yield select(_ => _.catalog);
+      const result = yield call(deleteFile, payload.id);
+      if (result.success) {
+        yield put({
+          type: 'updateState',
+          payload: {
+            productAttachments: productAttachments.filter(item => item.id !== payload.id)
+          }
+        })
+      } else {
+        // notification
+      }
+    },
+    * deleteProductAttachment({payload}, {call, put, select}) {
+      const {productAttachments} = yield select(_ => _.catalog);
+      const result = yield call(deleteAttachmentFromProductById, payload);
+      if (result.success) {
+        yield put({
+          type: 'updateState',
+          payload: {
+            productAttachments: productAttachments.filter(item => item.id !== payload.id)
+          }
+        })
+      } else {
+        // notification
       }
     },
     * queryAbout({payload}, {call, put, select}) {

@@ -19,6 +19,8 @@ export function saveProduct(data) {return request({url: '/api/product/save', met
 export function getProductList() {return request({url: '/api/product/list', method: 'get',})}
 export function getProductById(id) {return request({url: '/api/product/' + id, method: 'get',})}
 export function deleteProductById(id) {return request({url: '/api/product/' + id, method: 'delete',})}
+export function searchProduct(word) {return request({url: '/api/product/search?word=' + word, method: 'get'})}
+export function deleteAttachmentFromProductById(data) {return request({url: '/api/product/' + data.docId + '/attachment/' + data.id, method: 'delete'})}
 
 export function saveClient(data) {return request({url: '/api/client/save', method: 'post', data})}
 export function getClientList() {return request({url: '/api/client/list', method: 'get',})}

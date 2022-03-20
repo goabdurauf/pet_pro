@@ -35,4 +35,14 @@ public class ProductController {
     public List<ProductDto> getList() {
         return service.getAllProducts();
     }
+
+    @GetMapping("/search")
+    public List<ProductDto> search(@RequestParam String word) {
+        return service.searchProducts(word);
+    }
+
+    @DeleteMapping("/{docId}/attachment/{attachmentId}")
+    public HttpEntity<?> deleteDocumentAttachment(@PathVariable UUID docId, @PathVariable UUID attachmentId) {
+        return service.deleteAttachment(docId, attachmentId);
+    }
 }

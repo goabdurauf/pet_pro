@@ -3,7 +3,8 @@ import {Card, Row, Col, Typography, Tabs, Space, Popconfirm, Input, Select, Tabl
 import {connect} from "react-redux";
 import {DeleteOutlined, FormOutlined, PlusOutlined} from "@ant-design/icons";
 import {Button} from "reactstrap";
-import CatalogModal from './modal'
+import CatalogModal from './modals/defaultModal'
+import ProductModal from './modals/productModal'
 import 'moment/locale/ru';
 import locale from "antd/es/date-picker/locale/ru_RU";
 const { TabPane } = Tabs;
@@ -12,7 +13,8 @@ const { TabPane } = Tabs;
 class Catalog extends Component {
   render() {
     const {catalog, dispatch} = this.props;
-    const {model, title, createTitle, editTitle, isModalOpen, isBtnDisabled, itemList, currentItem, modalType, roleList, measureList, currencyList, visibleColumns} = catalog;
+    const {model, title, createTitle, editTitle, isModalOpen, isBtnDisabled, itemList, currentItem, modalType, roleList, measureList, currencyList, visibleColumns,
+      isLoading, productAttachments} = catalog;
 
     const getFormItems = () => {
       switch (model) {
@@ -58,31 +60,6 @@ class Catalog extends Component {
             width: 24,
             rules: [{required: true, message: 'Этот поля не должно быть пустое',},],
             obj: <Input placeholder='Название'/>
-          }
-        ];
-        case 'Product': return [
-          {
-            label: 'Название',
-            name: 'name',
-            width: 24,
-            rules: [{required: true, message: 'Этот поля не должно быть пустое',},],
-            obj: <Input placeholder='Название'/>
-          },{
-            label: 'Таможенный код',
-            name: 'code',
-            width: 12,
-            rules: [{required: false, message: 'Этот поля не должно быть пустое',},],
-            obj: <Input placeholder='Таможенный код'/>
-          },{
-            label: 'Единица измерение',
-            name: 'measureId',
-            width: 12,
-            rules: [{required: true, message: 'Этот поля не должно быть пустое',},],
-            obj: <Select placeholder='единица измерение' showSearch
-                         filterOption={(input, option) =>
-                           option.children.toLocaleLowerCase().indexOf(input.toLocaleLowerCase()) >= 0 }>
-              {measureList.map(measure => <Select.Option key={measure.id} value={measure.id}>{measure.nameRu}</Select.Option>)}
-            </Select>
           }
         ];
         case 'About': return [
@@ -270,13 +247,67 @@ class Catalog extends Component {
         }
       })
     };
+    const handleProductSubmit = (values) => {
+      dispatch({
+        type: 'catalog/updateState',
+        payload: {isBtnDisabled: true}
+      })
+
+      if (modalType !== 'create')
+        values = {...values, id: currentItem.id}
+
+      dispatch({
+        type: 'catalog/save' + model,
+        payload: {
+          ...values,
+          attachments: productAttachments
+        }
+      })
+    }
+    const customRequest = (options) => {
+      dispatch({
+        type: 'catalog/updateState',
+        payload: {
+          isLoading: true
+        }
+      })
+      dispatch({
+        type: 'catalog/uploadAttachment',
+        payload: {
+          file: options.file,
+          fileUpload: true,
+          type: options.file.type
+        }
+      })
+    }
+    const uploadChange = (options) => {
+      if (options.file.status === 'removed') {
+        if (modalType === 'create') {
+          dispatch({
+            type: 'catalog/deleteAttachment',
+            payload: {
+              id: options.file.id
+            }
+          })
+        } else {
+          dispatch({
+            type: 'catalog/deleteProductAttachment',
+            payload: {
+              docId: currentItem.id,
+              id: options.file.id
+            }
+          })
+        }
+      }
+    }
     const openModal = () => {
       dispatch({
         type: 'catalog/updateState',
         payload: {
           isModalOpen: !isModalOpen,
           currentItem: null,
-          modalType: 'create'
+          modalType: 'create',
+          isLoading: false
         }
       })
     };
@@ -364,11 +395,18 @@ class Catalog extends Component {
           </Tabs>
         </Card>
 
-        {isModalOpen &&
+        {isModalOpen && model !== 'Product' &&
         <CatalogModal {...modalProps}
           isBtnDisabled={isBtnDisabled} currentItem={currentItem} handleSubmit={handleSubmit} itemList={getFormItems()}
         />
         }
+        {isModalOpen && model === 'Product' &&
+        <ProductModal {...modalProps}
+          isBtnDisabled={isBtnDisabled} currentItem={currentItem} handleSubmit={handleProductSubmit} measureList={measureList}
+          loadingFile={isLoading} productAttachments={productAttachments} customRequest={customRequest} uploadChange={uploadChange}
+        />
+        }
+
       </div>
     );
   }

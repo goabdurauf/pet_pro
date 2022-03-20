@@ -7,7 +7,7 @@ import locale from 'antd/es/date-picker/locale/ru_RU';
 import PropTypes from "prop-types";
 
 const modal = ({ currentItem, isBtnDisabled, handleSubmit, isLoading, packageTypeList, countryList, documentAttachments, cargoRegTypeList, modalType,
-                 currencyList, transportKindList, transportConditionList, ...modalProps }) => {
+                 currencyList, transportKindList, transportConditionList, productList, searchProduct, ...modalProps }) => {
   const [form] = Form.useForm()
   function handleFormSubmit (values) {
     if (values.loadDate !== null && values.loadDate !== undefined && values.loadDate !== '')
@@ -20,6 +20,10 @@ const modal = ({ currentItem, isBtnDisabled, handleSubmit, isLoading, packageTyp
   }
   function handleSave () {
     form.submit()
+  }
+  function handleSearch (val) {
+    if (val.length > 2)
+      searchProduct(val)
   }
   function handleChangeForm (changedValues, allValues) {
     // if (onFormValuesChange) onFormValuesChange(changedValues, allValues)
@@ -70,9 +74,11 @@ const modal = ({ currentItem, isBtnDisabled, handleSubmit, isLoading, packageTyp
             <Input placeholder='название груза'/>
           </Form.Item>
         </Col>
-        <Col span={5} key={'code'}><Label>HS CODE</Label>
-          <Form.Item key={'code'} name={'code'} rules={[{required: true, message: 'Введите HS CODE'}]}>
-            <Input placeholder='HS CODE'/>
+        <Col span={5} key={'productId'}><Label>Продукт</Label>
+          <Form.Item key={'productId'} name={'productId'} rules={[{required: true, message: 'Выберите продукта'}]}>
+            <Select placeholder='продукт' clearIcon showSearch filterOption={false} onSearch={handleSearch}>
+              {productList && productList.map(product => <Select.Option key={product.id} value={product.id}>{product.code} - {product.name}</Select.Option>)}
+            </Select>
           </Form.Item>
         </Col>
         <Col span={4} key={'loadDate'}><Label>Дата погрузки</Label>

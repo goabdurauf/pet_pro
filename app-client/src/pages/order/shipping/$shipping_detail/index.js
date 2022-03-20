@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import {connect} from 'dva'
 import {Card, Col, notification, Popconfirm, Row, Space, Table, Tabs, Tooltip} from "antd";
 import {DeleteOutlined, FormOutlined, PlusOutlined, ApartmentOutlined} from "@ant-design/icons";
-import {BsCircleFill, BsJournalArrowDown, BsJournalArrowUp} from "react-icons/bs";
+import {BsCircleFill, BsJournalArrowDown} from "react-icons/bs";
 import DocumentModal from './modals/documentModal'
 import ExpenseModal from '../../$order_detail/modals/expenseModal'
 import DivideModal from './modals/divideModal'
@@ -338,7 +338,7 @@ const ShippingDetail = ({dispatch, shippingDetail}) => {
             </Tooltip>
             : <div>
               <BsCircleFill style={{color:'springgreen', display: "block"}}/>
-              <BsJournalArrowUp />
+              <BsJournalArrowDown />
             </div>
           }
         </Space>

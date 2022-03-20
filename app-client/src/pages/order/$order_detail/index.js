@@ -14,7 +14,7 @@ import { BsJournalArrowDown, BsJournalArrowUp, BsCircleFill } from "react-icons/
 
 const OrderDetail = ({dispatch, orderDetail}) => {
   const {
-    model, orderId, isModalOpen, isLoading, isBtnDisabled, itemList, cargoList, selectOrderList, isAddInvoiceModalOpen, expenseNameList,
+    model, orderId, isModalOpen, isLoading, isBtnDisabled, itemList, cargoList, selectOrderList, isAddInvoiceModalOpen, expenseNameList, productList,
     currentModel, currentItem, modalType, modalWidth, countryList, orderStatusList, managerList, createTitle, editTitle, visibleColumns, visibleExpenseColumns, cargoSelectList,
     cargoRegTypeList, isPlanning, transportKindList, transportConditionList, documentAttachments, packageTypeList, carrierList, currencyList, shipTypeList, shippingExpenseList
   } = orderDetail;
@@ -33,6 +33,7 @@ const OrderDetail = ({dispatch, orderDetail}) => {
         payload: {
           modalType: 'create',
           documentAttachments: [],
+          productList: [],
           isModalOpen: !isModalOpen,
           currentItem: model === 'Cargo' ? {cargoDetails: [{weight: '', capacity: '', packageAmount: ''}]} : null
         }
@@ -149,8 +150,8 @@ const OrderDetail = ({dispatch, orderDetail}) => {
     if (modalType !== 'create')
       values = {...values, id: currentItem.id}
 
-    if (values.date !== undefined && values.date !== '')
-      values.date = values.date.format('DD.MM.YYYY HH:mm:ss');
+    // if (values.date !== undefined && values.date !== '')
+    //   values.date = values.date.format('DD.MM.YYYY HH:mm:ss');
 
     dispatch({
       type: 'orderDetail/save' + model,
@@ -316,6 +317,12 @@ const OrderDetail = ({dispatch, orderDetail}) => {
     })
     return ' Вес: ' + weight + '; Объём: ' + capacity + '; Кол-во уп.: ' + amount;
   };
+  const searchProduct = (val) => {
+    dispatch({
+      type: 'orderDetail/searchProduct',
+      payload: {word: val}
+    })
+  }
 
   const handleInvoiceSubmit = (values) => {
     dispatch({
@@ -561,7 +568,7 @@ const OrderDetail = ({dispatch, orderDetail}) => {
         <CargoModal
           {...modalProps}
           handleSubmit={handleSubmit} isBtnDisabled={isBtnDisabled} currentItem={currentItem} countryList={countryList}
-          modalType={modalType}
+          modalType={modalType} productList={productList} searchProduct={searchProduct}
           isLoading={isLoading} packageTypeList={packageTypeList} documentAttachments={documentAttachments}
           cargoRegTypeList={cargoRegTypeList}
           currencyList={currencyList} transportKindList={transportKindList}
