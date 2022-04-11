@@ -7,6 +7,7 @@ package uz.smart.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.web.bind.annotation.*;
+import uz.smart.dto.CargoTrackingDto;
 import uz.smart.dto.DocumentDto;
 import uz.smart.dto.ExpenseDto;
 import uz.smart.dto.ShippingDto;
@@ -75,5 +76,19 @@ public class ShippingController {
     @GetMapping("/{shippingId}/expense/divide/{id}")
     public ResShippingDivide getShippingDivideList(@PathVariable UUID shippingId, @PathVariable UUID id) {return service.getResShippingDivide(shippingId, id);}
 
-    
+    @PostMapping("/tracking")
+    public HttpEntity<?> saveTracking(@RequestBody CargoTrackingDto dto) {
+        return service.saveTracking(dto);
+    }
+
+    @GetMapping("/tracking")
+    public List<CargoTrackingDto> getTrackingList() {
+        return service.getListTrackingDto();
+    }
+
+    @GetMapping("/tracking/{id}")
+    public CargoTrackingDto getTrackingById(@PathVariable UUID id) {
+        return service.getById(id);
+    }
+
 }

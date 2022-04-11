@@ -16,6 +16,7 @@ import java.util.UUID;
 public class DocumentDto {
     private UUID id;
     private UUID ownerId;
+    private UUID mainPhotoId;
     private String title;
     private Timestamp date;
     private String comment;
@@ -27,5 +28,9 @@ public class DocumentDto {
         this.title = title;
         this.date = date;
         this.comment = comment;
+    }
+
+    public DocumentDto(List<AttachmentDto> attachments) {
+        this.attachments = attachments;
     }
 }

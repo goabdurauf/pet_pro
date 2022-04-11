@@ -1,13 +1,13 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import {Col, DatePicker, Form, Input, Modal, Row, Upload, Button, Select} from 'antd'
+import {Col, DatePicker, Form, Input, Modal, Row, Upload, Button, Select, Radio, Space} from 'antd'
 import { UploadOutlined } from '@ant-design/icons';
 import {Label} from "reactstrap";
 import 'moment/locale/ru';
 import locale from 'antd/es/date-picker/locale/ru_RU';
 
 const modal = ({ currentItem, isBtnDisabled, handleSubmit, customRequest, uploadChange, loadingFile, cargoSelectList,
-                 documentAttachments, ...modalProps }) => {
+                 documentAttachments, mainPhotoId, setMainPhoto, ...modalProps }) => {
   const [form] = Form.useForm()
   function handleFormSubmit (values) {
     if (values.date !== null && values.date !== undefined && values.date !== '')
@@ -20,6 +20,14 @@ const modal = ({ currentItem, isBtnDisabled, handleSubmit, customRequest, upload
   }
   function handleChangeForm (changedValues, allValues) {
     // if (onFormValuesChange) onFormValuesChange(changedValues, allValues)
+  }
+  function handleRadioSelect (val) {
+    setMainPhoto(val.target.value)
+  }
+  const getRadioBody = () => {
+    let data = [];
+    documentAttachments && documentAttachments.forEach(att => data.push(<Radio value={att.id} key={att.id}> </Radio>));
+    return data;
   }
 
   return (<Modal {...modalProps} onOk={handleSave} okButtonProps={{disabled: isBtnDisabled}} okText={"Добавить"} cancelText={"Отмена"}>
@@ -49,11 +57,19 @@ const modal = ({ currentItem, isBtnDisabled, handleSubmit, customRequest, upload
         </Col>
       </Row>
       <Row>
-        <Col span={24} >
+        <Col span={20} >
           <div className={'uploads'}>
             <Upload fileList={documentAttachments} onChange={uploadChange} customRequest={customRequest}>
               <Button icon={<UploadOutlined />} loading={loadingFile}>Закрепить файл</Button>
             </Upload>
+          </div>
+        </Col>
+        <Col span={4} >
+          <div className={'uploads-radio'}>
+            <Label>Показать в отчёте</Label>
+            <Radio.Group onChange={handleRadioSelect} value={mainPhotoId}>
+              <Space direction="vertical">{getRadioBody()}</Space>
+            </Radio.Group>
           </div>
         </Col>
       </Row>

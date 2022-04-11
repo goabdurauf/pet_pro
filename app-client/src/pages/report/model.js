@@ -5,6 +5,7 @@ export default ({
   state: {
     model: '',
     itemList: [],
+    currencyList: [],
     columns: []
   },
   subscriptions: {
@@ -22,16 +23,11 @@ export default ({
     * queryClientBalances({payload}, {call, put, select}) {
       let balances = yield call(getClientBalances);
       if (balances.success) {
-        let arr = [];
-        balances.list.forEach(client => {
-          client.balancesList.forEach(currency => {
-            arr.push({ownerName: client.ownerName, currencyName: currency.currencyName, amount: currency.balance})
-          })
-        })
         yield put({
           type: 'updateState',
           payload: {
-            itemList: arr,
+            itemList: balances.agents,
+            currencyList: balances.currencies,
             columns: [
               {
                 title: 'Клиент',
@@ -45,8 +41,8 @@ export default ({
               },
               {
                 title: 'Сумма',
-                dataIndex: 'amount',
-                key: 'amount'
+                dataIndex: 'balance',
+                key: 'balance'
               },
 
             ]
@@ -57,16 +53,11 @@ export default ({
     * queryCarrierBalances({payload}, {call, put, select}) {
       let balances = yield call(getCarrierBalances);
       if (balances.success) {
-        let arr = [];
-        balances.list.forEach(carrier => {
-          carrier.balancesList.forEach(currency => {
-            arr.push({ownerName: carrier.ownerName, currencyName: currency.currencyName, amount: currency.balance})
-          })
-        })
         yield put({
           type: 'updateState',
           payload: {
-            itemList: arr,
+            itemList: balances.agents,
+            currencyList: balances.currencies,
             columns: [
               {
                 title: 'Клиент',
@@ -80,8 +71,8 @@ export default ({
               },
               {
                 title: 'Сумма',
-                dataIndex: 'amount',
-                key: 'amount'
+                dataIndex: 'balance',
+                key: 'balance'
               },
 
             ]

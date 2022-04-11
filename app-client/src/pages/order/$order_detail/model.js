@@ -48,6 +48,7 @@ export default modelExtend(tableModel, {
     selectOrderList: [],
     cargoSelectList: [],
     currentModel: null,
+    mainPhotoId: null,
     modalWidth: 100,
     managerList: [],
     clientList: [],
@@ -64,6 +65,7 @@ export default modelExtend(tableModel, {
     transportConditionList: [],
     expenseNameList: [],
     productList: [],
+    stationList: [],
     isBtnDisabled: false,
     isAddInvoiceModalOpen: false,
     isLoading: false,
@@ -226,6 +228,7 @@ export default modelExtend(tableModel, {
       let trKindList = yield call(getListItems, 10);
       let trCondList = yield call(getListItems, 11);
       let expNameList = yield call(getListItems, 14);
+      let stations = yield call(getListItems, 16);
 
       if (manager.success && client.success) {
         yield put({
@@ -243,7 +246,8 @@ export default modelExtend(tableModel, {
             cargoRegTypeList: cargoRegType.list,
             transportKindList: trKindList.list,
             transportConditionList: trCondList.list,
-            expenseNameList: expNameList.list
+            expenseNameList: expNameList.list,
+            stationList: stations.list
           }
         })
       }
@@ -607,6 +611,7 @@ export default modelExtend(tableModel, {
           payload: {
             currentItem: result,
             documentAttachments: result.attachments,
+            mainPhotoId: result.mainPhotoId,
             isModalOpen: true,
             modalType: 'update'
           }

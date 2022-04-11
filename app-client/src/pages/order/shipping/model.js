@@ -24,6 +24,7 @@ export default ({
     transportKindList: [],
     transportConditionList: [],
     selectOrderList: [],
+    stationList:[],
     visibleColumns : [
       {
         title: '№',
@@ -169,6 +170,7 @@ export default ({
       let shipType = yield call(getListItems, 5);
       let trKindList = yield call(getListItems, 10);
       let trCondList = yield call(getListItems, 11);
+      let stations = yield call(getListItems, 16);
 
       if (manager.success) {
         yield put({
@@ -180,6 +182,7 @@ export default ({
             shipTypeList: shipType.list,
             transportKindList: trKindList.list,
             transportConditionList: trCondList.list,
+            stationList: stations.list
           }
         })
       }

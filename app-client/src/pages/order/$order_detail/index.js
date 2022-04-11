@@ -14,7 +14,7 @@ import { BsJournalArrowDown, BsJournalArrowUp, BsCircleFill } from "react-icons/
 
 const OrderDetail = ({dispatch, orderDetail}) => {
   const {
-    model, orderId, isModalOpen, isLoading, isBtnDisabled, itemList, cargoList, selectOrderList, isAddInvoiceModalOpen, expenseNameList, productList,
+    model, orderId, isModalOpen, isLoading, isBtnDisabled, itemList, cargoList, selectOrderList, isAddInvoiceModalOpen, expenseNameList, productList, stationList, mainPhotoId,
     currentModel, currentItem, modalType, modalWidth, countryList, orderStatusList, managerList, createTitle, editTitle, visibleColumns, visibleExpenseColumns, cargoSelectList,
     cargoRegTypeList, isPlanning, transportKindList, transportConditionList, documentAttachments, packageTypeList, carrierList, currencyList, shipTypeList, shippingExpenseList
   } = orderDetail;
@@ -157,7 +157,8 @@ const OrderDetail = ({dispatch, orderDetail}) => {
       type: 'orderDetail/save' + model,
       payload: {
         ...values,
-        attachments: documentAttachments
+        attachments: documentAttachments,
+        mainPhotoId
       }
     })
   }
@@ -321,6 +322,12 @@ const OrderDetail = ({dispatch, orderDetail}) => {
     dispatch({
       type: 'orderDetail/searchProduct',
       payload: {word: val}
+    })
+  }
+  const setMainPhoto = (id) => {
+    dispatch({
+      type: 'orderDetail/updateState',
+      payload: {mainPhotoId: id}
     })
   }
 
@@ -578,7 +585,7 @@ const OrderDetail = ({dispatch, orderDetail}) => {
         <ShippingModal
           {...modalProps} onCancel={onCancel} setPlanning={setPlanning}
           handleSubmit={handleShippingSubmit} isBtnDisabled={isBtnDisabled} currentItem={currentItem}
-          selectOrderList={selectOrderList}
+          selectOrderList={selectOrderList} stationList={stationList}
           carrierList={carrierList} currencyList={currencyList} managerList={managerList} shipTypeList={shipTypeList}
           transportKindList={transportKindList} transportConditionList={transportConditionList}
         />}
@@ -587,7 +594,7 @@ const OrderDetail = ({dispatch, orderDetail}) => {
         <DocumentModal
           {...modalProps} cargoSelectList={cargoSelectList}
           isBtnDisabled={isBtnDisabled} loadingFile={isLoading} handleSubmit={handleDocumentSubmit}
-          currentItem={currentItem}
+          currentItem={currentItem} mainPhotoId={mainPhotoId} setMainPhoto={setMainPhoto}
           documentAttachments={documentAttachments} customRequest={customRequest} uploadChange={uploadChange}/>}
 
       {isModalOpen && model === 'Expense' &&

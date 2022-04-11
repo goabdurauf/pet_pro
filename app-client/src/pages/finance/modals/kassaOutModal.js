@@ -11,11 +11,11 @@ const modal = ({ currentItem, isBtnDisabled, handleSubmit, currencyList, clientL
   const [form] = Form.useForm()
   function handleFormSubmit (values) {
     if (values.kassaType === 201) {
-      if (values.finalPrice !== currentItem.totalCredit && values.invoices[0].invoiceId !== undefined) {
+      if (Math.floor(values.finalPrice) !== Math.floor(currentItem.totalCredit) && values.invoices[0].invoiceId !== undefined) {
         notification.error({
-          description: "Сумма итог расхода должно бить равно к сумма договора",
+          description: "Сумма итог расхода по договору должно бить равно к сумма договора",
           placement: 'topRight',
-          duration: 3,
+          duration: 5,
           style: {backgroundColor: '#ffd9d9'}
         });
         return;
@@ -32,7 +32,7 @@ const modal = ({ currentItem, isBtnDisabled, handleSubmit, currencyList, clientL
         notification.error({
           description: "Сумма получение не должно быть больше сумма долга!",
           placement: 'topRight',
-          duration: 3,
+          duration: 5,
           style: {backgroundColor: '#ffd9d9'}
         });
         return;
@@ -186,7 +186,7 @@ const modal = ({ currentItem, isBtnDisabled, handleSubmit, currencyList, clientL
             <InputNumber placeholder='конечное цена' precision={2} />
           </Form.Item>
         </Col>
-        <Col span={4}><Label>Валюта</Label>
+        <Col span={4}><Label>Валюта договора</Label>
           <Form.Item key={'currencyId'} name={'currencyId'} rules={[{required: true, message: 'Выберите валюту'}]}>
             <Select placeholder='валюта' onChange={handleCurrency}>
               {currencyList.map(currency => <Select.Option key={currency.id} value={currency.id}>{currency.nameRu}</Select.Option>)}
@@ -199,7 +199,7 @@ const modal = ({ currentItem, isBtnDisabled, handleSubmit, currencyList, clientL
           <Row className={'invoicesHeader'}>
             <Col span={10}>Документ</Col>
             <Col span={6}>Сумма долга </Col>
-            <Col span={6}>Сумма расхода</Col>
+            <Col span={6}>Сумма расхода по договору</Col>
           </Row>
           <Form.List name={'invoices'}>
             {(fields, { add, remove }) =>
@@ -235,7 +235,7 @@ const modal = ({ currentItem, isBtnDisabled, handleSubmit, currencyList, clientL
         <Col span={6} offset={10}><Label>Итог долга</Label>
           <div className="debit-summa">{currentItem && currentItem.totalDebit ? currentItem.totalDebit.toFixed(2) : '0'}</div>
         </Col>
-        <Col span={6}><Label>Итог расхода</Label>
+        <Col span={6}><Label>Итог расхода по договору</Label>
           <div className="debit-summa">{currentItem && currentItem.totalCredit ? currentItem.totalCredit.toFixed(2) : '0'}</div>
         </Col>
       </Row> }

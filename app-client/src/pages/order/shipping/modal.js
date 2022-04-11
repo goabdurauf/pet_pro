@@ -6,7 +6,7 @@ import 'moment/locale/ru';
 import locale from 'antd/es/date-picker/locale/ru_RU';
 
 const modal = ({ currentItem, isBtnDisabled, handleSubmit, managerList, carrierList, shipTypeList, currencyList, selectOrderList, onCancel,
-                 setPlanning, transportKindList, transportConditionList, ...modalProps }) => {
+                 setPlanning, transportKindList, transportConditionList, stationList, ...modalProps }) => {
   const [form] = Form.useForm()
   function handleFormSubmit (values) {
     if (values.loadDate !== null && values.loadDate !== undefined && values.loadDate !== '')
@@ -147,7 +147,11 @@ const modal = ({ currentItem, isBtnDisabled, handleSubmit, managerList, carrierL
           <Label>Дата и время загрузки</Label>
           <Form.Item key={'loadDate'} name={'loadDate'}><DatePicker showTime format={'DD.MM.YYYY HH:mm'} locale={locale} placeholder='дата и время'/></Form.Item>
           <Label>Станция отправления</Label>
-          <Form.Item key={'loadStation'} name={'loadStation'}><Input placeholder='станция'/></Form.Item>
+          <Form.Item key={'loadStationId'} name={'loadStationId'}>
+            <Select placeholder='станция'>
+              {stationList && stationList.map(station => <Select.Option key={station.id} value={station.id}>{station.nameRu}</Select.Option>)}
+            </Select>
+          </Form.Item>
           <Label>Дата и время отправления</Label>
           <Form.Item key={'loadSendDate'} name={'loadSendDate'}><DatePicker showTime format={'DD.MM.YYYY HH:mm'} locale={locale} placeholder='дата и время'/></Form.Item>
         </Col>
@@ -156,7 +160,11 @@ const modal = ({ currentItem, isBtnDisabled, handleSubmit, managerList, carrierL
           <Label>Дата и время прибытия</Label>
           <Form.Item key={'customArrivalDate'} name={'customArrivalDate'}><DatePicker showTime format={'DD.MM.YYYY HH:mm'} locale={locale} placeholder='дата и время'/></Form.Item>
           <Label>Станция погран перехода</Label>
-          <Form.Item key={'customStation'} name={'customStation'}><Input placeholder='станция'/></Form.Item>
+          <Form.Item key={'customStationId'} name={'customStationId'}>
+            <Select placeholder='станция'>
+              {stationList && stationList.map(station => <Select.Option key={station.id} value={station.id}>{station.nameRu}</Select.Option>)}
+            </Select>
+          </Form.Item>
           <Label>Дата и время отправления</Label>
           <Form.Item key={'customSendDate'} name={'customSendDate'}><DatePicker showTime format={'DD.MM.YYYY HH:mm'} locale={locale} placeholder='дата и время'/></Form.Item>
         </Col>
@@ -165,7 +173,11 @@ const modal = ({ currentItem, isBtnDisabled, handleSubmit, managerList, carrierL
           <Label>Дата и время прибытия</Label>
           <Form.Item key={'unloadArrivalDate'} name={'unloadArrivalDate'}><DatePicker showTime format={'DD.MM.YYYY HH:mm'} locale={locale} placeholder='дата и время'/></Form.Item>
           <Label>Станция прибытия</Label>
-          <Form.Item key={'unloadStation'} name={'unloadStation'}><Input placeholder='станция'/></Form.Item>
+          <Form.Item key={'unloadStationId'} name={'unloadStationId'}>
+            <Select placeholder='станция'>
+              {stationList && stationList.map(station => <Select.Option key={station.id} value={station.id}>{station.nameRu}</Select.Option>)}
+            </Select>
+          </Form.Item>
           <Label>Дата и время разгрузки</Label>
           <Form.Item key={'unloadDate'} name={'unloadDate'}><DatePicker showTime format={'DD.MM.YYYY HH:mm'} locale={locale} placeholder='дата и время'/></Form.Item>
         </Col>

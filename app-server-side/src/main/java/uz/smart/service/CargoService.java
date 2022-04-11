@@ -19,7 +19,10 @@ import uz.smart.repository.*;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.TreeSet;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -244,6 +247,7 @@ public class CargoService {
             cargoEntity = repository.saveAndFlush(cargoEntity);
             expenseService.deleteExpense(expenseIdList);
         }
+
         repository.delete(cargoEntity);
         return ResponseEntity.ok().body(new ApiResponse("Удалено успешно", true));
     }
@@ -284,6 +288,7 @@ public class CargoService {
                 documentList.add(new ResDocument(
                         documentDto.getId(),
                         cargo.getId(),
+                        documentDto.getMainPhotoId(),
                         documentDto.getTitle(),
                         documentDto.getDate(),
                         documentDto.getComment(),
@@ -377,6 +382,9 @@ public class CargoService {
         dto.setCargoDetails(mapper.toCargoDetailDto(new ArrayList<>(new TreeSet<>(entity.getCargoDetails()))));
         if (entity.getDocumentList() != null && entity.getDocumentList().size() > 0) {
             dto.setDocumentList(documentService.getDocumentDto(entity.getDocumentList()));
+        }
+        if (entity.getProduct() != null && entity.getProduct().getAttachments() != null && entity.getProduct().getAttachments().size() > 0) {
+            dto.getDocumentList().add(new DocumentDto(mapper.toAttachmentDto(entity.getProduct().getAttachments())));
         }
 
         return dto;

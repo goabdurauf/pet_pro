@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import uz.smart.dto.TransactionsDto;
 import uz.smart.dto.TransactionsInvoicesDto;
 import uz.smart.entity.*;
+import uz.smart.entity.enums.BalanceType;
 import uz.smart.exception.ResourceNotFoundException;
 import uz.smart.mapper.MapperUtil;
 import uz.smart.payload.ApiResponse;
@@ -63,7 +64,7 @@ public class TransactionService {
             entity.setClient(client);
 
             BalancesEntity bEntity = balancesRepository.findById(new BalancesEntityPK(client.getId(), entity.getCurrencyId()))
-                    .orElse(new BalancesEntity(client.getId(), entity.getCurrencyId(), entity.getCurrencyName()));
+                    .orElse(new BalancesEntity(client.getId(), entity.getCurrencyId(), entity.getCurrencyName(), BalanceType.Client));
             bEntity.setBalance(bEntity.getBalance().subtract(entity.getFinalPrice()));
             balancesRepository.save(bEntity);
         }
@@ -74,7 +75,7 @@ public class TransactionService {
             entity.setCarrier(carrier);
 
             BalancesEntity bEntity = balancesRepository.findById(new BalancesEntityPK(carrier.getId(), entity.getCurrencyId()))
-                    .orElse(new BalancesEntity(carrier.getId(), entity.getCurrencyId(), entity.getCurrencyName()));
+                    .orElse(new BalancesEntity(carrier.getId(), entity.getCurrencyId(), entity.getCurrencyName(), BalanceType.Carrier));
             bEntity.setBalance(bEntity.getBalance().add(entity.getFinalPrice()));
             balancesRepository.save(bEntity);
         }
@@ -117,14 +118,14 @@ public class TransactionService {
         if (entity.getClient() != null) {
             ClientEntity client = entity.getClient();
             BalancesEntity bEntity = balancesRepository.findById(new BalancesEntityPK(client.getId(), entity.getCurrencyId()))
-                    .orElse(new BalancesEntity(client.getId(), entity.getCurrencyId(), entity.getCurrencyName()));
+                    .orElse(new BalancesEntity(client.getId(), entity.getCurrencyId(), entity.getCurrencyName(), BalanceType.Client));
             bEntity.setBalance(bEntity.getBalance().add(entity.getFinalPrice()));
             balancesRepository.save(bEntity);
         }
         if (entity.getCarrier() != null) {
             CarrierEntity carrier = entity.getCarrier();
             BalancesEntity bEntity = balancesRepository.findById(new BalancesEntityPK(carrier.getId(), entity.getCurrencyId()))
-                    .orElse(new BalancesEntity(carrier.getId(), entity.getCurrencyId(), entity.getCurrencyName()));
+                    .orElse(new BalancesEntity(carrier.getId(), entity.getCurrencyId(), entity.getCurrencyName(), BalanceType.Carrier));
             bEntity.setBalance(bEntity.getBalance().subtract(entity.getFinalPrice()));
             balancesRepository.save(bEntity);
         }
@@ -142,7 +143,7 @@ public class TransactionService {
             entity.setClient(client);
 
             BalancesEntity bEntity = balancesRepository.findById(new BalancesEntityPK(client.getId(), entity.getCurrencyId()))
-                    .orElse(new BalancesEntity(client.getId(), entity.getCurrencyId(), entity.getCurrencyName()));
+                    .orElse(new BalancesEntity(client.getId(), entity.getCurrencyId(), entity.getCurrencyName(), BalanceType.Client));
             bEntity.setBalance(bEntity.getBalance().subtract(entity.getFinalPrice()));
             balancesRepository.save(bEntity);
         } else
@@ -154,7 +155,7 @@ public class TransactionService {
             entity.setCarrier(carrier);
 
             BalancesEntity bEntity = balancesRepository.findById(new BalancesEntityPK(carrier.getId(), entity.getCurrencyId()))
-                    .orElse(new BalancesEntity(carrier.getId(), entity.getCurrencyId(), entity.getCurrencyName()));
+                    .orElse(new BalancesEntity(carrier.getId(), entity.getCurrencyId(), entity.getCurrencyName(), BalanceType.Carrier));
             bEntity.setBalance(bEntity.getBalance().add(entity.getFinalPrice()));
             balancesRepository.save(bEntity);
         } else
@@ -210,7 +211,7 @@ public class TransactionService {
             entity.setClient(client);
 
             BalancesEntity bEntity = balancesRepository.findById(new BalancesEntityPK(client.getId(), entity.getCurrencyId()))
-                    .orElse(new BalancesEntity(client.getId(), entity.getCurrencyId(), entity.getCurrencyName()));
+                    .orElse(new BalancesEntity(client.getId(), entity.getCurrencyId(), entity.getCurrencyName(), BalanceType.Client));
             bEntity.setBalance(bEntity.getBalance().add(entity.getFinalPrice()));
             balancesRepository.save(bEntity);
         }
@@ -220,7 +221,7 @@ public class TransactionService {
             entity.setCarrier(carrier);
 
             BalancesEntity bEntity = balancesRepository.findById(new BalancesEntityPK(carrier.getId(), entity.getCurrencyId()))
-                    .orElse(new BalancesEntity(carrier.getId(), entity.getCurrencyId(), entity.getCurrencyName()));
+                    .orElse(new BalancesEntity(carrier.getId(), entity.getCurrencyId(), entity.getCurrencyName(), BalanceType.Carrier));
             bEntity.setBalance(bEntity.getBalance().subtract(entity.getFinalPrice()));
             balancesRepository.save(bEntity);
         }
@@ -267,14 +268,14 @@ public class TransactionService {
         if (entity.getClient() != null) {
             ClientEntity client = entity.getClient();
             BalancesEntity bEntity = balancesRepository.findById(new BalancesEntityPK(client.getId(), entity.getCurrencyId()))
-                    .orElse(new BalancesEntity(client.getId(), entity.getCurrencyId(), entity.getCurrencyName()));
+                    .orElse(new BalancesEntity(client.getId(), entity.getCurrencyId(), entity.getCurrencyName(), BalanceType.Client));
             bEntity.setBalance(bEntity.getBalance().subtract(entity.getFinalPrice()));
             balancesRepository.save(bEntity);
         }
         if (entity.getCarrier() != null) {
             CarrierEntity carrier = entity.getCarrier();
             BalancesEntity bEntity = balancesRepository.findById(new BalancesEntityPK(carrier.getId(), entity.getCurrencyId()))
-                    .orElse(new BalancesEntity(carrier.getId(), entity.getCurrencyId(), entity.getCurrencyName()));
+                    .orElse(new BalancesEntity(carrier.getId(), entity.getCurrencyId(), entity.getCurrencyName(), BalanceType.Carrier));
             bEntity.setBalance(bEntity.getBalance().add(entity.getFinalPrice()));
             balancesRepository.save(bEntity);
         }
@@ -292,7 +293,7 @@ public class TransactionService {
             entity.setClient(client);
 
             BalancesEntity bEntity = balancesRepository.findById(new BalancesEntityPK(client.getId(), entity.getCurrencyId()))
-                    .orElse(new BalancesEntity(client.getId(), entity.getCurrencyId(), entity.getCurrencyName()));
+                    .orElse(new BalancesEntity(client.getId(), entity.getCurrencyId(), entity.getCurrencyName(), BalanceType.Client));
             bEntity.setBalance(bEntity.getBalance().add(entity.getFinalPrice()));
             balancesRepository.save(bEntity);
         } else
@@ -303,7 +304,7 @@ public class TransactionService {
             entity.setCarrier(carrier);
 
             BalancesEntity bEntity = balancesRepository.findById(new BalancesEntityPK(carrier.getId(), entity.getCurrencyId()))
-                    .orElse(new BalancesEntity(carrier.getId(), entity.getCurrencyId(), entity.getCurrencyName()));
+                    .orElse(new BalancesEntity(carrier.getId(), entity.getCurrencyId(), entity.getCurrencyName(), BalanceType.Carrier));
             bEntity.setBalance(bEntity.getBalance().subtract(entity.getFinalPrice()));
             balancesRepository.save(bEntity);
         } else
@@ -355,7 +356,7 @@ public class TransactionService {
         List<TransactionsInvoicesEntity> trInvList = trInvRepository.findAllByTransactionId(id);
         for (TransactionsInvoicesEntity inv : trInvList) {
             TransactionsInvoicesDto transact = new TransactionsInvoicesDto(inv.getInvoiceId(), inv.getPrice());
-            invoiceRepository.findById(inv.getInvoiceId()).ifPresent(invoice -> transact.setDebit(invoice.getFinalPrice()));
+            invoiceRepository.findById(inv.getInvoiceId()).ifPresent(invoice -> transact.setDebit(invoice.getBalance().abs()));
             dto.getInvoices().add(transact);
         }
 

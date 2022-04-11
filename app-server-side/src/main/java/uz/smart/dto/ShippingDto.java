@@ -39,18 +39,21 @@ public class ShippingDto {
 
     @JsonDeserialize(using = DateTimeDeserializer.class)
     private Timestamp loadDate;
+    private Long loadStationId;
     private String loadStation;
     @JsonDeserialize(using = DateTimeDeserializer.class)
     private Timestamp loadSendDate;
 
     @JsonDeserialize(using = DateTimeDeserializer.class)
     private Timestamp customArrivalDate;
+    private Long customStationId;
     private String customStation;
     @JsonDeserialize(using = DateTimeDeserializer.class)
     private Timestamp customSendDate;
 
     @JsonDeserialize(using = DateTimeDeserializer.class)
     private Timestamp unloadArrivalDate;
+    private Long unloadStationId;
     private String unloadStation;
     @JsonDeserialize(using = DateTimeDeserializer.class)
     private Timestamp unloadDate;

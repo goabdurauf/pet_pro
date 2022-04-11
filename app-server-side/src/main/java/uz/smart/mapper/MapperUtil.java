@@ -6,10 +6,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import uz.smart.dto.*;
 import uz.smart.entity.*;
 import uz.smart.exception.ResourceNotFoundException;
-import uz.smart.payload.ResCargo;
-import uz.smart.payload.ResInvoice;
-import uz.smart.payload.ResOrder;
-import uz.smart.payload.ResShipping;
+import uz.smart.payload.*;
 import uz.smart.repository.UserRepository;
 
 import java.util.List;
@@ -90,6 +87,14 @@ public abstract class MapperUtil {
     public abstract ShippingEntity toShippingEntity(ShippingDto dto);
 
     public abstract ShippingEntity updateShippingEntity(ShippingDto dto, @MappingTarget ShippingEntity entity);
+
+    @Mappings({
+            @Mapping(target = "comment", source = "trackingComment"),
+            @Mapping(target = "shippingNum", source = "num"),
+            @Mapping(target = "transportNum", source = "shippingNum"),
+            @Mapping(target = "transportKind", source = "transportKindName")
+    })
+    public abstract CargoTrackingDto fromShippingToTrackingDto(ShippingEntity entity);
 
     public abstract ShippingDto toShippingDto(ShippingEntity entity);
 

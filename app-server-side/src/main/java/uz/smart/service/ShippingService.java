@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import uz.smart.dto.CargoTrackingDto;
 import uz.smart.dto.DocumentDto;
 import uz.smart.dto.ExpenseDto;
 import uz.smart.dto.ShippingDto;
@@ -23,6 +24,7 @@ import uz.smart.utils.CommonUtils;
 
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Service
@@ -96,6 +98,21 @@ public class ShippingService {
                     .orElseThrow(() -> new ResourceNotFoundException("List", "transportConditionId", dto.getTransportConditionId()));
             entity.setTransportConditionName(transportCondition.getNameRu());
         }
+        if (dto.getLoadStationId() != null) {
+            ListEntity loadStation = listRepository.findById(dto.getLoadStationId())
+                    .orElseThrow(() -> new ResourceNotFoundException("List", "loadStationId", dto.getLoadStationId()));
+            entity.setLoadStation(loadStation.getNameRu());
+        }
+        if (dto.getCustomStationId() != null) {
+            ListEntity customStation = listRepository.findById(dto.getCustomStationId())
+                    .orElseThrow(() -> new ResourceNotFoundException("List", "customStationId", dto.getCustomStationId()));
+            entity.setCustomStation(customStation.getNameRu());
+        }
+        if (dto.getUnloadStationId() != null) {
+            ListEntity unloadStation = listRepository.findById(dto.getUnloadStationId())
+                    .orElseThrow(() -> new ResourceNotFoundException("List", "unloadStationId", dto.getUnloadStationId()));
+            entity.setUnloadStation(unloadStation.getNameRu());
+        }
 
         entity = repository.saveAndFlush(entity);
 
@@ -126,8 +143,21 @@ public class ShippingService {
                     .orElseThrow(() -> new ResourceNotFoundException("List", "currencyId", dto.getCurrencyId()));
             entity.setCurrencyName(currency.getNameRu());
         }
-
+        if (entity.getLoadDate() != null && entity.getUnloadDate() != null) {
+            long diff = Math.abs(entity.getLoadDate().getTime() - entity.getUnloadDate().getTime());
+            entity.setDurationDays(TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS));
+        }
         repository.save(entity);
+
+       /*
+        CargoTrackingEntity tracking = cargoTrackingRepository.findByShipping(entity).orElse(new CargoTrackingEntity());
+        tracking.setShipping(entity);
+        tracking.setLoadDate(entity.getLoadDate());
+        tracking.setUnloadDate(entity.getUnloadDate());
+
+        cargoTrackingRepository.saveAndFlush(tracking);
+       */
+
         return ResponseEntity.ok().body(new ApiResponse("Сохранено успешно", true));
     }
 
@@ -381,5 +411,78 @@ public class ShippingService {
         return ResponseEntity.ok().body(new ApiResponse("Удалено успешно", true));
     }
 
+    public HttpEntity<?> saveTracking(CargoTrackingDto dto) {
+        ShippingEntity entity = repository.findById(dto.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Shipping", "Id", dto.getId()));
+        entity.setFactoryAddressId(dto.getFactoryAddressId());
+        entity.setLoadStationId(dto.getLoadStationId());
+        entity.setUnloadStationId(dto.getUnloadStationId());
+        entity.setChaseStatusId(dto.getChaseStatusId());
+        entity.setCargoName(dto.getCargoName());
+        entity.setKazahNumber(dto.getKazahNumber());
+        entity.setCurrentLocation(dto.getCurrentLocation());
+        entity.setTrackingComment(dto.getComment());
+        entity.setLoadDate(dto.getLoadDate());
+        entity.setDocPassDate(dto.getDocPassDate());
+        entity.setLoadSendDate(dto.getLoadSendDate());
+        entity.setCustomArrivalDate(dto.getCustomArrivalDate());
+        entity.setCustomSendDate(dto.getCustomSendDate());
+        entity.setContainerReturnDate(dto.getContainerReturnDate());
+        entity.setUnloadDate(dto.getUnloadDate());
+
+        if (entity.getLoadDate() != null && entity.getUnloadDate() != null) {
+            long diff = Math.abs(entity.getLoadDate().getTime() - entity.getUnloadDate().getTime());
+            entity.setDurationDays(TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS));
+        }
+
+        if (dto.getLoadStationId() != null) {
+            ListEntity loadStation = listRepository.findById(dto.getLoadStationId())
+                    .orElseThrow(() -> new ResourceNotFoundException("List", "loadStationId", dto.getLoadStationId()));
+            entity.setLoadStation(loadStation.getNameRu());
+        } else
+            entity.setLoadStation(null);
+
+        if (dto.getUnloadStationId() != null) {
+            ListEntity unloadStation = listRepository.findById(dto.getUnloadStationId())
+                    .orElseThrow(() -> new ResourceNotFoundException("List", "unloadStationId", dto.getUnloadStationId()));
+            entity.setUnloadStation(unloadStation.getNameRu());
+        } else
+            entity.setUnloadStation(null);
+
+        repository.saveAndFlush(entity);
+
+        return ResponseEntity.ok().body(new ApiResponse("Сохранено успешно", true));
+    }
+
+    public CargoTrackingDto getById(UUID id) {
+        return getCargoTrackingDto(repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Shipping", "Id", id)));
+    }
+
+    public List<CargoTrackingDto> getListTrackingDto() {
+        List<CargoTrackingDto> dtoList = new ArrayList<>();
+        repository.getAllShipping().forEach(entity -> dtoList.add(getCargoTrackingDto(entity)));
+        return dtoList;
+    }
+
+    private CargoTrackingDto getCargoTrackingDto(ShippingEntity entity) {
+        CargoTrackingDto dto = mapper.fromShippingToTrackingDto(entity);
+        if (entity.getFactoryAddressId() != null)
+            listRepository.findById(entity.getFactoryAddressId()).ifPresent(address -> dto.setFactoryAddress(address.getNameRu()));
+        if (entity.getChaseStatusId() != null)
+            listRepository.findById(entity.getChaseStatusId()).ifPresent(chase -> dto.setChaseStatus(chase.getNameRu()));
+        if (entity.getCarrierId() != null)
+            carrierRepository.findById(entity.getCarrierId()).ifPresent(carrierEntity -> dto.setCarrierName(carrierEntity.getName()));
+        listRepository.findById(entity.getShippingTypeId()).ifPresent(shipType -> dto.setShippingType(shipType.getNameRu()));
+        if (entity.getCargoEntities() != null) {
+            entity.getCargoEntities().forEach(cargo -> {
+                if (cargo.getCargoDetails() != null) {
+                    cargo.getCargoDetails().forEach(detail -> dto.setCargoWeight(dto.getCargoWeight().add(detail.getWeight())));
+                }
+            });
+        }
+
+        return dto;
+    }
 
 }

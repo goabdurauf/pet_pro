@@ -9,6 +9,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import uz.smart.entity.enums.BalanceType;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -27,8 +28,9 @@ public class BalancesEntity {
     @Id
     private Long currencyId;
 
-    public String currencyName;
+    private String currencyName;
     private BigDecimal balance = BigDecimal.ZERO;
+    private BalanceType type;
 
     @CreationTimestamp
     @Column(updatable = false)
@@ -37,9 +39,10 @@ public class BalancesEntity {
     @UpdateTimestamp
     private Timestamp updatedAt;
 
-    public BalancesEntity(UUID ownerId, Long currencyId, String currencyName) {
+    public BalancesEntity(UUID ownerId, Long currencyId, String currencyName, BalanceType type) {
         this.ownerId = ownerId;
         this.currencyId = currencyId;
         this.currencyName = currencyName;
+        this.type = type;
     }
 }

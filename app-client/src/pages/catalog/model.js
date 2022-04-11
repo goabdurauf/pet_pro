@@ -18,8 +18,9 @@ import {
   deleteKassaById,
   uploadFile, deleteFile, deleteAttachmentFromProductById
 } from '@/services/service'
-import {notification} from 'antd'
+import {Image, notification} from 'antd'
 import moment from "moment";
+import React from "react";
 
 export default ({
   namespace: 'catalog',
@@ -311,7 +312,24 @@ export default ({
                 title: 'Единица измерение',
                 dataIndex: 'measureName',
                 key: 'measureName',
-              }
+              },
+              {
+                title: 'Рисунки',
+                dataIndex: 'docImage',
+                key: 'docImage',
+                render: (text, record) => {
+                  let data = [];
+                  record.attachments && record.attachments.forEach(img => {
+                    if (img.docType !== null && img.docType === "Rasm") {
+                      data.push(
+                        <div key={img.id} style={{textAlign: "center"}}>
+                          <Image width={60} src={img.url + '?original=false'} preview={{src: img.url}}/>
+                        </div>)
+                    }
+                  })
+                  return data;
+                }
+              },
             ]
           }
         })
@@ -1752,6 +1770,506 @@ export default ({
       if (result.success) {
         yield put({
           type: 'queryExpenseName'
+        })
+        notification.info({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#d8ffe9'}
+        });
+      } else {
+        notification.error({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#ffd9d9'}
+        });
+      }
+    },
+    * queryFactoryAddress({payload}, {call, put, select}) {
+      let data = yield call(getListItems, 15);
+
+      if (data.success) {
+        yield put({
+          type: 'updateState',
+          payload: {
+            model: 'FactoryAddress',
+            title: 'Адрес завода',
+            createTitle: 'Создать адрес завода',
+            editTitle: 'Редактировать адрес завода',
+            isModalOpen: false,
+            itemList: data.list,
+            currentItem: null,
+            modalType: 'create',
+            isBtnDisabled: false,
+            visibleColumns: [
+              {
+                title: '№',
+                dataIndex: 'num',
+                key: 'num',
+                align: 'center',
+                render: (value, item, index) => index + 1
+              },
+              {
+                title: 'Название',
+                dataIndex: 'nameRu',
+                key: 'nameRu',
+              }
+            ]
+          }
+        })
+      }
+    },
+    * saveFactoryAddress({payload}, {call, put, select}) {
+      const result = yield call(saveListItem, {...payload, typeId: 15});
+      if (result.success) {
+        yield put({
+          type: 'queryFactoryAddress'
+        })
+        notification.info({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#d8ffe9'}
+        });
+      } else {
+        // yield put({
+        //   type: 'updateState',
+        //   payload: {isBtnDisabled: false}
+        // })
+        notification.error({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#ffd9d9'}
+        });
+      }
+    },
+    * getFactoryAddressById({payload}, {call, put, select}) {
+      const result = yield call(getListItemById, payload.id);
+      if (result.success) {
+        yield put({
+          type: 'updateState',
+          payload: {
+            currentItem: result,
+            isModalOpen: true,
+            modalType: 'update'
+          }
+        })
+      } else {
+        notification.error({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#ffd9d9'}
+        });
+      }
+    },
+    * deleteFactoryAddress({payload}, {call, put, select}) {
+      const result = yield call(deleteListItemById, payload.id);
+      if (result.success) {
+        yield put({
+          type: 'queryFactoryAddress'
+        })
+        notification.info({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#d8ffe9'}
+        });
+      } else {
+        notification.error({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#ffd9d9'}
+        });
+      }
+    },
+    * queryStationName({payload}, {call, put, select}) {
+      let data = yield call(getListItems, 16);
+
+      if (data.success) {
+        yield put({
+          type: 'updateState',
+          payload: {
+            model: 'StationName',
+            title: 'Название станции',
+            createTitle: 'Создать название станции',
+            editTitle: 'Редактировать название станции',
+            isModalOpen: false,
+            itemList: data.list,
+            currentItem: null,
+            modalType: 'create',
+            isBtnDisabled: false,
+            visibleColumns: [
+              {
+                title: '№',
+                dataIndex: 'num',
+                key: 'num',
+                align: 'center',
+                render: (value, item, index) => index + 1
+              },
+              {
+                title: 'Название',
+                dataIndex: 'nameRu',
+                key: 'nameRu',
+              }
+            ]
+          }
+        })
+      }
+    },
+    * saveStationName({payload}, {call, put, select}) {
+      const result = yield call(saveListItem, {...payload, typeId: 16});
+      if (result.success) {
+        yield put({
+          type: 'queryStationName'
+        })
+        notification.info({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#d8ffe9'}
+        });
+      } else {
+        // yield put({
+        //   type: 'updateState',
+        //   payload: {isBtnDisabled: false}
+        // })
+        notification.error({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#ffd9d9'}
+        });
+      }
+    },
+    * getStationNameById({payload}, {call, put, select}) {
+      const result = yield call(getListItemById, payload.id);
+      if (result.success) {
+        yield put({
+          type: 'updateState',
+          payload: {
+            currentItem: result,
+            isModalOpen: true,
+            modalType: 'update'
+          }
+        })
+      } else {
+        notification.error({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#ffd9d9'}
+        });
+      }
+    },
+    * deleteStationName({payload}, {call, put, select}) {
+      const result = yield call(deleteListItemById, payload.id);
+      if (result.success) {
+        yield put({
+          type: 'queryStationName'
+        })
+        notification.info({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#d8ffe9'}
+        });
+      } else {
+        notification.error({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#ffd9d9'}
+        });
+      }
+    },
+    * queryChaseStatus({payload}, {call, put, select}) {
+      let data = yield call(getListItems, 17);
+
+      if (data.success) {
+        yield put({
+          type: 'updateState',
+          payload: {
+            model: 'ChaseStatus',
+            title: 'Статус слежки',
+            createTitle: 'Создать статус слежки',
+            editTitle: 'Редактировать статус слежки',
+            isModalOpen: false,
+            itemList: data.list,
+            currentItem: null,
+            modalType: 'create',
+            isBtnDisabled: false,
+            visibleColumns: [
+              {
+                title: '№',
+                dataIndex: 'num',
+                key: 'num',
+                align: 'center',
+                render: (value, item, index) => index + 1
+              },
+              {
+                title: 'Название',
+                dataIndex: 'nameRu',
+                key: 'nameRu',
+              }
+            ]
+          }
+        })
+      }
+    },
+    * saveChaseStatus({payload}, {call, put, select}) {
+      const result = yield call(saveListItem, {...payload, typeId: 17});
+      if (result.success) {
+        yield put({
+          type: 'queryChaseStatus'
+        })
+        notification.info({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#d8ffe9'}
+        });
+      } else {
+        // yield put({
+        //   type: 'updateState',
+        //   payload: {isBtnDisabled: false}
+        // })
+        notification.error({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#ffd9d9'}
+        });
+      }
+    },
+    * getChaseStatusById({payload}, {call, put, select}) {
+      const result = yield call(getListItemById, payload.id);
+      if (result.success) {
+        yield put({
+          type: 'updateState',
+          payload: {
+            currentItem: result,
+            isModalOpen: true,
+            modalType: 'update'
+          }
+        })
+      } else {
+        notification.error({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#ffd9d9'}
+        });
+      }
+    },
+    * deleteChaseStatus({payload}, {call, put, select}) {
+      const result = yield call(deleteListItemById, payload.id);
+      if (result.success) {
+        yield put({
+          type: 'queryChaseStatus'
+        })
+        notification.info({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#d8ffe9'}
+        });
+      } else {
+        notification.error({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#ffd9d9'}
+        });
+      }
+    },
+    * queryCountry({payload}, {call, put, select}) {
+      let data = yield call(getListItems, 2);
+
+      if (data.success) {
+        yield put({
+          type: 'updateState',
+          payload: {
+            model: 'Country',
+            title: 'Страны',
+            createTitle: 'Создать страну',
+            editTitle: 'Редактировать страну',
+            isModalOpen: false,
+            itemList: data.list,
+            currentItem: null,
+            modalType: 'create',
+            isBtnDisabled: false,
+            visibleColumns: [
+              {
+                title: '№',
+                dataIndex: 'num',
+                key: 'num',
+                align: 'center',
+                render: (value, item, index) => index + 1
+              },
+              {
+                title: 'Название',
+                dataIndex: 'nameRu',
+                key: 'nameRu',
+              }
+            ]
+          }
+        })
+      }
+    },
+    * saveCountry({payload}, {call, put, select}) {
+      const result = yield call(saveListItem, {...payload, typeId: 2});
+      if (result.success) {
+        yield put({
+          type: 'queryCountry'
+        })
+        notification.info({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#d8ffe9'}
+        });
+      } else {
+        // yield put({
+        //   type: 'updateState',
+        //   payload: {isBtnDisabled: false}
+        // })
+        notification.error({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#ffd9d9'}
+        });
+      }
+    },
+    * getCountryById({payload}, {call, put, select}) {
+      const result = yield call(getListItemById, payload.id);
+      if (result.success) {
+        yield put({
+          type: 'updateState',
+          payload: {
+            currentItem: result,
+            isModalOpen: true,
+            modalType: 'update'
+          }
+        })
+      } else {
+        notification.error({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#ffd9d9'}
+        });
+      }
+    },
+    * deleteCountry({payload}, {call, put, select}) {
+      const result = yield call(deleteListItemById, payload.id);
+      if (result.success) {
+        yield put({
+          type: 'queryCountry'
+        })
+        notification.info({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#d8ffe9'}
+        });
+      } else {
+        notification.error({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#ffd9d9'}
+        });
+      }
+    },
+    * queryCity({payload}, {call, put, select}) {
+      let data = yield call(getListItems, 18);
+
+      if (data.success) {
+        yield put({
+          type: 'updateState',
+          payload: {
+            model: 'City',
+            title: 'Города',
+            createTitle: 'Создать город',
+            editTitle: 'Редактировать город',
+            isModalOpen: false,
+            itemList: data.list,
+            currentItem: null,
+            modalType: 'create',
+            isBtnDisabled: false,
+            visibleColumns: [
+              {
+                title: '№',
+                dataIndex: 'num',
+                key: 'num',
+                align: 'center',
+                render: (value, item, index) => index + 1
+              },
+              {
+                title: 'Название',
+                dataIndex: 'nameRu',
+                key: 'nameRu',
+              }
+            ]
+          }
+        })
+      }
+    },
+    * saveCity({payload}, {call, put, select}) {
+      const result = yield call(saveListItem, {...payload, typeId: 18});
+      if (result.success) {
+        yield put({
+          type: 'queryCity'
+        })
+        notification.info({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#d8ffe9'}
+        });
+      } else {
+        // yield put({
+        //   type: 'updateState',
+        //   payload: {isBtnDisabled: false}
+        // })
+        notification.error({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#ffd9d9'}
+        });
+      }
+    },
+    * getCityById({payload}, {call, put, select}) {
+      const result = yield call(getListItemById, payload.id);
+      if (result.success) {
+        yield put({
+          type: 'updateState',
+          payload: {
+            currentItem: result,
+            isModalOpen: true,
+            modalType: 'update'
+          }
+        })
+      } else {
+        notification.error({
+          description: result.message,
+          placement: 'topRight',
+          duration: 3,
+          style: {backgroundColor: '#ffd9d9'}
+        });
+      }
+    },
+    * deleteCity({payload}, {call, put, select}) {
+      const result = yield call(deleteListItemById, payload.id);
+      if (result.success) {
+        yield put({
+          type: 'queryCity'
         })
         notification.info({
           description: result.message,

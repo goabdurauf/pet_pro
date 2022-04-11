@@ -84,6 +84,10 @@ export function deleteExpenseFromCargoById(id) {return request({url: '/api/cargo
 export function divideShippingExpenseToCargos(data) {return request({url: '/api/cargo/expense/divide', method: 'post', data})}
 export function getCargoForInvoiceById(id) {return request({url: '/api/cargo/' + id + '/invoice', method: 'get',})}
 
+export function saveCargoTracking(data) {return request({url: '/api/shipping/tracking', method: 'post', data})}
+export function getCargoTrackingList() {return request({url: '/api/shipping/tracking', method: 'get'})}
+export function getCargoTrackingById(id) {return request({url: '/api/shipping/tracking/' + id, method: 'get'})}
+
 export function getExpenseById(id) {return request({url: '/api/expense/' + id, method: 'get',})}
 export function getExpenseForInvoiceById(id) {return request({url: '/api/expense/' + id + '/invoice', method: 'get',})}
 export function getExpenseForInvoiceInById(id) {return request({url: '/api/expense/' + id + '/invoicein', method: 'get',})}

@@ -23,7 +23,7 @@ public interface ProductRepository extends JpaRepository<ProductEntity, UUID> {
     @Query("select p from product p where p.state>0 order by p.createdAt")
     List<ProductEntity> getProductList();
 
-    @Query("select p from product p where p.state>0 and lower(p.code) like concat('%', :word, '%') order by p.createdAt")
+    @Query("select p from product p where p.state>0 and (lower(p.name) like concat('%', :word, '%') or lower(p.code) like concat('%', :word, '%')) order by p.createdAt")
     List<ProductEntity> searchProducts(String word);
 
 }

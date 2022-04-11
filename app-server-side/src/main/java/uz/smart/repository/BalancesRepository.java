@@ -5,14 +5,20 @@ package uz.smart.repository;
 */
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import uz.smart.entity.BalancesEntity;
 import uz.smart.entity.BalancesEntityPK;
+import uz.smart.entity.enums.BalanceType;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
 public interface BalancesRepository extends JpaRepository<BalancesEntity, BalancesEntityPK> {
 
     List<BalancesEntity> getAllByOwnerId(UUID ownerId);
+
+    @Query("select sum(balance) from balances where currencyId=:currencyId and type=:type")
+    BigDecimal getBalanceByCurrencyAndType(Long currencyId, BalanceType type);
 
 }

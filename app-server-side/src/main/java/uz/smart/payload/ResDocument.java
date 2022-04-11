@@ -21,8 +21,8 @@ public class ResDocument extends DocumentDto {
     private String ownerName;
     private String ownerNum;
 
-    public ResDocument(UUID id, UUID ownerId, String title, Timestamp date, String comment, List<AttachmentDto> attachments, String ownerName, String ownerNum) {
-        super(id, ownerId, title, date, comment, attachments);
+    public ResDocument(UUID id, UUID ownerId, UUID mainPhotoId, String title, Timestamp date, String comment, List<AttachmentDto> attachments, String ownerName, String ownerNum) {
+        super(id, ownerId, mainPhotoId, title, date, comment, attachments);
         this.ownerName = ownerName;
         this.ownerNum = ownerNum;
     }

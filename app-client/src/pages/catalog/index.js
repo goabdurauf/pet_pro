@@ -216,6 +216,51 @@ class Catalog extends Component {
             obj: <Input placeholder='Название'/>
           }
         ];
+        case 'FactoryAddress': return [
+          {
+            label: 'Название',
+            name: 'nameRu',
+            width: 24,
+            rules: [{required: true, message: 'Этот поля не должно быть пустое',},],
+            obj: <Input placeholder='Название'/>
+          }
+        ];
+        case 'StationName': return [
+          {
+            label: 'Название',
+            name: 'nameRu',
+            width: 24,
+            rules: [{required: true, message: 'Этот поля не должно быть пустое',},],
+            obj: <Input placeholder='Название'/>
+          }
+        ];
+        case 'ChaseStatus': return [
+          {
+            label: 'Название',
+            name: 'nameRu',
+            width: 24,
+            rules: [{required: true, message: 'Этот поля не должно быть пустое',},],
+            obj: <Input placeholder='Название'/>
+          }
+        ];
+        case 'Country': return [
+          {
+            label: 'Название',
+            name: 'nameRu',
+            width: 24,
+            rules: [{required: true, message: 'Этот поля не должно быть пустое',},],
+            obj: <Input placeholder='Название'/>
+          }
+        ];
+        case 'City': return [
+          {
+            label: 'Название',
+            name: 'nameRu',
+            width: 24,
+            rules: [{required: true, message: 'Этот поля не должно быть пустое',},],
+            obj: <Input placeholder='Название'/>
+          }
+        ];
 
 
 
@@ -390,6 +435,11 @@ class Catalog extends Component {
             <TabPane tab="Прочие контрагенты" key="OtherAgents"><TabBody /></TabPane>
             <TabPane tab="Прочие расходы" key="OtherExpenses"><TabBody /></TabPane>
             <TabPane tab="Название расхода" key="ExpenseName"><TabBody /></TabPane>
+            <TabPane tab="Адрес завода" key="FactoryAddress"><TabBody /></TabPane>
+            <TabPane tab="Название станции" key="StationName"><TabBody /></TabPane>
+            <TabPane tab="Статус слежки" key="ChaseStatus"><TabBody /></TabPane>
+            <TabPane tab="Страны" key="Country"><TabBody /></TabPane>
+            <TabPane tab="Города" key="City"><TabBody /></TabPane>
 
 
           </Tabs>

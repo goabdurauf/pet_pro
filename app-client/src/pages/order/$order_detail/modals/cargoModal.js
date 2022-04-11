@@ -74,13 +74,15 @@ const modal = ({ currentItem, isBtnDisabled, handleSubmit, isLoading, packageTyp
             <Input placeholder='название груза'/>
           </Form.Item>
         </Col>
-        <Col span={5} key={'productId'}><Label>Продукт</Label>
+        <Col span={18} key={'productId'}><Label>Продукт</Label>
           <Form.Item key={'productId'} name={'productId'} rules={[{required: true, message: 'Выберите продукта'}]}>
             <Select placeholder='продукт' clearIcon showSearch filterOption={false} onSearch={handleSearch}>
               {productList && productList.map(product => <Select.Option key={product.id} value={product.id}>{product.code} - {product.name}</Select.Option>)}
             </Select>
           </Form.Item>
         </Col>
+      </Row>
+      <Row>
         <Col span={4} key={'loadDate'}><Label>Дата погрузки</Label>
           <Form.Item key={'loadDate'} name={'loadDate'} rules={[{required: true, message: 'Выберите дату'}]}>
             <DatePicker format={'DD.MM.YYYY'} locale={locale}/>
@@ -99,8 +101,6 @@ const modal = ({ currentItem, isBtnDisabled, handleSubmit, isLoading, packageTyp
             </Select>
           </Form.Item>
         </Col>
-      </Row>
-      <Row>
         <Col span={5} key={'transportKindId'}><Label>Вид транспорта</Label>
           <Form.Item key={'transportKindId'} name={'transportKindId'} rules={[{required: true, message: 'Выберите вид транспорта'}]}>
             <Select placeholder='вид транспорта' showSearch
@@ -109,7 +109,7 @@ const modal = ({ currentItem, isBtnDisabled, handleSubmit, isLoading, packageTyp
             </Select>
           </Form.Item>
         </Col>
-        <Col span={5} key={'transportConditionId'}><Label>Условие транспорта</Label>
+        <Col span={6} key={'transportConditionId'}><Label>Условие транспорта</Label>
           <Form.Item key={'transportConditionId'} name={'transportConditionId'} rules={[{required: true, message: 'Выберите условие транспорта'}]}>
             <Select placeholder='условие транспорта' showSearch
                     filterOption={(input, option) => option.children.toLocaleLowerCase().indexOf(input.toLocaleLowerCase()) >= 0 }>
@@ -117,7 +117,6 @@ const modal = ({ currentItem, isBtnDisabled, handleSubmit, isLoading, packageTyp
             </Select>
           </Form.Item>
         </Col>
-
       </Row>
       <Row>
         <Col span={4}><Label>Цена</Label>

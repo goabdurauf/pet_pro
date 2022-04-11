@@ -368,7 +368,7 @@ export default ({
             isModalOpen: false,
             isBtnDisabled: false,
             modalType: 'create',
-            modalWidth: 800,
+            modalWidth: 900,
             kassaInOutType: 0,
             kassaBalance: null,
             visibleColumns: [

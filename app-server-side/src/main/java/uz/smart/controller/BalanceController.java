@@ -8,10 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import uz.smart.dto.BalancesDto;
+import uz.smart.dto.BalancesTotalDto;
 import uz.smart.service.BalancesService;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/balances")
@@ -21,9 +19,9 @@ public class BalanceController {
     BalancesService service;
 
     @GetMapping("/client")
-    public List<BalancesDto> getClientBalances() { return service.getClientBalances(); }
+    public BalancesTotalDto getClientBalances() { return service.getClientBalances(); }
 
     @GetMapping("/carrier")
-    public List<BalancesDto> getCarrierBalances() { return service.getCarrierBalances(); }
+    public BalancesTotalDto getCarrierBalances() { return service.getCarrierBalances(); }
 
 }

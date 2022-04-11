@@ -19,6 +19,10 @@ public enum ListType
     OtherAgents             (12),
     OtherExpenses           (13),
     ExpenseName             (14),
+    FactoryAddress          (15),
+    StationName             (16),
+    ChaseStatus             (17),
+    City                    (18),
 
     ;
 

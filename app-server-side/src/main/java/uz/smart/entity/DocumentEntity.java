@@ -15,10 +15,12 @@ import javax.persistence.FetchType;
 import javax.persistence.OneToMany;
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.UUID;
 
 @Data @NoArgsConstructor @AllArgsConstructor
 @Entity(name = "documents")
 public class DocumentEntity extends BaseEntity {
+    private UUID mainPhotoId;
     private String title;
     private Timestamp date;
     private String comment;

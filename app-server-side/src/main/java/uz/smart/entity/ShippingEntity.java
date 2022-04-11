@@ -42,16 +42,34 @@ public class ShippingEntity extends BaseEntity {
     private ShippingStatus status;
 
     private Timestamp loadDate;
+    private Long loadStationId;
     private String loadStation;
     private Timestamp loadSendDate;
 
     private Timestamp customArrivalDate;
+    private Long customStationId;
     private String customStation;
     private Timestamp customSendDate;
 
     private Timestamp unloadArrivalDate;
+    private Long unloadStationId;
     private String unloadStation;
     private Timestamp unloadDate;
+
+    private Long factoryAddressId;
+//    private Long departureStationId;
+//    private Long arrivalStationId;
+    private Long chaseStatusId;
+    private String cargoName;
+    private String kazahNumber;
+    private String currentLocation;
+    private String trackingComment;
+    private Long durationDays;
+    private Timestamp docPassDate;
+//    private Timestamp shippingDepartureDate;
+//    private Timestamp transitArrivalDate;
+//    private Timestamp transitDepartureDate;
+    private Timestamp containerReturnDate;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "shipping_order", joinColumns = {@JoinColumn(name = "shipping_id")},

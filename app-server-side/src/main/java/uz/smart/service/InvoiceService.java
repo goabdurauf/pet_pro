@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import uz.smart.dto.InvoiceDto;
 import uz.smart.entity.*;
+import uz.smart.entity.enums.BalanceType;
 import uz.smart.exception.ResourceNotFoundException;
 import uz.smart.mapper.MapperUtil;
 import uz.smart.payload.ApiResponse;
@@ -106,9 +107,9 @@ public class InvoiceService {
 
         BalancesEntity bEntity = entity.getType() == 1 || entity.getType() == 2 || entity.getType() == 3
             ? balancesRepository.findById(new BalancesEntityPK(entity.getCarrierId(), entity.getCurrencyId()))
-                    .orElse(new BalancesEntity(entity.getCarrierId(), entity.getCurrencyId(), entity.getCurrencyName()))
+                    .orElse(new BalancesEntity(entity.getCarrierId(), entity.getCurrencyId(), entity.getCurrencyName(), BalanceType.Carrier))
             : balancesRepository.findById(new BalancesEntityPK(entity.getClientId(), entity.getCurrencyId()))
-                    .orElse(new BalancesEntity(entity.getClientId(), entity.getCurrencyId(), entity.getCurrencyName()));
+                    .orElse(new BalancesEntity(entity.getClientId(), entity.getCurrencyId(), entity.getCurrencyName(), BalanceType.Client));
 
         bEntity.setBalance(bEntity.getBalance().add(entity.getPrice()));
         balancesRepository.save(bEntity);

@@ -173,7 +173,7 @@ export default ({
         render: (text, record) => {
           let data = [];
           record.documentList && record.documentList.forEach(doc => {
-            let title = doc.title + ' (' + doc.date.substring(0, doc.date.indexOf(' ')) + ')';
+            let title = doc.title !== null && doc.date !== null ? (doc.title + ' (' + doc.date.substring(0, doc.date.indexOf(' ')) + ')') : '';
             if (doc.attachments !== null && doc.attachments.length > 0) {
               doc.attachments.forEach(att => {
                 data.push(<div key={att.id}><a href={att.url} target="_blank" rel="noreferrer">{title  + (att.docType !== null ? ' - ' + att.docType : '')}</a><br/></div>)
