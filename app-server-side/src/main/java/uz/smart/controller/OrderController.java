@@ -11,7 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import uz.smart.dto.OrderDto;
 import uz.smart.dto.OrderSelectDto;
-import uz.smart.payload.ReqSearch;
+import uz.smart.payload.ReqOrderSearch;
 import uz.smart.payload.ResOrder;
 import uz.smart.payload.ResPageable;
 import uz.smart.service.OrderService;
@@ -43,7 +43,7 @@ public class OrderController {
     public ResOrder getDetail(@PathVariable UUID id) {return service.getOrder(id, true);}
 
     @PostMapping("/list")
-    public HttpEntity<?> getList(@RequestBody ReqSearch req) {
+    public HttpEntity<?> getList(@RequestBody ReqOrderSearch req) {
         return service.getOrderList(req);
     }
 

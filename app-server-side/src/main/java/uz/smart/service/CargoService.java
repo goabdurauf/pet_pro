@@ -363,6 +363,12 @@ public class CargoService {
         resCargo.setOrderNum(resOrder.getNum());
         resCargo.setClientName(resOrder.getClientName());
 
+        if (entity.getStatusId() != null) {
+            ListEntity status = listRepository.getListItemWithId(entity.getStatusId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Cargo", "statusId", entity.getStatusId()));
+            resCargo.setStatusName(status.getNameRu());
+            resCargo.setStatusColor(status.getVal01());
+        }
 //            ShippingEntity shippingEntity = shippingRepository.getByCargoEntitiesIn(List.of(entity)).orElse(null);
         if (entity.getShipping() != null) {
             ResShipping resShipping = shippingService.getResShipping(entity.getShipping(), false);
@@ -412,7 +418,7 @@ public class CargoService {
         List<CargoEntity> list = repository.findAllById(dto.getCargoIdList());
         for (CargoEntity entity : list) {
             entity.setStatusId(listEntity.getId());
-            entity.setStatusName(listEntity.getNameRu());
+//            entity.setStatusName(listEntity.getNameRu());
         }
         repository.saveAll(list);
         return ResponseEntity.ok().body(new ApiResponse("Статусы " + list.size() + " груза изменено успешно", true));

@@ -24,6 +24,7 @@ public class CargoTrackingDto {
     private String unloadStation;
     private Long chaseStatusId;
     private String chaseStatus;
+    private String chaseStatusColor;
     private String cargoName;
     private String kazahNumber;
     private String currentLocation;

@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import uz.smart.dto.InvoiceDto;
 import uz.smart.entity.*;
 import uz.smart.entity.enums.BalanceType;
+import uz.smart.entity.enums.VerificationType;
 import uz.smart.exception.ResourceNotFoundException;
 import uz.smart.mapper.MapperUtil;
 import uz.smart.payload.ApiResponse;
@@ -44,6 +45,8 @@ public class InvoiceService {
     @Autowired
     BalancesRepository balancesRepository;
     @Autowired
+    VerificationActRepository verificationActRepository;
+    @Autowired
     MapperUtil mapperUtil;
 
     public HttpEntity<?> saveInvoice(InvoiceDto dto) {
@@ -52,6 +55,8 @@ public class InvoiceService {
                 : mapperUtil.toInvoiceEntity(dto, repository.findById(dto.getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Invoice", "Id", dto.getId())));
         entity.setBalance(BigDecimal.ZERO.subtract(entity.getPrice()));
+        InvoiceEntity last = repository.getFirstByOrderByUpdatedAtDesc().orElse(null);
+        entity.setNum(last != null && last.getNum() != null ? (last.getNum() + 1) : 1);
         entity = repository.saveAndFlush(entity);
         if (dto.getCurrencyId() != null) {
             ListEntity currency = listRepository.findById(dto.getCurrencyId())
@@ -105,7 +110,8 @@ public class InvoiceService {
             cargoRepository.saveAndFlush(cargo);
         }
 
-        BalancesEntity bEntity = entity.getType() == 1 || entity.getType() == 2 || entity.getType() == 3
+        boolean invoiceIn = List.of(1, 2, 3).contains(entity.getType());
+        BalancesEntity bEntity = invoiceIn
             ? balancesRepository.findById(new BalancesEntityPK(entity.getCarrierId(), entity.getCurrencyId()))
                     .orElse(new BalancesEntity(entity.getCarrierId(), entity.getCurrencyId(), entity.getCurrencyName(), BalanceType.Carrier))
             : balancesRepository.findById(new BalancesEntityPK(entity.getClientId(), entity.getCurrencyId()))
@@ -113,6 +119,15 @@ public class InvoiceService {
 
         bEntity.setBalance(bEntity.getBalance().add(entity.getPrice()));
         balancesRepository.save(bEntity);
+
+        verificationActRepository.saveAndFlush(
+                new VerificationActEntity(
+                        invoiceIn ? VerificationType.InvoiceIn : VerificationType.InvoiceOut,
+                        entity.getId(),
+                        invoiceIn ? entity.getCarrierId() : entity.getClientId(),
+                        entity.getCurrencyId(),
+                        entity.getCreatedAt()
+                ));
 
         return ResponseEntity.ok().body(new ApiResponse("Сохранено успешно", true));
     }
@@ -125,6 +140,10 @@ public class InvoiceService {
                     .orElseThrow(() -> new ResourceNotFoundException("List", "currencyId", dto.getCurrencyId()));
             entity.setCurrencyName(currency.getNameRu());
         }
+        if (entity.getNum() == null) {
+            InvoiceEntity last = repository.getFirstByOrderByUpdatedAtDesc().orElse(null);
+            entity.setNum(last != null && last.getNum() != null ? (last.getNum() + 1) : 1);
+        }
         entity.setCurrencyId(dto.getCurrencyId());
         entity.setPrice(dto.getPrice());
         entity.setRate(dto.getRate());
@@ -132,6 +151,15 @@ public class InvoiceService {
         entity.setFinalPrice(dto.getFinalPrice());
         entity.setComment(dto.getComment());
         repository.save(entity);
+
+        boolean invoiceIn = List.of(1, 2, 3).contains(entity.getType());
+        VerificationActEntity verAct = verificationActRepository.findByDocId(entity.getId()).orElse(new VerificationActEntity());
+        verAct.setType(invoiceIn ? VerificationType.InvoiceIn : VerificationType.InvoiceOut);
+        verAct.setDocId(entity.getId());
+        verAct.setOwnerId(invoiceIn ? entity.getCarrierId() : entity.getClientId());
+        verAct.setCurrencyId(entity.getCurrencyId());
+        verAct.setDate(entity.getCreatedAt());
+        verificationActRepository.saveAndFlush(verAct);
 
         return ResponseEntity.ok().body(new ApiResponse("Изменено успешно", true));
     }

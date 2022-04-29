@@ -3,9 +3,12 @@ import {
   Card, Row, Col, Tabs, Form, Input, Select, Space, Popconfirm, Table, DatePicker, Modal, Tooltip
 } from 'antd';
 import {connect} from "react-redux";
-import {DeleteOutlined, FormOutlined, PlusOutlined} from "@ant-design/icons";
+import {DeleteOutlined, FormOutlined, PlusOutlined, SearchOutlined} from "@ant-design/icons";
 import {Button, Label} from "reactstrap";
 import SearchModal from './modal'
+import 'moment/locale/ru';
+import locale from 'antd/es/date-picker/locale/ru_RU';
+import moment from "moment";
 const { TabPane } = Tabs;
 const FormItem = Form.Item;
 
@@ -13,7 +16,7 @@ const FormItem = Form.Item;
 class Order extends Component {
   render() {
     const {order, dispatch} = this.props;
-    const {model, isModalOpen, itemList, currentItem, modalType, managerList, clientList, orderStatusList,
+    const {model, isModalOpen, itemList, currentItem, searchParams, modalType, managerList, clientList, orderStatusList, pagination,
       modalWidth, createTitle, editTitle, visibleColumns} = order;
 
     const orderItems = [
@@ -25,12 +28,12 @@ class Order extends Component {
         obj: <Select placeholder='клиент'>
           {clientList.map(client => <Select.Option key={client.id} value={client.id}>{client.name}</Select.Option>)}
         </Select>
-      },{
+      }, {
         label: "Дата",
         name: 'date',
         width: 12,
         rules: [{required: true, message: 'Этот поля не должно быть пустое',},],
-        obj: <DatePicker format={'DD.MM.YYYY'}/>
+        obj: <DatePicker format={'DD.MM.YYYY'} locale={locale}/>
       }, {
         label: "Менеджер",
         name: 'managerId',
@@ -51,12 +54,53 @@ class Order extends Component {
     ];
     const searchItems =  [
       {
+        label: "Номер заказа",
+        name: 'num',
+        width: 12,
+        rules: [{required: false, message: ''}],
+        obj: <Input allowClear placeholder='Введите номер заказа' />
+      },
+      {
         label: "Клиент",
         name: 'clientId',
         width: 12,
-        rules: [{required: true, message: 'Выберите клиента',},],
-        obj: <Input  />
+        rules: [{required: false, message: ''}],
+        obj: <Select allowClear placeholder='клиент'>
+          {clientList.map(client => <Select.Option key={client.id} value={client.id}>{client.name}</Select.Option>)}
+        </Select>
       },
+      {
+        label: "Менеджер",
+        name: 'managerId',
+        width: 12,
+        rules: [{required: false, message: ''}],
+        obj: <Select allowClear placeholder='менеджер'>
+          {managerList.map(manager => <Select.Option key={manager.id} value={manager.id}>{manager.fullName}</Select.Option>)}
+        </Select>
+      },
+      {
+        label: "Статус",
+        name: 'statusId',
+        width: 12,
+        rules: [{required: false, message: ''}],
+        obj: <Select allowClear placeholder='статус'>
+          {orderStatusList.map(status => <Select.Option key={status.id} value={status.id}>{status.nameRu}</Select.Option>)}
+        </Select>
+      },
+      {
+        label: "Начальная дата",
+        name: 'start',
+        width: 12,
+        rules: [{required: false, message: ''}],
+        obj: <DatePicker format={'DD.MM.YYYY'} locale={locale}/>
+      },
+      {
+        label: "Конечная дата",
+        name: 'end',
+        width: 12,
+        rules: [{required: false, message: ''}],
+        obj: <DatePicker format={'DD.MM.YYYY'} locale={locale}/>
+      }
     ];
 
     const onChange = (key) => {
@@ -72,7 +116,7 @@ class Order extends Component {
         values = {...values, id: currentItem.id}
 
       let date = values.date;
-      if (date !== undefined)
+      if (date !== undefined && date !== null)
         values.date = date.format('DD.MM.YYYY HH:mm:ss');
 
       dispatch({
@@ -82,6 +126,27 @@ class Order extends Component {
         }
       })
     };
+    const handleSearch = (values) => {
+      dispatch({
+        type: 'order/updateState',
+        payload: {isModalOpen: false}
+      })
+
+      let start = values.start;
+      if (start !== undefined && start !== null)
+        values.start = start.format('DD.MM.YYYY HH:mm:ss');
+
+      let end = values.end;
+      if (end !== undefined && end !== null)
+        values.end = end.format('DD.MM.YYYY HH:mm:ss');
+
+      dispatch({
+        type: 'order/searchOrder',
+        payload: {
+          ...values
+        }
+      })
+    }
     const openModal = () => {
       dispatch({
         type: 'order/updateState',
@@ -93,8 +158,13 @@ class Order extends Component {
         }
       })
     };
-    /*
     const openSearchModal = () => {
+      if (searchParams !== null) {
+        if (searchParams.start !== null && searchParams.start !== undefined)
+          searchParams.start = moment(searchParams.start, 'DD.MM.YYYY HH:mm:ss');
+        if (searchParams.end !== null && searchParams.end !== undefined)
+          searchParams.end = moment(searchParams.end, 'DD.MM.YYYY HH:mm:ss');
+      }
       dispatch({
         type: 'order/updateState',
         payload: {
@@ -103,7 +173,6 @@ class Order extends Component {
         }
       })
     };
-    */
     const columns = [
       ...visibleColumns,
       {
@@ -128,7 +197,7 @@ class Order extends Component {
     ];
     const modalProps = {
       visible: isModalOpen,
-      title: modalType === 'create' ? createTitle : editTitle,
+      title: modalType === 'search' ? 'Поиск' : modalType === 'create' ? createTitle : editTitle,
       width: modalWidth,
       onCancel() {
         dispatch({
@@ -151,16 +220,25 @@ class Order extends Component {
         payload: {id}
       })
     }
+    const handleTableChange = (pagination, filters, sorter) => {
+      dispatch({
+        type: 'order/searchOrder',
+        payload: {
+          ...searchParams,
+          page: pagination.current - 1
+        }
+      })
+    }
     const TabBody = () => {
       return <div>
         <Row>
           <Col span={4} offset={20}>
-            {/*<Button className="float-left" outline color="primary" size="sm" onClick={openSearchModal}><SearchOutlined/></Button>*/}
             <Button className="float-right" outline color="primary" size="sm" onClick={openModal}><PlusOutlined/> Добавить</Button>
+            <Button className="float-right mr-4" outline color="primary" size="sm" onClick={openSearchModal}><SearchOutlined/></Button>
           </Col>
         </Row>
         <Table columns={columns} dataSource={itemList} bordered size="middle" rowKey={record => record.id}
-               pagination={{position: ["bottomCenter"]}}/>
+               pagination={pagination} onChange={handleTableChange} scroll={{ y: 600 }}/>
       </div>;
     }
 
@@ -198,7 +276,7 @@ class Order extends Component {
         {isModalOpen && modalType !== 'search' &&
           <Form.Provider onFormFinish={handleSubmit}><ModalForm/></Form.Provider>}
         {isModalOpen && modalType === 'search' &&
-          <SearchModal {...modalProps} formItems={searchItems} />
+          <SearchModal {...modalProps} formItems={searchItems} searchParams={searchParams} handleSubmit={handleSearch}/>
         }
       </div>
     );

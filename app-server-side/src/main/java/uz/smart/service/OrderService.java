@@ -7,7 +7,6 @@ package uz.smart.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import uz.smart.dto.OrderDto;
@@ -16,12 +15,16 @@ import uz.smart.entity.*;
 import uz.smart.exception.ResourceNotFoundException;
 import uz.smart.mapper.MapperUtil;
 import uz.smart.payload.ApiResponse;
-import uz.smart.payload.ReqSearch;
+import uz.smart.payload.ReqOrderSearch;
 import uz.smart.payload.ResOrder;
 import uz.smart.payload.ResPageable;
 import uz.smart.repository.*;
+import uz.smart.utils.AppConstants;
 import uz.smart.utils.CommonUtils;
 
+import java.sql.Timestamp;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Service
@@ -46,6 +49,8 @@ public class OrderService {
     @Autowired
     CargoService cargoService;
 
+    private final SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy");
+
     public HttpEntity<?> saveAndUpdate(OrderDto dto){
         OrderEntity entity = dto.getId() == null
                 ? mapper.toOrderEntity(dto)
@@ -60,9 +65,9 @@ public class OrderService {
                 entity.setNum(CommonUtils.generateNextNum("Z", opt.get().getNum()));
         }
 
-        ListEntity status = listRepository.findById(dto.getStatusId())
-                .orElseThrow(() -> new ResourceNotFoundException("List", "currencyId", dto.getStatusId()));
-        entity.setStatusName(status.getNameRu());
+//        ListEntity status = listRepository.findById(dto.getStatusId())
+//                .orElseThrow(() -> new ResourceNotFoundException("List", "currencyId", dto.getStatusId()));
+//        entity.setStatusName(status.getNameRu());
 
         entity = repository.save(entity);
         return ResponseEntity.ok().body(new ApiResponse(entity.getId().toString(), true));
@@ -87,9 +92,20 @@ public class OrderService {
                 .orElseThrow(() -> new ResourceNotFoundException("Order", "id", id)), hasDetail);
     }
 
-    public HttpEntity<?> getOrderList(ReqSearch req) {
-        Page<OrderEntity> page = repository.getAllOrders(CommonUtils.getPageable(req.getPage(), req.getSize()));
-        return ResponseEntity.status(HttpStatus.OK).body(new ResPageable(getResOrderList(page.getContent(), true), page.getTotalElements(), req.getPage()));
+    public HttpEntity<?> getOrderList(ReqOrderSearch req) {
+        Page<OrderEntity> page = null;
+        try {
+            page = repository.getOrdersByFilter(
+                    req.getNum(),
+                    new Timestamp(format.parse(req.getStart() != null ? req.getStart() : AppConstants.BEGIN_DATE).getTime()),
+                    new Timestamp(format.parse(req.getEnd() != null ? req.getEnd() : AppConstants.END_DATE).getTime()),
+                    req.getClientId(), req.getManagerId(), req.getStatusId(),
+                    CommonUtils.getPageable(req.getPage(), req.getSize()));
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return ResponseEntity.ok(new ResPageable(new ArrayList<>(), 0, req.getPage()));
+        }
+        return ResponseEntity.ok(new ResPageable(getResOrderList(page.getContent(), true), page.getTotalElements(), req.getPage()));
     }
 
     public List<OrderSelectDto> getOrdersForSelect(ShippingEntity shipping) {
@@ -142,6 +158,12 @@ public class OrderService {
             ClientEntity client = clientRepository.findById(entity.getClientId())
                     .orElseThrow(() -> new ResourceNotFoundException("Client", "clientId", entity.getClientId()));
             resOrder.setClientName(client.getName());
+
+            ListEntity status = listRepository.findById(entity.getStatusId())
+                    .orElseThrow(() -> new ResourceNotFoundException("List", "statusId", entity.getStatusId()));
+            resOrder.setStatusName(status.getNameRu());
+            resOrder.setStatusColor(status.getVal01());
+
             List<ShippingEntity> shippingList = shippingRepository.getAllByOrderEntitiesInAndStateGreaterThan(List.of(entity), 0);
             resOrder.setShippingList(shippingService.getShippingList(shippingList, false));
         }

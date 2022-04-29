@@ -4,11 +4,12 @@ package uz.smart.service;
     Created by Ilhom Ahmadjonov on 20.10.2021. 
 */
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import uz.smart.dto.ClientDto;
+import uz.smart.dto.ClientReportDto;
 import uz.smart.entity.ClientEntity;
 import uz.smart.entity.ListEntity;
 import uz.smart.exception.ResourceNotFoundException;
@@ -16,17 +17,25 @@ import uz.smart.mapper.MapperUtil;
 import uz.smart.payload.ApiResponse;
 import uz.smart.repository.ClientRepository;
 import uz.smart.repository.ListRepository;
+import uz.smart.repository.OrderRepository;
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class ClientService {
 
     private final ClientRepository repository;
     private final ListRepository listRepository;
+    private final OrderRepository orderRepository;
+
     private final MapperUtil mapperUtil;
+
+    private Long days = 120L;
 
     public HttpEntity<?> saveAndUpdateClient(ClientDto dto) {
         ClientEntity entity = dto.getId() == null
@@ -57,6 +66,25 @@ public class ClientService {
     }
 
     public List<ClientDto> getClientList() {
-        return mapperUtil.toClientDto(repository.getAllClients());
+        List<ClientDto> resList = new ArrayList<>();
+        List<ClientEntity> clients = repository.getAllClients();
+        for (ClientEntity entity : clients) {
+            ClientDto dto = mapperUtil.toClientDto(entity);
+            orderRepository.getFirstByClientIdOrderByCreatedAtDesc(entity.getId())
+                    .ifPresent(order -> dto.setLastOrder(TimeUnit.DAYS.convert(Math.abs(new Date().getTime() - order.getCreatedAt().getTime()), TimeUnit.MILLISECONDS)));
+            resList.add(dto);
+        }
+
+        return resList;
+    }
+
+    public ClientReportDto getClientReport(Long day) {
+        if (day != -1)
+            days = day;
+        return new ClientReportDto(
+                repository.countAllByState(1),
+                orderRepository.getActiveClientsCount(days),
+                days
+        );
     }
 }

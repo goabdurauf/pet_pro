@@ -1,6 +1,6 @@
 import {saveOrder, getOrderList, getOrderById, deleteOrderById, getClientList, getManagers, getListItems,
         getCarrierList} from '@/services/service'
-import {notification} from 'antd'
+import {notification, Tag} from 'antd'
 import moment from "moment";
 import {Link} from "umi";
 import {routerRedux} from "dva/router";
@@ -12,11 +12,17 @@ export default ({
     isModalOpen: false,
     itemList: [],
     currentItem: null,
+    searchParams: {page:0, size:50},
     modalType: 'create',
     createTitle: '',
     editTitle: '',
     modalWidth: 500,
     isBtnDisabled: false,
+    pagination: {
+      current: 1,
+      pageSize: 50,
+      position: ["bottomCenter"]
+    },
     managerList: [],
     clientList: [],
     carrierList: [],
@@ -64,10 +70,8 @@ export default ({
       }
     },
     * queryOrder({payload}, {call, put, select}) {
-      if (payload === undefined){
-        payload = {page:0, size:50}
-      }
-      let data = yield call(getOrderList, payload);
+      const {searchParams, pagination} = yield select(_ => _.order);
+      let data = yield call(getOrderList, searchParams);
 
       if (data.success) {
         yield put({
@@ -75,6 +79,7 @@ export default ({
           payload: {
             model: 'Order',
             itemList: data.object,
+            pagination: {...pagination, total: data.totalElements},
             currentItem: {num: '', date: '', clientId: '', managerId: '', statusId: '', final: 0},
             isModalOpen: false,
             isBtnDisabled: false,
@@ -106,6 +111,7 @@ export default ({
                 title: 'Статус заказа',
                 dataIndex: 'statusName',
                 key: 'statusName',
+                render: (text, record) => (record.statusColor !== null ? <Tag color={record.statusColor} key={record.statusColor} style={{fontSize: '14px'}}>{text}</Tag> : '')
               },
               {
                 title: 'Клиент',
@@ -160,6 +166,21 @@ export default ({
                 key: 'managerName',
               }
             ]
+          }
+        })
+      }
+    },
+    * searchOrder({payload}, {call, put, select}) {
+      const {pagination} = yield select(_ => _.order);
+      let data = yield call(getOrderList, payload);
+
+      if (data.success) {
+        yield put({
+          type: 'updateState',
+          payload: {
+            itemList: data.object,
+            searchParams: {...payload},
+            pagination: {...pagination, current: payload.page + 1}
           }
         })
       }

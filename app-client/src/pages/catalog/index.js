@@ -115,9 +115,16 @@ class Catalog extends Component {
           {
             label: 'Название',
             name: 'nameRu',
-            width: 24,
+            width: 18,
             rules: [{required: true, message: 'Этот поля не должно быть пустое',},],
             obj: <Input placeholder='Название'/>
+          },
+          {
+            label: 'Цвет',
+            name: 'val01',
+            width: 6,
+            rules: [{required: false}],
+            obj: <Input type={'color'} placeholder='Название'/>
           }
         ];
         case 'PackageType': return [
@@ -133,9 +140,16 @@ class Catalog extends Component {
           {
             label: 'Название',
             name: 'nameRu',
-            width: 24,
+            width: 18,
             rules: [{required: true, message: 'Этот поля не должно быть пустое',},],
             obj: <Input placeholder='Название'/>
+          },
+          {
+            label: 'Цвет',
+            name: 'val01',
+            width: 6,
+            rules: [{required: false}],
+            obj: <Input type={'color'} placeholder='Название'/>
           }
         ];
         case 'TransportKind': return [
@@ -238,9 +252,16 @@ class Catalog extends Component {
           {
             label: 'Название',
             name: 'nameRu',
-            width: 24,
+            width: 18,
             rules: [{required: true, message: 'Этот поля не должно быть пустое',},],
             obj: <Input placeholder='Название'/>
+          },
+          {
+            label: 'Цвет',
+            name: 'val01',
+            width: 6,
+            rules: [{required: false}],
+            obj: <Input type={'color'} placeholder='Название'/>
           }
         ];
         case 'Country': return [
@@ -418,28 +439,39 @@ class Catalog extends Component {
     return (
       <div className="catalog-page">
         <Card style={{width: '100%'}} bordered={false}>
-          <Tabs tabPosition={"left"} onChange={onChange}>
-            <TabPane tab="Пользователи" key="User"><TabBody /></TabPane>
-            <TabPane tab="Ед. измерение" key="Measure"><TabBody /></TabPane>
-            <TabPane tab="Продукты" key="Product"><TabBody /></TabPane>
-            <TabPane tab="Откуда узнал о нас" key="About"><TabBody /></TabPane>
-            <TabPane tab="Валюта" key="Currency"><TabBody /></TabPane>
-            <TabPane tab="Тип транспорта" key="ShippingType"><TabBody /></TabPane>
-            <TabPane tab="Статус заказа" key="OrderStatus"><TabBody /></TabPane>
-            <TabPane tab="Тип упаковки" key="PackageType"><TabBody /></TabPane>
-            <TabPane tab="Статус груза" key="CargoStatus"><TabBody /></TabPane>
-            <TabPane tab="Тип оформление груза" key="CargoRegType"><TabBody /></TabPane>
-            <TabPane tab="Вид транспорта" key="TransportKind"><TabBody /></TabPane>
-            <TabPane tab="Условие транспорта" key="TransportCondition"><TabBody /></TabPane>
-            <TabPane tab="Касса" key="Kassa"><TabBody /></TabPane>
-            <TabPane tab="Прочие контрагенты" key="OtherAgents"><TabBody /></TabPane>
-            <TabPane tab="Прочие расходы" key="OtherExpenses"><TabBody /></TabPane>
-            <TabPane tab="Название расхода" key="ExpenseName"><TabBody /></TabPane>
-            <TabPane tab="Адрес завода" key="FactoryAddress"><TabBody /></TabPane>
-            <TabPane tab="Название станции" key="StationName"><TabBody /></TabPane>
-            <TabPane tab="Статус слежки" key="ChaseStatus"><TabBody /></TabPane>
-            <TabPane tab="Страны" key="Country"><TabBody /></TabPane>
-            <TabPane tab="Города" key="City"><TabBody /></TabPane>
+          <Tabs >
+            <TabPane tab="Организация" key="Organization">
+              <Tabs tabPosition={"left"} onChange={onChange}>
+                <TabPane tab="Пользователи" key="User"><TabBody /></TabPane>
+                <TabPane tab="Валюта" key="Currency"><TabBody /></TabPane>
+                <TabPane tab="Касса" key="Kassa"><TabBody /></TabPane>
+
+              </Tabs>
+            </TabPane>
+            <TabPane tab="Справочники" key="Catalog">
+              <Tabs tabPosition={"left"} onChange={onChange}>
+                <TabPane tab="Ед. измерение" key="Measure"><TabBody /></TabPane>
+                <TabPane tab="Продукты" key="Product"><TabBody /></TabPane>
+                <TabPane tab="Откуда узнал о нас" key="About"><TabBody /></TabPane>
+                <TabPane tab="Тип транспорта" key="ShippingType"><TabBody /></TabPane>
+                <TabPane tab="Статус заказа" key="OrderStatus"><TabBody /></TabPane>
+                <TabPane tab="Тип упаковки" key="PackageType"><TabBody /></TabPane>
+                <TabPane tab="Статус груза" key="CargoStatus"><TabBody /></TabPane>
+                <TabPane tab="Тип оформление груза" key="CargoRegType"><TabBody /></TabPane>
+                <TabPane tab="Вид транспорта" key="TransportKind"><TabBody /></TabPane>
+                <TabPane tab="Условие транспорта" key="TransportCondition"><TabBody /></TabPane>
+                <TabPane tab="Прочие контрагенты" key="OtherAgents"><TabBody /></TabPane>
+                <TabPane tab="Прочие расходы" key="OtherExpenses"><TabBody /></TabPane>
+                <TabPane tab="Название расхода" key="ExpenseName"><TabBody /></TabPane>
+                <TabPane tab="Адрес завода" key="FactoryAddress"><TabBody /></TabPane>
+                <TabPane tab="Название станции" key="StationName"><TabBody /></TabPane>
+                <TabPane tab="Статус слежки" key="ChaseStatus"><TabBody /></TabPane>
+                <TabPane tab="Страны" key="Country"><TabBody /></TabPane>
+                <TabPane tab="Города" key="City"><TabBody /></TabPane>
+
+
+              </Tabs>
+            </TabPane>
 
 
           </Tabs>

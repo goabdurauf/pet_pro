@@ -28,7 +28,7 @@ public class ListEntity {
     private BigDecimal num01;
     private BigDecimal num02;
 
-    private String val01;
+    private String val01;   // shipping type size, status color
 
     private Timestamp date01;
 

@@ -26,4 +26,6 @@ public interface ClientRepository extends JpaRepository<ClientEntity, UUID> {
 
     @Query("select c from clients c where c.state > 0 order by c.createdAt")
     List<ClientEntity> getAllClients();
+
+    long countAllByState(int state);
 }

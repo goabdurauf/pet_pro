@@ -3,6 +3,7 @@ import {getInvoiceList, getListItems, updateInvoice, getInvoiceById, deleteInvoi
   saveTransactionOut, updateTransactionOut, getTransactionNextNum
 } from '@/services/service'
 import {notification} from 'antd'
+import {BsCircle, BsCircleHalf, BsCircleFill} from 'react-icons/bs'
 import moment from "moment";
 
 export default ({
@@ -124,6 +125,16 @@ export default ({
                 render: (value, item, index) => item.price + ' ' + item.currencyName
               },
               {
+                title: 'Курс',
+                dataIndex: 'rate',
+                key: 'rate'
+              },
+              {
+                title: 'Конечное цена',
+                dataIndex: 'finalPrice',
+                key: 'finalPrice'
+              },
+              {
                 title: 'Рейс',
                 dataIndex: 'shipNum',
                 key: 'shipNum',
@@ -132,6 +143,16 @@ export default ({
                 title: 'Номер транспорта',
                 dataIndex: 'transportNum',
                 key: 'transportNum',
+              },
+              {
+                title: 'Платёж',
+                dataIndex: 'paint',
+                key: 'paint',
+                align: 'center',
+                render: (text, record, index) => record.balance === 0
+                  ? <BsCircleFill style={{color: 'limegreen', fontSize: '20px'}} />
+                  : record.price === Math.abs(record.balance) ? <BsCircle style={{color: 'limegreen', fontSize: '20px'}} />
+                    : <BsCircleHalf style={{color: 'limegreen', fontSize: '20px'}} />
               },
               {
                 title: 'Баланс платёжа',
@@ -262,6 +283,16 @@ export default ({
                 render: (value, item, index) => item.price + ' ' + item.currencyName
               },
               {
+                title: 'Курс',
+                dataIndex: 'rate',
+                key: 'rate'
+              },
+              {
+                title: 'Конечное цена',
+                dataIndex: 'finalPrice',
+                key: 'finalPrice'
+              },
+              {
                 title: 'Рейс',
                 dataIndex: 'shipNum',
                 key: 'shipNum',
@@ -270,6 +301,16 @@ export default ({
                 title: 'Номер транспорта',
                 dataIndex: 'transportNum',
                 key: 'transportNum',
+              },
+              {
+                title: 'Платёж',
+                dataIndex: 'paint',
+                key: 'paint',
+                align: 'center',
+                render: (text, record, index) => record.balance === 0
+                  ? <BsCircleFill style={{color: 'limegreen', fontSize: '20px'}} />
+                  : record.price === Math.abs(record.balance) ? <BsCircle style={{color: 'limegreen', fontSize: '20px'}} />
+                    : <BsCircleHalf style={{color: 'limegreen', fontSize: '20px'}} />
               },
               {
                 title: 'Баланс платёжа',
@@ -357,6 +398,7 @@ export default ({
     },
     * queryKassa({payload}, {call, put, select}) {
       let data = yield call(getTransactionList);
+      let kassa = yield call(getKassaList);
 
       if (data.success) {
         yield put({
@@ -364,6 +406,7 @@ export default ({
           payload: {
             model: 'Kassa',
             itemList: data.list,
+            kassaList: kassa.list,
             currentItem: null,
             isModalOpen: false,
             isBtnDisabled: false,
@@ -386,15 +429,27 @@ export default ({
                 render: (text, record) => text && text.substring(0, text.indexOf(' '))
               },
               {
-                title: 'Сумма',
+                title: 'Сумма договора',
                 dataIndex: 'finalPrice',
                 key: 'finalPrice',
                 render: (text, record) => text + ' ' + record.currencyName
               },
               {
+                title: 'Курс',
+                dataIndex: 'rate',
+                key: 'rate',
+                render: (text, record) => text.toFixed(4)
+              },
+              {
                 title: 'Откуда / куда',
                 dataIndex: 'sourceName',
                 key: 'sourceName',
+              },
+              {
+                title: 'Сумма получение',
+                dataIndex: 'price',
+                key: 'price',
+                render: (text, record) => text + ' ' + record.currencyInName
               },
               {
                 title: 'Касса',

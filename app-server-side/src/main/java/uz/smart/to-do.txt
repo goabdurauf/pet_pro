@@ -9,6 +9,12 @@ done - comment in cargo and shipping
 done - select cargo not connected to shipping in generate shipping
 done - show invoice in and invoice outs in cargo and shipping main tables
 
+Roles : 1. Super Admin
+        2. Admin
+        3. Finansist
+        4. Manager
+        5. Reader
+
 
 
 - search and pagination in order, cargo and shipping pages

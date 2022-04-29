@@ -18,7 +18,7 @@ import {
   deleteKassaById,
   uploadFile, deleteFile, deleteAttachmentFromProductById
 } from '@/services/service'
-import {Image, notification} from 'antd'
+import {Image, notification, Tag} from 'antd'
 import moment from "moment";
 import React from "react";
 
@@ -789,6 +789,11 @@ export default ({
                 title: 'Название',
                 dataIndex: 'nameRu',
                 key: 'nameRu',
+                render: (text, record) => (
+                  <Tag color={record.val01 !== null ? record.val01 : ''} key={record.val01} style={{fontSize: '14px'}}>
+                    {text}
+                  </Tag>
+                )
               }
             ]
           }
@@ -989,6 +994,11 @@ export default ({
                 title: 'Название',
                 dataIndex: 'nameRu',
                 key: 'nameRu',
+                render: (text, record) => (
+                  <Tag color={record.val01 !== null ? record.val01 : ''} key={record.val01} style={{fontSize: '14px'}}>
+                    {text}
+                  </Tag>
+                )
               }
             ]
           }
@@ -2014,6 +2024,11 @@ export default ({
                 title: 'Название',
                 dataIndex: 'nameRu',
                 key: 'nameRu',
+                render: (text, record) => (
+                  <Tag color={record.val01 !== null ? record.val01 : ''} key={record.val01} style={{fontSize: '14px'}}>
+                    {text}
+                  </Tag>
+                )
               }
             ]
           }

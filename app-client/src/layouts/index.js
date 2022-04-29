@@ -174,7 +174,7 @@ class Index extends Component {
                 <Link to="/catalog">
                   <li className={"nav-item " + (pathname === '/catalog' ? "current" : "")}>
                     <span><img alt='' src="/icons/settings.svg"/></span>
-                    <p className="text-center">Справочники</p>
+                    <p className="text-center">Настройки</p>
                   </li>
                 </Link>
               </ul>

@@ -2,8 +2,9 @@ import {
   saveCargoTracking, getCargoTrackingList, getCargoTrackingById, getListItems
 } from '@/services/service'
 import {routerRedux} from "dva/router";
-import {notification} from "antd";
+import {notification, Tag} from "antd";
 import moment from "moment";
+import React from "react";
 
 export default ({
   namespace: 'orderTracking',
@@ -39,7 +40,8 @@ export default ({
       {
         title: 'Дней',
         dataIndex: 'durationDays',
-        key: 'durationDays'
+        key: 'durationDays',
+        render: (text, record) => <div className={record.unloadDate !== null ? 'cargo_arrived' : 'cargo_not_arrived'}>{text}</div>
       },
       {
         title: 'Номер рейса',
@@ -129,7 +131,8 @@ export default ({
       {
         title: 'Статус слежки',
         dataIndex: 'chaseStatus',
-        key: 'chaseStatus'
+        key: 'chaseStatus',
+        render: (text, record) => (record.chaseStatusColor !== null ? <Tag color={record.chaseStatusColor} key={record.chaseStatusColor} style={{fontSize: '14px'}}>{text}</Tag> : '')
       },
       {
         title: 'Дата вазврат контейнера',

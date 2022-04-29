@@ -8,10 +8,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import uz.smart.dto.TransactionsDto;
 import uz.smart.dto.TransactionsInvoicesDto;
 import uz.smart.entity.*;
 import uz.smart.entity.enums.BalanceType;
+import uz.smart.entity.enums.VerificationType;
 import uz.smart.exception.ResourceNotFoundException;
 import uz.smart.mapper.MapperUtil;
 import uz.smart.payload.ApiResponse;
@@ -43,12 +45,23 @@ public class TransactionService {
     InvoiceRepository invoiceRepository;
     @Autowired
     BalancesRepository balancesRepository;
+    @Autowired
+    VerificationActRepository verificationActRepository;
 
     @Autowired
     MapperUtil mapperUtil;
 
     public HttpEntity<?> saveInTransaction(TransactionsDto dto) {
         TransactionsEntity entity = mapperUtil.toTransactionsEntity(dto, new TransactionsEntity());
+        VerificationActEntity verAct = new VerificationActEntity();
+        verAct.setType(
+                switch (dto.getKassaType()) {
+                    case 101 -> VerificationType.ClientIn;
+                    case 102 -> VerificationType.AgentIn;
+                    case 103 -> VerificationType.CarrierIn;
+                    default -> null;
+                }
+        );
 
         KassaEntity kassa = kassaRepository.findById(dto.getKassaId())
                 .orElseThrow(() -> new ResourceNotFoundException("Transaction", "kassaId", dto.getKassaId()));
@@ -57,11 +70,13 @@ public class TransactionService {
         ListEntity currency = listRepository.findById(dto.getCurrencyId())
                 .orElseThrow(() -> new ResourceNotFoundException("List", "currencyId", dto.getCurrencyId()));
         entity.setCurrencyName(currency.getNameRu());
+        verAct.setCurrencyId(currency.getId());
 
         if (dto.getClientId() != null) {
             ClientEntity client = clientRepository.getClientById(dto.getClientId())
                     .orElseThrow(() -> new ResourceNotFoundException("Transaction", "clientId", dto.getClientId()));
             entity.setClient(client);
+            verAct.setOwnerId(client.getId());
 
             BalancesEntity bEntity = balancesRepository.findById(new BalancesEntityPK(client.getId(), entity.getCurrencyId()))
                     .orElse(new BalancesEntity(client.getId(), entity.getCurrencyId(), entity.getCurrencyName(), BalanceType.Client));
@@ -73,11 +88,23 @@ public class TransactionService {
             CarrierEntity carrier = carrierRepository.getCarrierById(dto.getCarrierId())
                     .orElseThrow(() -> new ResourceNotFoundException("Transaction", "carrierId", dto.getCarrierId()));
             entity.setCarrier(carrier);
+            verAct.setOwnerId(carrier.getId());
 
             BalancesEntity bEntity = balancesRepository.findById(new BalancesEntityPK(carrier.getId(), entity.getCurrencyId()))
                     .orElse(new BalancesEntity(carrier.getId(), entity.getCurrencyId(), entity.getCurrencyName(), BalanceType.Carrier));
             bEntity.setBalance(bEntity.getBalance().add(entity.getFinalPrice()));
             balancesRepository.save(bEntity);
+        }
+
+        if (verAct.getType() == VerificationType.AgentIn) {
+            ListEntity agent = listRepository.findById(dto.getAgentId())
+                    .orElseThrow(() -> new ResourceNotFoundException("List", "agentId", dto.getAgentId()));
+            if (!StringUtils.hasText(agent.getVal01())) {
+                agent.setVal01(UUID.randomUUID().toString());
+                listRepository.saveAndFlush(agent);
+            }
+
+            verAct.setOwnerId(UUID.fromString(agent.getVal01()));
         }
 
         entity = repository.saveAndFlush(entity);
@@ -97,12 +124,26 @@ public class TransactionService {
         kassa.setBalance(kassa.getBalance().add(entity.getPrice()));
         kassaRepository.saveAndFlush(kassa);
 
+        verAct.setDocId(entity.getId());
+        verAct.setDate(entity.getDate());
+        verificationActRepository.saveAndFlush(verAct);
+
         return ResponseEntity.ok().body(new ApiResponse("Сохранено успешно", true));
     }
 
     public HttpEntity<?> updateInTransaction(TransactionsDto dto) {
         TransactionsEntity entity = repository.findById(dto.getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Transaction", "Id", dto.getId()));
+        VerificationActEntity verAct = verificationActRepository.findByDocId(entity.getId()).orElse(new VerificationActEntity());
+        verAct.setDocId(entity.getId());
+        verAct.setType(
+                switch (dto.getKassaType()) {
+                    case 101 -> VerificationType.ClientIn;
+                    case 102 -> VerificationType.AgentIn;
+                    case 103 -> VerificationType.CarrierIn;
+                    default -> null;
+                }
+        );
 
         KassaEntity kassa = kassaRepository.findById(dto.getKassaId())
                 .orElseThrow(() -> new ResourceNotFoundException("Transaction", "kassaId", dto.getKassaId()));
@@ -136,11 +177,13 @@ public class TransactionService {
         ListEntity currency = listRepository.findById(dto.getCurrencyId())
                 .orElseThrow(() -> new ResourceNotFoundException("List", "currencyId", dto.getCurrencyId()));
         entity.setCurrencyName(currency.getNameRu());
+        verAct.setCurrencyId(currency.getId());
 
         if (dto.getClientId() != null) {
             ClientEntity client = clientRepository.getClientById(dto.getClientId())
                     .orElseThrow(() -> new ResourceNotFoundException("Transaction", "clientId", dto.getClientId()));
             entity.setClient(client);
+            verAct.setOwnerId(client.getId());
 
             BalancesEntity bEntity = balancesRepository.findById(new BalancesEntityPK(client.getId(), entity.getCurrencyId()))
                     .orElse(new BalancesEntity(client.getId(), entity.getCurrencyId(), entity.getCurrencyName(), BalanceType.Client));
@@ -153,6 +196,7 @@ public class TransactionService {
             CarrierEntity carrier = carrierRepository.getCarrierById(dto.getCarrierId())
                     .orElseThrow(() -> new ResourceNotFoundException("Transaction", "carrierId", dto.getCarrierId()));
             entity.setCarrier(carrier);
+            verAct.setOwnerId(carrier.getId());
 
             BalancesEntity bEntity = balancesRepository.findById(new BalancesEntityPK(carrier.getId(), entity.getCurrencyId()))
                     .orElse(new BalancesEntity(carrier.getId(), entity.getCurrencyId(), entity.getCurrencyName(), BalanceType.Carrier));
@@ -161,7 +205,21 @@ public class TransactionService {
         } else
             entity.setCarrier(null);
 
+        if (verAct.getType() == VerificationType.AgentIn) {
+            ListEntity agent = listRepository.findById(dto.getAgentId())
+                    .orElseThrow(() -> new ResourceNotFoundException("List", "agentId", dto.getAgentId()));
+            if (!StringUtils.hasText(agent.getVal01())) {
+                agent.setVal01(UUID.randomUUID().toString());
+                listRepository.saveAndFlush(agent);
+            }
+
+            verAct.setOwnerId(UUID.fromString(agent.getVal01()));
+        }
+
         entity = repository.saveAndFlush(entity);
+
+        verAct.setDate(entity.getDate());
+        verificationActRepository.saveAndFlush(verAct);
 
         List<TransactionsInvoicesEntity> allTrInvs = trInvRepository.findAllByTransactionId(entity.getId());
         if (allTrInvs != null && !allTrInvs.isEmpty()) {
@@ -194,21 +252,32 @@ public class TransactionService {
 
     public HttpEntity<?> saveOutTransaction(TransactionsDto dto) {
         TransactionsEntity entity = mapperUtil.toTransactionsEntity(dto, new TransactionsEntity());
+        VerificationActEntity verAct = new VerificationActEntity();
+        verAct.setType(
+                switch (dto.getKassaType()) {
+                    case 201 -> VerificationType.CarrierOut;
+                    case 202 -> VerificationType.ClientOut;
+                    case 203 -> VerificationType.OthersOut;
+                    default -> null;
+                }
+        );
+
         KassaEntity kassa = kassaRepository.findById(dto.getKassaId())
                 .orElseThrow(() -> new ResourceNotFoundException("Transaction", "kassaId", dto.getKassaId()));
         if (kassa.getBalance().compareTo(dto.getFinalPrice()) < 0)
             return ResponseEntity.ok().body(new ApiResponse("Денги не хватает в кассе " + kassa.getName(), false));
 
         entity.setKassa(kassa);
-        if (dto.getCurrencyId() != null) {
-            ListEntity currency = listRepository.findById(dto.getCurrencyId())
-                    .orElseThrow(() -> new ResourceNotFoundException("List", "currencyId", dto.getCurrencyId()));
-            entity.setCurrencyName(currency.getNameRu());
-        }
+        ListEntity currency = listRepository.findById(dto.getCurrencyId())
+                .orElseThrow(() -> new ResourceNotFoundException("List", "currencyId", dto.getCurrencyId()));
+        entity.setCurrencyName(currency.getNameRu());
+        verAct.setCurrencyId(currency.getId());
+
         if (dto.getClientId() != null) {
             ClientEntity client = clientRepository.getClientById(dto.getClientId())
                     .orElseThrow(() -> new ResourceNotFoundException("Transaction", "clientId", dto.getClientId()));
             entity.setClient(client);
+            verAct.setOwnerId(client.getId());
 
             BalancesEntity bEntity = balancesRepository.findById(new BalancesEntityPK(client.getId(), entity.getCurrencyId()))
                     .orElse(new BalancesEntity(client.getId(), entity.getCurrencyId(), entity.getCurrencyName(), BalanceType.Client));
@@ -219,11 +288,23 @@ public class TransactionService {
             CarrierEntity carrier = carrierRepository.getCarrierById(dto.getCarrierId())
                     .orElseThrow(() -> new ResourceNotFoundException("Transaction", "carrierId", dto.getCarrierId()));
             entity.setCarrier(carrier);
+            verAct.setOwnerId(carrier.getId());
 
             BalancesEntity bEntity = balancesRepository.findById(new BalancesEntityPK(carrier.getId(), entity.getCurrencyId()))
                     .orElse(new BalancesEntity(carrier.getId(), entity.getCurrencyId(), entity.getCurrencyName(), BalanceType.Carrier));
             bEntity.setBalance(bEntity.getBalance().subtract(entity.getFinalPrice()));
             balancesRepository.save(bEntity);
+        }
+
+        if (verAct.getType() == VerificationType.OthersOut) {
+            ListEntity agent = listRepository.findById(dto.getAgentId())
+                    .orElseThrow(() -> new ResourceNotFoundException("List", "agentId", dto.getAgentId()));
+            if (!StringUtils.hasText(agent.getVal01())) {
+                agent.setVal01(UUID.randomUUID().toString());
+                listRepository.saveAndFlush(agent);
+            }
+
+            verAct.setOwnerId(UUID.fromString(agent.getVal01()));
         }
 
         entity = repository.saveAndFlush(entity);
@@ -242,12 +323,27 @@ public class TransactionService {
         kassa.setBalance(kassa.getBalance().subtract(entity.getFinalPrice()));
         kassaRepository.saveAndFlush(kassa);
 
+        verAct.setDocId(entity.getId());
+        verAct.setDate(entity.getDate());
+        verificationActRepository.saveAndFlush(verAct);
+
         return ResponseEntity.ok().body(new ApiResponse("Сохранено успешно", true));
     }
 
     public HttpEntity<?> updateOutTransaction(TransactionsDto dto) {
         TransactionsEntity entity = repository.findById(dto.getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Transaction", "Id", dto.getId()));
+        VerificationActEntity verAct = verificationActRepository.findByDocId(entity.getId()).orElse(new VerificationActEntity());
+        verAct.setDocId(entity.getId());
+        verAct.setType(
+                switch (dto.getKassaType()) {
+                    case 201 -> VerificationType.CarrierOut;
+                    case 202 -> VerificationType.ClientOut;
+                    case 203 -> VerificationType.OthersOut;
+                    default -> null;
+                }
+        );
+
         KassaEntity kassa = kassaRepository.findById(dto.getKassaId())
                 .orElseThrow(() -> new ResourceNotFoundException("Transaction", "kassaId", dto.getKassaId()));
         KassaEntity oldKassa = null;
@@ -282,15 +378,16 @@ public class TransactionService {
 
         entity = mapperUtil.toTransactionsEntity(dto, entity);
         entity.setKassa(kassa);
-        if (dto.getCurrencyId() != null) {
-            ListEntity currency = listRepository.findById(dto.getCurrencyId())
-                    .orElseThrow(() -> new ResourceNotFoundException("List", "currencyId", dto.getCurrencyId()));
-            entity.setCurrencyName(currency.getNameRu());
-        }
+        ListEntity currency = listRepository.findById(dto.getCurrencyId())
+                .orElseThrow(() -> new ResourceNotFoundException("List", "currencyId", dto.getCurrencyId()));
+        entity.setCurrencyName(currency.getNameRu());
+        verAct.setCurrencyId(currency.getId());
+
         if (dto.getClientId() != null) {
             ClientEntity client = clientRepository.getClientById(dto.getClientId())
                     .orElseThrow(() -> new ResourceNotFoundException("Transaction", "clientId", dto.getClientId()));
             entity.setClient(client);
+            verAct.setOwnerId(client.getId());
 
             BalancesEntity bEntity = balancesRepository.findById(new BalancesEntityPK(client.getId(), entity.getCurrencyId()))
                     .orElse(new BalancesEntity(client.getId(), entity.getCurrencyId(), entity.getCurrencyName(), BalanceType.Client));
@@ -302,6 +399,7 @@ public class TransactionService {
             CarrierEntity carrier = carrierRepository.getCarrierById(dto.getCarrierId())
                     .orElseThrow(() -> new ResourceNotFoundException("Transaction", "carrierId", dto.getCarrierId()));
             entity.setCarrier(carrier);
+            verAct.setOwnerId(carrier.getId());
 
             BalancesEntity bEntity = balancesRepository.findById(new BalancesEntityPK(carrier.getId(), entity.getCurrencyId()))
                     .orElse(new BalancesEntity(carrier.getId(), entity.getCurrencyId(), entity.getCurrencyName(), BalanceType.Carrier));
@@ -310,7 +408,21 @@ public class TransactionService {
         } else
             entity.setCarrier(null);
 
+        if (verAct.getType() == VerificationType.OthersOut) {
+            ListEntity agent = listRepository.findById(dto.getAgentId())
+                    .orElseThrow(() -> new ResourceNotFoundException("List", "agentId", dto.getAgentId()));
+            if (!StringUtils.hasText(agent.getVal01())) {
+                agent.setVal01(UUID.randomUUID().toString());
+                listRepository.saveAndFlush(agent);
+            }
+
+            verAct.setOwnerId(UUID.fromString(agent.getVal01()));
+        }
+
         entity = repository.saveAndFlush(entity);
+
+        verAct.setDate(entity.getDate());
+        verificationActRepository.saveAndFlush(verAct);
 
         List<TransactionsInvoicesEntity> allTrInvs = trInvRepository.findAllByTransactionId(entity.getId());
         if (allTrInvs != null && !allTrInvs.isEmpty()) {
@@ -404,7 +516,7 @@ public class TransactionService {
     }
 
     public List<TransactionsDto> getTransactionList() {
-        List<TransactionsEntity> entityList = repository.findAll();
+        List<TransactionsEntity> entityList = repository.findAllByOrderByDateDesc();
         List<TransactionsDto> dtoList = new ArrayList<>();
         for (TransactionsEntity entity : entityList) {
             dtoList.add(getTransactionDto(entity));

@@ -12,6 +12,7 @@ import java.math.BigDecimal;
 
 @Data @NoArgsConstructor @AllArgsConstructor
 public class BalancesCurrencyDto {
+    private Long id;
     private String currencyName;
     private BigDecimal balance = BigDecimal.ZERO;
 }

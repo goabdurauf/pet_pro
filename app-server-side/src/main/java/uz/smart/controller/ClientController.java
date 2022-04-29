@@ -6,6 +6,7 @@ package uz.smart.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import uz.smart.dto.ClientDto;
 import uz.smart.service.ClientService;
@@ -38,5 +39,10 @@ public class ClientController {
     @GetMapping("/list")
     public List<ClientDto> getList() {
         return service.getClientList();
+    }
+
+    @GetMapping("/dashboard")
+    public HttpEntity<?> getFotDashboard(@RequestParam(required = false) Long days) {
+        return ResponseEntity.ok(service.getClientReport(days));
     }
 }

@@ -467,10 +467,15 @@ public class ShippingService {
 
     private CargoTrackingDto getCargoTrackingDto(ShippingEntity entity) {
         CargoTrackingDto dto = mapper.fromShippingToTrackingDto(entity);
+        if (entity.getDurationDays() == null && entity.getLoadDate() != null)
+            dto.setDurationDays(TimeUnit.DAYS.convert(Math.abs(new Date().getTime() - entity.getLoadDate().getTime()), TimeUnit.MILLISECONDS));
         if (entity.getFactoryAddressId() != null)
             listRepository.findById(entity.getFactoryAddressId()).ifPresent(address -> dto.setFactoryAddress(address.getNameRu()));
         if (entity.getChaseStatusId() != null)
-            listRepository.findById(entity.getChaseStatusId()).ifPresent(chase -> dto.setChaseStatus(chase.getNameRu()));
+            listRepository.findById(entity.getChaseStatusId()).ifPresent(chase -> {
+                dto.setChaseStatus(chase.getNameRu());
+                dto.setChaseStatusColor(chase.getVal01());
+            });
         if (entity.getCarrierId() != null)
             carrierRepository.findById(entity.getCarrierId()).ifPresent(carrierEntity -> dto.setCarrierName(carrierEntity.getName()));
         listRepository.findById(entity.getShippingTypeId()).ifPresent(shipType -> dto.setShippingType(shipType.getNameRu()));

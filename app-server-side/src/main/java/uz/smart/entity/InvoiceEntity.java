@@ -20,6 +20,7 @@ import java.util.UUID;
 @Entity(name = "invoices")
 public class InvoiceEntity extends BaseEntity {
 
+    private Integer num;
     private Long currencyId;
     private String currencyName;
     private BigDecimal price;

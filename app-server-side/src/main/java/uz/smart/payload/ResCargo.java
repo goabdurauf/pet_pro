@@ -28,6 +28,7 @@ public class ResCargo extends CargoDto {
     private String shippingNum;
     private Long statusId;
     private String statusName;
+    private String statusColor;
     private List<DocumentDto> documentList = new ArrayList<>();
     private int shippingStatusId;
     private UUID invoiceOutId;

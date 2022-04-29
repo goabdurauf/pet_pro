@@ -360,6 +360,16 @@ body {
     font-weight: 600;
   }
 
+  .cargo_arrived {
+    color: limegreen;
+    font-weight: 600;
+  }
+
+  .cargo_not_arrived {
+    color: crimson;
+    font-weight: 600;
+  }
+
   .editable-cell {
     position: relative;
   }
@@ -377,6 +387,15 @@ body {
 
   [data-theme='dark'] .editable-row:hover .editable-cell-value-wrap {
     border: 1px solid #434343;
+  }
+
+  .verification-currency-header {
+    background-color: beige;
+    font-weight: 600;
+  }
+
+  .verification-first-col {
+    background-color: transparent !important;
   }
 
 

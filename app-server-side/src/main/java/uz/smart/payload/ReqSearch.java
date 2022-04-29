@@ -9,5 +9,4 @@ public class ReqSearch {
     private int size = Integer.parseInt(AppConstants.DEFAULT_PAGE_SIZE);
     private String start = AppConstants.BEGIN_DATE;
     private String end = AppConstants.END_DATE;
-    private String search = "";
 }

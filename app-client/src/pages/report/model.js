@@ -1,4 +1,4 @@
-import {getClientBalances, getCarrierBalances} from '@/services/service'
+import {getClientBalances, getCarrierBalances, getClientVerificationActs, getCarrierVerificationActs} from '@/services/service'
 
 export default ({
   namespace: 'report',
@@ -76,6 +76,30 @@ export default ({
               },
 
             ]
+          }
+        })
+      }
+    },
+    * queryClientVerificationActs({payload}, {call, put, select}) {
+      let verActs = yield call(getClientVerificationActs);
+      if (verActs.success) {
+        yield put({
+          type: 'updateState',
+          payload: {
+            model: 'ClientVerificationActs',
+            itemList: verActs.list
+          }
+        })
+      }
+    },
+    * queryCarrierVerificationActs({payload}, {call, put, select}) {
+      let verActs = yield call(getCarrierVerificationActs);
+      if (verActs.success) {
+        yield put({
+          type: 'updateState',
+          payload: {
+            model: 'CarrierVerificationActs',
+            itemList: verActs.list
           }
         })
       }

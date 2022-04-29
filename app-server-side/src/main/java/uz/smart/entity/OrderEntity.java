@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import uz.smart.entity.template.BaseEntity;
 
 import javax.persistence.Entity;
+import javax.persistence.Table;
 import java.sql.Timestamp;
 import java.util.UUID;
 

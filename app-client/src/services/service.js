@@ -26,6 +26,7 @@ export function saveClient(data) {return request({url: '/api/client/save', metho
 export function getClientList() {return request({url: '/api/client/list', method: 'get',})}
 export function getClientById(id) {return request({url: '/api/client/' + id, method: 'get',})}
 export function deleteClientById(id) {return request({url: '/api/client/' + id, method: 'delete',})}
+export function getClientDataForDashboard(days) {return request({url: '/api/client/dashboard?days=' + days, method: 'get'})}
 
 export function saveSupplier(data) {return request({url: '/api/supplier/save', method: 'post', data})}
 export function getSupplierList() {return request({url: '/api/supplier/list', method: 'get',})}
@@ -115,4 +116,7 @@ export function getTransactionNextNum() {return request({url: '/api/transaction/
 
 export function getClientBalances() {return request({url: '/api/balances/client', method: 'get'})}
 export function getCarrierBalances() {return request({url: '/api/balances/carrier', method: 'get'})}
+export function getBalancesByDate(date) {return request({url: '/api/balances/bar/date?date=' + date, method: 'get'})}
+export function getClientVerificationActs() {return request({url: '/api/balances/client/verification', method: 'get'})}
+export function getCarrierVerificationActs() {return request({url: '/api/balances/carrier/verification', method: 'get'})}
 

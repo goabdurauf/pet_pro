@@ -16,7 +16,7 @@ import {
   getProductById
 } from '@/services/service'
 import {Link} from "umi";
-import {notification} from "antd";
+import {notification, Tag} from "antd";
 import moment from "moment";
 import {routerRedux} from "dva/router";
 import React from "react";
@@ -98,6 +98,7 @@ export default ({
         title: 'Статус груза',
         dataIndex: 'statusName',
         key: 'statusName',
+        render: (text, record) => (record.statusColor !== null ? <Tag color={record.statusColor} key={record.statusColor} style={{fontSize: '14px'}}>{text}</Tag> : '')
       },
       {
         title: 'Название груза',

@@ -25,6 +25,7 @@ public class ResOrder {
     private String managerName;
     private Long statusId;
     private String statusName;
+    private String statusColor;
     private List<ResShipping> shippingList;
 
     public ResOrder(UUID id, String num) {

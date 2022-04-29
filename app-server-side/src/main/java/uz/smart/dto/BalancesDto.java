@@ -11,6 +11,7 @@ import java.math.BigDecimal;
 */
 @Data @NoArgsConstructor @AllArgsConstructor
 public class BalancesDto {
+    private String id;
     private String ownerName;
     private String currencyName;
     private BigDecimal balance;

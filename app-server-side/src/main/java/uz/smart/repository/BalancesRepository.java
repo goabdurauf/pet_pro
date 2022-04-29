@@ -11,6 +11,7 @@ import uz.smart.entity.BalancesEntityPK;
 import uz.smart.entity.enums.BalanceType;
 
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -18,7 +19,7 @@ public interface BalancesRepository extends JpaRepository<BalancesEntity, Balanc
 
     List<BalancesEntity> getAllByOwnerId(UUID ownerId);
 
-    @Query("select sum(balance) from balances where currencyId=:currencyId and type=:type")
-    BigDecimal getBalanceByCurrencyAndType(Long currencyId, BalanceType type);
+    @Query(value = "select sum(balance) from balances where currencyId=:currencyId and type=:type and date(createdAt) <= :toDate")
+    BigDecimal getBalanceByCurrencyAndType(Long currencyId, BalanceType type, Date toDate);
 
 }

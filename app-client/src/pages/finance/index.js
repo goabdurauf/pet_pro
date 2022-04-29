@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Card, Col, Popconfirm, Row, Space, Table, Tabs, Tooltip} from 'antd';
+import {Card, Col, Popconfirm, Row, Space, Table, Tabs, Tooltip, Typography} from 'antd';
 import {connect} from "react-redux";
 import {Button} from "reactstrap";
 import {DeleteOutlined, FormOutlined, PlusOutlined, MinusOutlined} from "@ant-design/icons";
@@ -215,6 +215,13 @@ class Finance extends Component {
         payload: {kassaBalance: balance}
       })
     }
+    const getKassaInfo = () => {
+      let data = [];
+      kassaList && kassaList.forEach(kassa =>
+        data.push(<Col key={kassa.id} span={5}><Typography.Title level={5}>{kassa.name} : {kassa.balans} {kassa.currencyName}</Typography.Title></Col>)
+      );
+      return data;
+    }
 
     const TabBody = () => {
       return <div>
@@ -257,6 +264,7 @@ class Finance extends Component {
                 <Col span={3}>
                   <Button className="float-left" outline color="primary" size="sm" onClick={openKassaOutModal}><MinusOutlined style={{color: 'red'}}/> Расход</Button>
                 </Col>
+                {getKassaInfo()}
               </Row>
               <Table columns={columns} dataSource={itemList} bordered size="middle" rowKey={record => record.id}
                      pagination={{position: ["bottomCenter"]}} style={{marginBottom: '0.5em'}}/>

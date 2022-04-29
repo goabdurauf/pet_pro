@@ -37,6 +37,11 @@ export default ({
         key: 'phone',
       },
       {
+        title: 'Дней от последного контакта',
+        dataIndex: 'lastOrder',
+        key: 'lastOrder',
+      },
+      {
         title: 'Страна',
         dataIndex: 'countryName',
         key: 'countryName',

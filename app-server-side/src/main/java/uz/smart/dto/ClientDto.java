@@ -23,4 +23,5 @@ public class ClientDto {
     private String managerName;
     private Long aboutId;
     private String aboutName;
+    private Long lastOrder;
 }

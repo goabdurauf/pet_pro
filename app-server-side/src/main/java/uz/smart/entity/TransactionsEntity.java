@@ -20,7 +20,9 @@ import java.sql.Timestamp;
 @Entity(name = "transactions")
 public class TransactionsEntity extends BaseEntity {
 
-    private Integer kassaType;     //  100+ - in, 200+ - out | 101 - client, 102 - agent, 103 - carrier | 201 - carrier, 202 - client, 203 - other expenses
+    private Integer kassaType;
+    //  100+ - in | 101 - client, 102 - agent, 103 - carrier, 104 - полученный счёт
+    //  200+ - out | 201 - carrier, 202 - client, 203 - other expenses, 204 - выписанный счёт
     private String num;
     private Timestamp date;
 
