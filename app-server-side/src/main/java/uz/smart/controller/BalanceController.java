@@ -47,5 +47,10 @@ public class BalanceController {
         return ResponseEntity.ok(service.getCarrierVerActs());
     }
 
+    @GetMapping("/shipping/income")
+    public HttpEntity<?> getIncomeByShipping() {
+        return ResponseEntity.ok(service.getShippingIncomeList());
+    }
+
 
 }

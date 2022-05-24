@@ -1,4 +1,4 @@
-import {getClientBalances, getCarrierBalances, getClientVerificationActs, getCarrierVerificationActs} from '@/services/service'
+import {getClientBalances, getCarrierBalances, getClientVerificationActs, getCarrierVerificationActs, getIncomeByShipping} from '@/services/service'
 
 export default ({
   namespace: 'report',
@@ -100,6 +100,18 @@ export default ({
           payload: {
             model: 'CarrierVerificationActs',
             itemList: verActs.list
+          }
+        })
+      }
+    },
+    * queryIncomeByShipping({payload}, {call, put, select}) {
+      let income = yield call(getIncomeByShipping);
+      if (income.success) {
+        yield put({
+          type: 'updateState',
+          payload: {
+            model: 'IncomeByShipping',
+            itemList: income.list
           }
         })
       }

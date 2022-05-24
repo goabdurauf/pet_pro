@@ -20,5 +20,8 @@ public class TransactionsInvoicesEntity extends BaseEntity {
     private UUID transactionId;
     private UUID invoiceId;
     private BigDecimal price;
+    private BigDecimal rate;
+    private BigDecimal finalPrice;
+    private Integer kassaType;
 
 }

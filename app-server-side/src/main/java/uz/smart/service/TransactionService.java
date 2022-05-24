@@ -21,6 +21,7 @@ import uz.smart.repository.*;
 import uz.smart.utils.CommonUtils;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -115,7 +116,11 @@ public class TransactionService {
                         .orElseThrow(() -> new ResourceNotFoundException("Invoice", "Id", dtoInvoice.getInvoiceId()));
                 if (invoice.getBalance() == null)
                     invoice.setBalance(BigDecimal.ZERO.subtract(invoice.getFinalPrice()));
-                trInvRepository.save(new TransactionsInvoicesEntity(entity.getId(), invoice.getId(), dtoInvoice.getCredit()));
+                trInvRepository.save(new TransactionsInvoicesEntity(entity.getId(), invoice.getId(), dtoInvoice.getCredit(), dtoInvoice.getRate(),
+                        dtoInvoice.getRate() != null && !dtoInvoice.getRate().equals(BigDecimal.ZERO)
+                                ? dtoInvoice.getCredit().divide(dtoInvoice.getRate(), RoundingMode.HALF_EVEN) : BigDecimal.ZERO,
+                        dto.getKassaType()
+                        ));
                 invoice.setBalance(invoice.getBalance().add(dtoInvoice.getCredit()));
                 invoiceRepository.saveAndFlush(invoice);
             }
@@ -149,12 +154,12 @@ public class TransactionService {
                 .orElseThrow(() -> new ResourceNotFoundException("Transaction", "kassaId", dto.getKassaId()));
         KassaEntity oldKassa = null;
         if (entity.getKassa().equals(kassa)) {
-            kassa.setBalance(kassa.getBalance().subtract(entity.getFinalPrice()).add(dto.getFinalPrice()));
+            kassa.setBalance(kassa.getBalance().subtract(entity.getPrice()).add(dto.getPrice()));
         } else {
             oldKassa = entity.getKassa();
-            oldKassa.setBalance(oldKassa.getBalance().subtract(entity.getFinalPrice()));
+            oldKassa.setBalance(oldKassa.getBalance().subtract(entity.getPrice()));
 
-            kassa.setBalance(kassa.getBalance().add(dto.getFinalPrice()));
+            kassa.setBalance(kassa.getBalance().add(dto.getPrice()));
         }
         if (entity.getClient() != null) {
             ClientEntity client = entity.getClient();
@@ -238,7 +243,11 @@ public class TransactionService {
                         .orElseThrow(() -> new ResourceNotFoundException("Invoice", "Id", dtoInvoice.getInvoiceId()));
                 if (invoice.getBalance() == null)
                     invoice.setBalance(BigDecimal.ZERO.subtract(invoice.getFinalPrice()));
-                trInvRepository.save(new TransactionsInvoicesEntity(entity.getId(), invoice.getId(), dtoInvoice.getCredit()));
+                trInvRepository.save(new TransactionsInvoicesEntity(entity.getId(), invoice.getId(), dtoInvoice.getCredit(), dtoInvoice.getRate(),
+                        dtoInvoice.getRate() != null && !dtoInvoice.getRate().equals(BigDecimal.ZERO)
+                                ? dtoInvoice.getCredit().divide(dtoInvoice.getRate(), RoundingMode.HALF_EVEN) : BigDecimal.ZERO,
+                        dto.getKassaType()
+                ));
                 invoice.setBalance(invoice.getBalance().add(dtoInvoice.getCredit()));
                 invoiceRepository.saveAndFlush(invoice);
             }
@@ -264,7 +273,7 @@ public class TransactionService {
 
         KassaEntity kassa = kassaRepository.findById(dto.getKassaId())
                 .orElseThrow(() -> new ResourceNotFoundException("Transaction", "kassaId", dto.getKassaId()));
-        if (kassa.getBalance().compareTo(dto.getFinalPrice()) < 0)
+        if (kassa.getBalance().compareTo(dto.getPrice()) < 0)
             return ResponseEntity.ok().body(new ApiResponse("Денги не хватает в кассе " + kassa.getName(), false));
 
         entity.setKassa(kassa);
@@ -315,12 +324,16 @@ public class TransactionService {
                         .orElseThrow(() -> new ResourceNotFoundException("Invoice", "Id", dtoInvoice.getInvoiceId()));
                 if (invoice.getBalance() == null)
                     invoice.setBalance(BigDecimal.ZERO.subtract(invoice.getFinalPrice()));
-                trInvRepository.save(new TransactionsInvoicesEntity(entity.getId(), invoice.getId(), dtoInvoice.getCredit()));
+                trInvRepository.save(new TransactionsInvoicesEntity(entity.getId(), invoice.getId(), dtoInvoice.getCredit(), dtoInvoice.getRate(),
+                        dtoInvoice.getRate() != null && !dtoInvoice.getRate().equals(BigDecimal.ZERO)
+                                ? dtoInvoice.getCredit().divide(dtoInvoice.getRate(), RoundingMode.HALF_EVEN) : BigDecimal.ZERO,
+                        dto.getKassaType()
+                ));
                 invoice.setBalance(invoice.getBalance().add(dtoInvoice.getCredit()));
                 invoiceRepository.saveAndFlush(invoice);
             }
         }
-        kassa.setBalance(kassa.getBalance().subtract(entity.getFinalPrice()));
+        kassa.setBalance(kassa.getBalance().subtract(entity.getPrice()));
         kassaRepository.saveAndFlush(kassa);
 
         verAct.setDocId(entity.getId());
@@ -348,18 +361,18 @@ public class TransactionService {
                 .orElseThrow(() -> new ResourceNotFoundException("Transaction", "kassaId", dto.getKassaId()));
         KassaEntity oldKassa = null;
         if (entity.getKassa().equals(kassa)) {
-            if (kassa.getBalance().add(entity.getFinalPrice()).compareTo(dto.getFinalPrice()) < 0)
+            if (kassa.getBalance().add(entity.getPrice()).compareTo(dto.getPrice()) < 0)
                 return ResponseEntity.ok().body(new ApiResponse("Денги не хватает в кассе " + kassa.getName(), false));
 
-            kassa.setBalance(kassa.getBalance().add(entity.getFinalPrice()).subtract(dto.getFinalPrice()));
+            kassa.setBalance(kassa.getBalance().add(entity.getPrice()).subtract(dto.getPrice()));
         } else {
-            if (kassa.getBalance().compareTo(dto.getFinalPrice()) < 0)
+            if (kassa.getBalance().compareTo(dto.getPrice()) < 0)
                 return ResponseEntity.ok().body(new ApiResponse("Денги не хватает в кассе " + kassa.getName(), false));
 
             oldKassa = entity.getKassa();
-            oldKassa.setBalance(oldKassa.getBalance().add(entity.getFinalPrice()));
+            oldKassa.setBalance(oldKassa.getBalance().add(entity.getPrice()));
 
-            kassa.setBalance(kassa.getBalance().subtract(dto.getFinalPrice()));
+            kassa.setBalance(kassa.getBalance().subtract(dto.getPrice()));
         }
         if (entity.getClient() != null) {
             ClientEntity client = entity.getClient();
@@ -441,7 +454,11 @@ public class TransactionService {
                         .orElseThrow(() -> new ResourceNotFoundException("Invoice", "Id", dtoInvoice.getInvoiceId()));
                 if (invoice.getBalance() == null)
                     invoice.setBalance(BigDecimal.ZERO.subtract(invoice.getFinalPrice()));
-                trInvRepository.save(new TransactionsInvoicesEntity(entity.getId(), invoice.getId(), dtoInvoice.getCredit()));
+                trInvRepository.save(new TransactionsInvoicesEntity(entity.getId(), invoice.getId(), dtoInvoice.getCredit(), dtoInvoice.getRate(),
+                        dtoInvoice.getRate() != null && !dtoInvoice.getRate().equals(BigDecimal.ZERO)
+                                ? dtoInvoice.getCredit().divide(dtoInvoice.getRate(), RoundingMode.HALF_EVEN) : BigDecimal.ZERO,
+                        dto.getKassaType()
+                ));
                 invoice.setBalance(invoice.getBalance().add(dtoInvoice.getCredit()));
                 invoiceRepository.saveAndFlush(invoice);
             }
@@ -467,7 +484,7 @@ public class TransactionService {
 
         List<TransactionsInvoicesEntity> trInvList = trInvRepository.findAllByTransactionId(id);
         for (TransactionsInvoicesEntity inv : trInvList) {
-            TransactionsInvoicesDto transact = new TransactionsInvoicesDto(inv.getInvoiceId(), inv.getPrice());
+            TransactionsInvoicesDto transact = new TransactionsInvoicesDto(inv.getInvoiceId(), inv.getPrice(), inv.getRate(), inv.getFinalPrice());
             invoiceRepository.findById(inv.getInvoiceId()).ifPresent(invoice -> transact.setDebit(invoice.getBalance().abs()));
             dto.getInvoices().add(transact);
         }

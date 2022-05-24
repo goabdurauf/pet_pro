@@ -7,6 +7,7 @@ package uz.smart.repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import uz.smart.entity.TransactionsInvoicesEntity;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
@@ -14,5 +15,7 @@ public interface TransactionsInvoicesRepository extends JpaRepository<Transactio
 
     List<TransactionsInvoicesEntity> findAllByTransactionId(UUID transactionId);
     long countAllByTransactionId(UUID transactionId);
+
+    List<TransactionsInvoicesEntity> findAllByInvoiceIdInAndKassaTypeIn(List<UUID> invoiceId, List<Integer> kassaType);
 
 }

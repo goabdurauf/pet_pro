@@ -9,7 +9,9 @@ import org.springframework.stereotype.Service;
 import uz.smart.dto.*;
 import uz.smart.entity.*;
 import uz.smart.entity.enums.BalanceType;
+import uz.smart.entity.template.AbsEntity;
 import uz.smart.payload.ResInvoice;
+import uz.smart.payload.ResShippingIncome;
 import uz.smart.payload.ResVerificationAct;
 import uz.smart.repository.*;
 
@@ -19,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class BalancesService {
@@ -37,6 +40,10 @@ public class BalancesService {
     InvoiceRepository invoiceRepository;
     @Autowired
     TransactionRepository transactionRepository;
+    @Autowired
+    TransactionsInvoicesRepository trInvRepository;
+    @Autowired
+    ShippingRepository shippingRepository;
 
     @Autowired
     InvoiceService invoiceService;
@@ -267,6 +274,100 @@ public class BalancesService {
         });
 
         return resList;
+    }
+
+    public List<List<ResShippingIncome>> getShippingIncomeList() {
+        List<List<ResShippingIncome>> resList = new ArrayList<>();
+        List<ShippingEntity> shippingList = shippingRepository.getAllShipping();
+        shippingList.forEach(shipping -> {
+            List<ResShippingIncome> res = new ArrayList<>();
+            List<UUID> shippingInvoiceIdList = invoiceRepository.findAllByShipping(shipping).stream().map(AbsEntity::getId).collect(Collectors.toList());
+            List<TransactionsInvoicesEntity> shippingTransactionList = trInvRepository.findAllByInvoiceIdInAndKassaTypeIn(shippingInvoiceIdList, List.of(201));
+            for (TransactionsInvoicesEntity trInvoice : shippingTransactionList) {
+                TransactionsEntity transactionsEntity = transactionRepository.findById(trInvoice.getTransactionId()).orElse(null);
+                if (transactionsEntity != null) {
+                    ResShippingIncome income = getShippingIncome(shipping);
+                    income.setPaidPrice(transactionsEntity.getPrice());
+                    income.setPaidRate(transactionsEntity.getRate());
+                    income.setPaidPercent(BigDecimal.ZERO); // todo *
+                    income.setPaidTotalPercent(BigDecimal.ZERO);  // todo *
+
+                    income.setPaidAgreementPrice(trInvoice.getPrice());
+                    income.setPaidAgreementCurrencyName(transactionsEntity.getCurrencyName());
+                    income.setPaidAgreementRate(trInvoice.getRate());
+                    income.setPaidAgreementFinalPrice(trInvoice.getFinalPrice());
+                    income.setPaidAgreementTotalPrice(BigDecimal.ZERO); // todo *
+                    income.setIncomeTotal(BigDecimal.ZERO); // todo *
+
+                    res.add(income);
+                }
+            }
+
+            if (shipping.getCargoEntities() != null && shipping.getCargoEntities().size() > 0) {
+                shipping.getCargoEntities().forEach(cargoEntity -> {
+                    List<UUID> cargoInvoiceIdList = invoiceRepository.findAllByCargo(cargoEntity).stream().map(AbsEntity::getId).collect(Collectors.toList());
+                    List<TransactionsInvoicesEntity> cargoTransactionList = trInvRepository.findAllByInvoiceIdInAndKassaTypeIn(cargoInvoiceIdList, List.of(101));
+                    for (TransactionsInvoicesEntity trInvoice : cargoTransactionList) {
+                        TransactionsEntity transactionsEntity = transactionRepository.findById(trInvoice.getTransactionId()).orElse(null);
+                        if (transactionsEntity != null) {
+                            ResShippingIncome expence = getCargoExpence(cargoEntity);
+                            expence.setPaidPrice(transactionsEntity.getPrice());
+                            expence.setPaidRate(transactionsEntity.getRate());
+                            expence.setPaidPercent(BigDecimal.ZERO); // todo *
+                            expence.setPaidTotalPercent(BigDecimal.ZERO);  // todo *
+
+                            expence.setPaidAgreementPrice(trInvoice.getPrice());
+                            expence.setPaidAgreementCurrencyName(transactionsEntity.getCurrencyName());
+                            expence.setPaidAgreementRate(trInvoice.getRate());
+                            expence.setPaidAgreementFinalPrice(trInvoice.getFinalPrice());
+                            expence.setPaidAgreementTotalPrice(BigDecimal.ZERO); // todo *
+                            expence.setIncomeTotal(BigDecimal.ZERO); // todo *
+
+                            res.add(expence);
+                        }
+                    }
+                });
+            }
+
+            if (res.size() > 0)
+                resList.add(res);
+        });
+
+        return resList;
+    }
+
+    private ResShippingIncome getShippingIncome(ShippingEntity shipping) {
+        ResShippingIncome income = new ResShippingIncome();
+        income.setId(shipping.getId());
+        income.setShippingNum(shipping.getNum());
+        income.setTransportNum(shipping.getShippingNum());
+        income.setCargoNum("");
+        carrierRepository.getCarrierById(shipping.getCarrierId()).ifPresent(carrier -> income.setOwnerName(carrier.getName()));
+        income.setAgreementPrice(shipping.getPrice());
+        income.setAgreementCurrencyName(shipping.getCurrencyName());
+        income.setAgreementRate(shipping.getRate());
+        income.setAgreementFinalPrice(shipping.getFinalPrice());
+        income.setAgreementTotal(shipping.getFinalPrice()); // todo *
+        income.setApprIncome(BigDecimal.ZERO); // todo *
+
+        return income;
+    }
+
+    private ResShippingIncome getCargoExpence(CargoEntity cargo) {
+        ResShippingIncome expence = new ResShippingIncome();
+        expence.setId(cargo.getId());
+        expence.setShippingNum(cargo.getShipping() != null ? cargo.getShipping().getNum() : null);
+        expence.setTransportNum(cargo.getShipping() != null ? cargo.getShipping().getShippingNum() : "");
+        expence.setCargoNum(cargo.getNum());
+        clientRepository.getClientById(cargo.getOrder().getClientId()).ifPresent(clientEntity -> expence.setOwnerName(clientEntity.getName()));
+        expence.setAgreementPrice(cargo.getPrice());
+        expence.setAgreementCurrencyName(cargo.getCurrencyName());
+        expence.setAgreementRate(cargo.getRate());
+        expence.setAgreementFinalPrice(cargo.getFinalPrice());
+        expence.setAgreementTotal(cargo.getFinalPrice()); // todo *
+        expence.setApprIncome(BigDecimal.ZERO); // todo *
+
+        return expence;
     }
 
 }

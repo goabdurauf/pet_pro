@@ -119,4 +119,5 @@ export function getCarrierBalances() {return request({url: '/api/balances/carrie
 export function getBalancesByDate(date) {return request({url: '/api/balances/bar/date?date=' + date, method: 'get'})}
 export function getClientVerificationActs() {return request({url: '/api/balances/client/verification', method: 'get'})}
 export function getCarrierVerificationActs() {return request({url: '/api/balances/carrier/verification', method: 'get'})}
+export function getIncomeByShipping() {return request({url: '/api/balances/shipping/income', method: 'get'})}
 

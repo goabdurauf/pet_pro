@@ -21,6 +21,24 @@ class Report extends Component {
       );
       return data;
     }
+    const TabBody = () => {
+      return <div>
+        <Row>
+          <Col span={4} offset={4} key={'title'}><Typography.Title level={4}>Общая сумма</Typography.Title></Col>
+          {getTableBody()}
+        </Row>
+
+        <Table columns={columns} dataSource={itemList} bordered size="middle" rowKey={record => record.id}
+               pagination={{position: ["bottomCenter"]}} style={{marginBottom: '0.5em'}}/>
+        {/*
+        <Row>
+          <Col span={4}><Typography.Title level={4}>ASIA Logistics</Typography.Title></Col>
+        </Row>
+        <Table columns={columns} dataSource={itemList} bordered size="middle" rowKey={record => record.id}
+               pagination={{position: ["bottomCenter"]}}/>
+        */}
+      </div>;
+    }
     const aktColumns = [
       {
         title: model === 'ClientVerificationActs' ? 'Клиент' : 'Перевозчик',
@@ -85,33 +103,15 @@ class Report extends Component {
         render: (text, record) => text && (text + ' ' + record.currencyName)
       }
     ]
-    const TabBody = () => {
-      return <div>
-        <Row>
-          <Col span={4} offset={4} key={'title'}><Typography.Title level={4}>Общая сумма</Typography.Title></Col>
-          {getTableBody()}
-        </Row>
-
-        <Table columns={columns} dataSource={itemList} bordered size="middle" rowKey={record => record.id}
-               pagination={{position: ["bottomCenter"]}} style={{marginBottom: '0.5em'}}/>
-        {/*
-        <Row>
-          <Col span={4}><Typography.Title level={4}>ASIA Logistics</Typography.Title></Col>
-        </Row>
-        <Table columns={columns} dataSource={itemList} bordered size="middle" rowKey={record => record.id}
-               pagination={{position: ["bottomCenter"]}}/>
-        */}
-      </div>;
-    }
     const AktTabBody = () => {
       var data = [];
-      itemList && itemList.forEach((item, index) => {
+      itemList && itemList.forEach((item, i) => {
         if (item.actList && item.actList.length > 0) {
           var body = [];
-          item.actList.forEach(currency => {
+          item.actList.forEach((currency, index) => {
             body = [...body, ...currency]
           })
-          body.forEach(aRow => aRow.rowCount = body.length);
+          body.forEach((aRow, index) => {aRow.rowCount = body.length; aRow.id = aRow.id + index});
           data.push(<Table columns={aktColumns} dataSource={body} bordered size="middle" rowKey={record => record.id}
                             pagination={{position: ["none"]}} style={{marginBottom: '16px'}} rowClassName={record => record.header ? 'verification-currency-header' : ''}/>)
           // body.forEach((aRow, i) => rows.push(<tr key={aRow.id + index}>
@@ -152,7 +152,129 @@ class Report extends Component {
 
       return data;
     }
+    const incomeShippingCols = [
+      {
+        title: 'Рейс',
+        dataIndex: 'shippingNum',
+        key: 'shippingNum',
+        // className: 'verification-first-col',
+        // onCell: (record, index) => { return { rowSpan: index === 0 ? record.rowCount : 0 }; }
+      },
+      {
+        title: 'Номер тр.',
+        dataIndex: 'transportNum',
+        key: 'transportNum',
+        // onCell: (record, index) => { return { rowSpan: index === 0 ? record.rowCount : 0 }; }
+      },
+      {
+        title: 'Номер груз',
+        dataIndex: 'cargoNum',
+        key: 'cargoNum'
+      },
+      {
+        title: 'Перевозчик / Клиент',
+        dataIndex: 'ownerName',
+        key: 'ownerName'
+      },
+      {
+        title: 'Сумма',
+        dataIndex: 'agreementPrice',
+        key: 'agreementPrice'
+      },
+      {
+        title: 'Валюта',
+        dataIndex: 'agreementCurrencyName',
+        key: 'agreementCurrencyName'
+      },
+      {
+        title: 'Курс',
+        dataIndex: 'agreementRate',
+        key: 'agreementRate'
+      },
+      {
+        title: 'Конечная цена (USD)',
+        dataIndex: 'agreementFinalPrice',
+        key: 'agreementFinalPrice'
+      },
+      {
+        title: 'ИТОГ',
+        dataIndex: 'agreementTotal',
+        key: 'agreementTotal'
+      },
+      {
+        title: 'Приблизительный прибыль',
+        dataIndex: 'apprIncome',
+        key: 'apprIncome'
+      },
+      {
+        title: 'Сумма получение и расход',
+        dataIndex: 'paidPrice',
+        key: 'paidPrice'
+      },
+      {
+        title: 'Курс договора',
+        dataIndex: 'paidRate',
+        key: 'paidRate'
+      },
+      {
+        title: 'Оплата в %',
+        dataIndex: 'paidPercent',
+        key: 'paidPercent'
+      },
+      {
+        title: 'Статус пол. счета',
+        dataIndex: 'paidTotalPercent',
+        key: 'paidTotalPercent'
+      },
+      {
+        title: 'Сумма договора',
+        dataIndex: 'paidAgreementPrice',
+        key: 'paidAgreementPrice'
+      },
+      {
+        title: 'Валюта договора',
+        dataIndex: 'paidAgreementCurrencyName',
+        key: 'paidAgreementCurrencyName'
+      },
+      {
+        title: 'Курс себестоимость',
+        dataIndex: 'paidAgreementRate',
+        key: 'paidAgreementRate'
+      },
+      {
+        title: 'Конечная цена (USD)',
+        dataIndex: 'agreementFinalPrice',
+        key: 'agreementFinalPrice'
+      },
+      {
+        title: 'Итог оплаты по конечной ценой',
+        dataIndex: 'paidAgreementFinalPrice',
+        key: 'paidAgreementFinalPrice'
+      },
+      {
+        title: 'Прибыль',
+        dataIndex: 'paidAgreementTotalPrice',
+        key: 'paidAgreementTotalPrice'
+      },
+      {
+        title: 'Оплата на основание',
+        dataIndex: 'incomeTotal',
+        key: 'incomeTotal'
+      }
+    ]
+    const IncomeShippingTabBody = () => {
+      var data = [];
+      itemList && model === 'IncomeByShipping' && itemList.forEach((item, i) => {
+        item && item.forEach((aRow, index) => {
+          aRow.rowCount = item.length;
+          aRow.id = (i + 1) * 100 + index;
+          data.push(aRow);
+        });
+      });
 
+      return <Table columns={incomeShippingCols} dataSource={data} bordered size="middle" rowKey={record => record.id}
+                    pagination={{position: ["bottomCenter"]}} style={{marginBottom: '0.5em'}}/>;
+    }
 
     return (
       <div className="users-page">
@@ -162,6 +284,7 @@ class Report extends Component {
             <TabPane tab="Задолженность перевозчика" key="CarrierBalances"><TabBody /></TabPane>
             <TabPane tab="Акт сверка с клиентом" key="ClientVerificationActs"><AktTabBody /></TabPane>
             <TabPane tab="Акт сверка с перевозчиком" key="CarrierVerificationActs"><AktTabBody /></TabPane>
+            <TabPane tab="Прибыль по рейсу" key="IncomeByShipping"><IncomeShippingTabBody /></TabPane>
           </Tabs>
 
 

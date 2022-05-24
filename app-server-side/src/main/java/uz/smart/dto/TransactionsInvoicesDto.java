@@ -16,10 +16,14 @@ public class TransactionsInvoicesDto {
 
     private UUID invoiceId;
     private BigDecimal credit;
+    private BigDecimal rate;
+    private BigDecimal finalPrice;
     private BigDecimal debit = BigDecimal.ZERO;
 
-    public TransactionsInvoicesDto(UUID invoiceId, BigDecimal credit) {
+    public TransactionsInvoicesDto(UUID invoiceId, BigDecimal credit, BigDecimal rate, BigDecimal finalPrice) {
         this.invoiceId = invoiceId;
         this.credit = credit;
+        this.rate = rate;
+        this.finalPrice = finalPrice;
     }
 }

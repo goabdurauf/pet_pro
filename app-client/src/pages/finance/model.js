@@ -411,7 +411,7 @@ export default ({
             isModalOpen: false,
             isBtnDisabled: false,
             modalType: 'create',
-            modalWidth: 900,
+            modalWidth: 1100,
             kassaInOutType: 0,
             kassaBalance: null,
             visibleColumns: [
@@ -550,14 +550,16 @@ export default ({
           if (invoices.success) {
             let totalCredit = 0;
             let totalDebit = 0;
+            let totalFinal = 0;
             result.invoices.forEach(item => {
               totalCredit += item.credit;
               totalDebit += item.debit;
+              totalFinal += item.finalPrice;
             })
             yield put({
               type: 'updateState',
               payload: {
-                currentItem: {...result, totalCredit, totalDebit},
+                currentItem: {...result, totalCredit, totalDebit, totalFinal},
                 invoiceList: invoices.list
               }
             })

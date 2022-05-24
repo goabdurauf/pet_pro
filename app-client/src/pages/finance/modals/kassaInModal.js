@@ -99,10 +99,18 @@ const modal = ({ currentItem, isBtnDisabled, handleSubmit, currencyList, clientL
   }
   const handleCreditChange = (item) => {
     let totalCredit = 0;
+    let totalFinal = 0;
     currentItem.invoices.forEach((item, index) => {
-      totalCredit += Number(document.getElementById("invoices_" + index + "_credit").value);
+      let credit = Number(document.getElementById("invoices_" + index + "_credit").value);
+      let rate = Number(document.getElementById("invoices_" + index + "_rate").value);
+      if (credit !== 0 && rate !== 0) {
+        item.finalPrice = credit / rate;
+        totalFinal += (credit / rate);
+      }
+
+      totalCredit += credit;
     });
-    handleDocumentChange({...currentItem, totalCredit: totalCredit})
+    handleDocumentChange({...currentItem, totalCredit: totalCredit, totalFinal: totalFinal})
   }
 
   return (<Modal {...modalProps} onOk={handleSave} okButtonProps={{disabled: isBtnDisabled}} okText={"Добавить"} cancelText={"Отмена"}>
@@ -197,29 +205,40 @@ const modal = ({ currentItem, isBtnDisabled, handleSubmit, currencyList, clientL
       {( kassaInType === 101 ) && <Row>
         <Col span={24} key={'invoices'} id={'invoices'} className={'invoices'}>
           <Row className={'invoicesHeader'}>
-            <Col span={10}>Документ</Col>
-            <Col span={6}>Сумма долга </Col>
-            <Col span={7}>Сумма получение по договору</Col>
+            <Col span={8}>Документ</Col>
+            <Col span={4}>Сумма долга </Col>
+            <Col span={4}>Сумма получение по договору</Col>
+            <Col span={2}>Курс себест.</Col>
+            <Col span={4}>Конечная цена</Col>
           </Row>
           <Form.List name={'invoices'}>
             {(fields, { add, remove }) =>
               fields.map((field, index) => (
                 <Row key={field.key}>
-                  <Col span={10}>
+                  <Col span={8}>
                     <Form.Item name={[index, 'invoiceId']} rules={[{ required: false, message: 'Выберите счёта' }]}>
                       <Select placeholder='выписанный счёт' onChange={(item) => handleDocument(item, index)}>
                         {invoiceList && invoiceList.map(invoice => <Select.Option key={invoice.id} value={invoice.id}>{invoice.name} - {invoice.shipNum}</Select.Option>)}
                       </Select>
                     </Form.Item>
                   </Col>
-                  <Col span={6}>
+                  <Col span={4}>
                       <div className="debit-summa">{currentItem && currentItem.invoices && currentItem.invoices.length > index
                         ? currentItem.invoices[index].debit : '0'}</div>
                   </Col>
-                  <Col span={6}>
+                  <Col span={4}>
                     <Form.Item name={[index, 'credit']} rules={[{ required: false, message: 'Введите сумму' }]}>
                       <Input placeholder="сумма" onChange={handleCreditChange} />
                     </Form.Item>
+                  </Col>
+                  <Col span={2}>
+                    <Form.Item name={[index, 'rate']} rules={[{ required: false, message: 'Введите сумму' }]}>
+                      <Input placeholder="курс" onChange={handleCreditChange} />
+                    </Form.Item>
+                  </Col>
+                  <Col span={4}>
+                    <div className="debit-summa">{currentItem && currentItem.invoices && currentItem.invoices.length > index
+                      ? currentItem.invoices[index].finalPrice : '0'}</div>
                   </Col>
                   <Col span={1} className={'text-center'}>
                     {fields.length > 1 ? <MinusCircleOutlined onClick={() => {remove(index); removeItem(index)}} style={{color: 'red'}}/> : ''}
@@ -232,11 +251,14 @@ const modal = ({ currentItem, isBtnDisabled, handleSubmit, currencyList, clientL
             }
           </Form.List>
         </Col>
-        <Col span={6} offset={10}><Label>Итог долга</Label>
+        <Col span={4} offset={8} ><Label>Итог долга</Label>
           <div className="debit-summa">{currentItem && currentItem.totalDebit ? currentItem.totalDebit.toFixed(2) : '0'}</div>
         </Col>
-        <Col span={6}><Label>Итог получение по договору</Label>
+        <Col span={5}><Label>Итог получение по дог.</Label>
           <div className="debit-summa">{currentItem && currentItem.totalCredit ? currentItem.totalCredit.toFixed(2) : '0'}</div>
+        </Col>
+        <Col span={4} offset={1} ><Label>Итог конечная цена</Label>
+          <div className="debit-summa">{currentItem && currentItem.totalFinal ? currentItem.totalFinal.toFixed(2) : '0'}</div>
         </Col>
       </Row> }
     </Form>
