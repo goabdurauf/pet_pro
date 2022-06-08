@@ -1,6 +1,5 @@
 package uz.smart.service.report;
 
-import lombok.extern.slf4j.Slf4j;
 import net.sf.jasperreports.engine.JasperFillManager;
 import net.sf.jasperreports.engine.JasperPrint;
 import net.sf.jasperreports.engine.JasperReport;
@@ -34,12 +33,11 @@ public class OrderReportService {
 
     public byte[] exportFile(ReqOrderSearch req) {
 
-        ResPageable<List<ResOrder>> orderReport = orderService.getOrderReport(req);
-        List<ResOrder> resOrders = orderReport.getObject();
+        List<ResOrder> orderReport = orderService.getOrderReportByFilter(req);
         List<OrderReport> orderReports = new ArrayList<>();
         List<JasperPrint> sheets = new ArrayList<>();
         long rowNum = 1;
-        for (ResOrder resOrder : resOrders) {
+        for (ResOrder resOrder : orderReport) {
             OrderReport report = new OrderReport();
             report.setRowNum(rowNum++);
             report.setNum(resOrder.getNum());

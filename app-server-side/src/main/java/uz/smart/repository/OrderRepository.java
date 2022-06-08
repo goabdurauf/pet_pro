@@ -42,4 +42,15 @@ public interface OrderRepository extends JpaRepository<OrderEntity, UUID> {
     @Query(value = "select coalesce(count(*), 0) soni from (select * from (select client_id, (date(now()) - date(max(date))) days " +
             " from orders group by client_id) o order by o.days) t where days < :days ", nativeQuery = true)
     long getActiveClientsCount(long days);
+
+
+    @Query(value = "select o from orders o " +
+        " where o.state = 1  " +
+        " and (o.date between :fromDate and :toDate) " +
+        " and (:clientId is null or cast(o.clientId as org.hibernate.type.UUIDCharType) = :clientId) " +
+        " and (:managerId is null or cast(o.managerId as org.hibernate.type.UUIDCharType) = :managerId) " +
+        " and (:statusId is null or o.statusId = :statusId) " +
+        " and (:num is null or o.num like concat('%', :num)) " +
+        " order by o.date desc ")
+    List<OrderEntity> getOrderReportByFilter(String num, Date fromDate, Date toDate, UUID clientId, UUID managerId, Long statusId);
 }

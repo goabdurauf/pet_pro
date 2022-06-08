@@ -170,20 +170,19 @@ public class OrderService {
         return resOrder;
     }
 
-    public ResPageable<List<ResOrder>> getOrderReport(ReqOrderSearch req) {
-        Page<OrderEntity> page;
+    public List<ResOrder> getOrderReportByFilter(ReqOrderSearch req) {
+        List<OrderEntity> orderReportByFilter;
         try {
-            page = repository.getOrdersByFilter(
-                    req.getNum(),
-                    new Timestamp(format.parse(req.getStart() != null ? req.getStart() : AppConstants.BEGIN_DATE).getTime()),
-                    new Timestamp(format.parse(req.getEnd() != null ? req.getEnd() : AppConstants.END_DATE).getTime()),
-                    req.getClientId(), req.getManagerId(), req.getStatusId(),
-                    CommonUtils.getPageable(req.getPage(), req.getSize()));
+            orderReportByFilter = repository.getOrderReportByFilter(
+                req.getNum(),
+                new Timestamp(format.parse(req.getStart() != null ? req.getStart() : AppConstants.BEGIN_DATE).getTime()),
+                new Timestamp(format.parse(req.getEnd() != null ? req.getEnd() : AppConstants.END_DATE).getTime()),
+                req.getClientId(), req.getManagerId(), req.getStatusId());
         } catch (ParseException e) {
             e.printStackTrace();
-            return new ResPageable<>(new ArrayList<>(), 0, req.getPage());
+            return new ArrayList<>();
         }
-        return new ResPageable<>(getResOrderList(page.getContent(), true), page.getTotalElements(), req.getPage());
+        return  getResOrderList(orderReportByFilter, true);
     }
 
 }
