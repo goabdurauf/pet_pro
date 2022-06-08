@@ -103,9 +103,9 @@ public class OrderService {
                     CommonUtils.getPageable(req.getPage(), req.getSize()));
         } catch (ParseException e) {
             e.printStackTrace();
-            return ResponseEntity.ok(new ResPageable(new ArrayList<>(), 0, req.getPage()));
+            return ResponseEntity.ok(new ResPageable<>(new ArrayList<>(), 0, req.getPage()));
         }
-        return ResponseEntity.ok(new ResPageable(getResOrderList(page.getContent(), true), page.getTotalElements(), req.getPage()));
+        return ResponseEntity.ok(new ResPageable<>(getResOrderList(page.getContent(), true), page.getTotalElements(), req.getPage()));
     }
 
     public List<OrderSelectDto> getOrdersForSelect(ShippingEntity shipping) {
@@ -168,6 +168,22 @@ public class OrderService {
             resOrder.setShippingList(shippingService.getShippingList(shippingList, false));
         }
         return resOrder;
+    }
+
+    public ResPageable<List<ResOrder>> getOrderReport(ReqOrderSearch req) {
+        Page<OrderEntity> page;
+        try {
+            page = repository.getOrdersByFilter(
+                    req.getNum(),
+                    new Timestamp(format.parse(req.getStart() != null ? req.getStart() : AppConstants.BEGIN_DATE).getTime()),
+                    new Timestamp(format.parse(req.getEnd() != null ? req.getEnd() : AppConstants.END_DATE).getTime()),
+                    req.getClientId(), req.getManagerId(), req.getStatusId(),
+                    CommonUtils.getPageable(req.getPage(), req.getSize()));
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return new ResPageable<>(new ArrayList<>(), 0, req.getPage());
+        }
+        return new ResPageable<>(getResOrderList(page.getContent(), true), page.getTotalElements(), req.getPage());
     }
 
 }

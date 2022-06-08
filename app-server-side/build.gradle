@@ -19,6 +19,9 @@ repositories {
     flatDir {
         dirs 'src/libs'
     }
+    maven{
+        url 'https://jaspersoft.jfrog.io/jaspersoft/third-party-ce-artifacts/'
+    }
 }
 
 dependencies {
@@ -36,6 +39,10 @@ dependencies {
     // Microsoft office
     implementation 'org.apache.poi:poi:4.0.1'
     implementation 'org.apache.poi:poi-ooxml:4.0.1'
+
+    // Jasper report
+      implementation 'net.sf.jasperreports:jasperreports-fonts:6.17.0'
+      implementation 'net.sf.jasperreports:jasperreports:6.17.0'
 
     // Utils
     implementation 'commons-io:commons-io:2.8.0'
