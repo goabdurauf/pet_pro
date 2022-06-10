@@ -29,7 +29,7 @@ public interface OrderRepository extends JpaRepository<OrderEntity, UUID> {
             " and (:clientId is null or cast(o.clientId as org.hibernate.type.UUIDCharType) = :clientId) " +
             " and (:managerId is null or cast(o.managerId as org.hibernate.type.UUIDCharType) = :managerId) " +
             " and (:statusId is null or o.statusId = :statusId) " +
-            " and (:num is null or o.num like concat('%', :num)) " +
+            " and (:num is null or lower(o.num) like concat('%', :num, '%')) " +
             " order by o.date desc ")
     Page<OrderEntity> getOrdersByFilter(String num, Date fromDate, Date toDate, UUID clientId, UUID managerId, Long statusId, Pageable pageable);
 

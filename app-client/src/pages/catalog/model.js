@@ -290,6 +290,7 @@ export default ({
             modalType: 'create',
             measureList: measure.list,
             isBtnDisabled: false,
+            productAttachments: [],
             visibleColumns: [
               {
                 title: '№',
