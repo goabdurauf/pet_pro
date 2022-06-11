@@ -71,4 +71,11 @@ public interface ShippingRepository extends JpaRepository<ShippingEntity, UUID> 
 
 //    Optional<ShippingEntity> getFirstByOrderByCreatedAtDesc();
     Optional<ShippingEntity> getFirstByStatusOrderByCreatedAtDesc(ShippingStatus status);
+
+
+    //Update shipping's state
+    @Modifying
+    @Transactional
+    @Query("update shipping set state = 0 where id = :id")
+    void updateById(UUID id);
 }

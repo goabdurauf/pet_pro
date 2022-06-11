@@ -91,4 +91,13 @@ public interface InvoiceRepository extends JpaRepository<InvoiceEntity, UUID> {
     List<InvoiceEntity> findAllByCargo(CargoEntity cargo);
 
     Optional<InvoiceEntity> getFirstByOrderByUpdatedAtDesc();
+
+
+    //Get invoice state by cargo id
+    @Query(value = "select state from invoices where cargo_id = :cargoId", nativeQuery = true)
+    List<Integer> getStatesByCargoId(UUID cargoId);
+
+    //Get invoice state by shipping id
+    @Query(value = "select state from invoices where shipping_id = :shippingId", nativeQuery = true)
+    List<Integer> getStatesByShippingId(UUID shippingId);
 }
