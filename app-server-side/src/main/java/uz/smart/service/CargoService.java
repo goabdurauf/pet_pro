@@ -152,66 +152,6 @@ public class CargoService {
         }
         entity.setCargoDetails(cargoDetails);
 
-    if (dto.getTransportKindId() != null) {
-      ListEntity transportKind = listRepository.findById(dto.getTransportKindId())
-              .orElseThrow(() -> new ResourceNotFoundException("List", "transportKindId", dto.getTransportKindId()));
-      entity.setTransportKindName(transportKind.getNameRu());
-    }
-    if (dto.getTransportConditionId() != null) {
-      ListEntity transportCondition = listRepository.findById(dto.getTransportConditionId())
-              .orElseThrow(() -> new ResourceNotFoundException("List", "transportConditionId", dto.getTransportConditionId()));
-      entity.setTransportConditionName(transportCondition.getNameRu());
-    }
-    if (dto.getSenderCountryId() != null) {
-      ListEntity senderCountry = listRepository.findById(dto.getSenderCountryId())
-              .orElseThrow(() -> new ResourceNotFoundException("List", "senderCountryId", dto.getSenderCountryId()));
-      entity.setSenderCountryName(senderCountry.getNameRu());
-    }
-    if (dto.getReceiverCountryId() != null) {
-      ListEntity receiverCountry = listRepository.findById(dto.getReceiverCountryId())
-              .orElseThrow(() -> new ResourceNotFoundException("List", "receiverCountryId", dto.getReceiverCountryId()));
-      entity.setReceiverCountryName(receiverCountry.getNameRu());
-    }
-    if (dto.getCustomFromCountryId() != null) {
-      ListEntity customFromCountry = listRepository.findById(dto.getCustomFromCountryId())
-              .orElseThrow(() -> new ResourceNotFoundException("List", "customFromCountryId", dto.getCustomFromCountryId()));
-      entity.setCustomFromCountryName(customFromCountry.getNameRu());
-    }
-    if (dto.getCustomToCountryId() != null) {
-      ListEntity customToCountry = listRepository.findById(dto.getCustomToCountryId())
-              .orElseThrow(() -> new ResourceNotFoundException("List", "customToCountryId", dto.getCustomToCountryId()));
-      entity.setCustomToCountryName(customToCountry.getNameRu());
-    }
-    if (dto.getRegTypeId() != null) {
-      ListEntity regType = listRepository.findById(dto.getRegTypeId())
-              .orElseThrow(() -> new ResourceNotFoundException("List", "cargoRegTypeId", dto.getRegTypeId()));
-      entity.setRegTypeName(regType.getNameRu());
-    }
-
-    ListEntity currency = listRepository.findById(dto.getCurrencyId())
-            .orElseThrow(() -> new ResourceNotFoundException("List", "currencyId", dto.getCurrencyId()));
-    entity.setCurrencyName(currency.getNameRu());
-
-    entity.setCargoDetails(null);
-    entity = repository.saveAndFlush(entity);
-
-    List<CargoDetailEntity> cargoDetails = new ArrayList<>();
-    if (dto.getCargoDetails() != null) {
-      for (CargoDetailDto detailDto : dto.getCargoDetails()) {
-        CargoDetailEntity detailEntity = detailDto.getId() == null
-                ? mapper.toCargoDetailEntity(detailDto, new CargoDetailEntity())
-                : mapper.toCargoDetailEntity(detailDto, detailRepository.findById(detailDto.getId())
-                .orElseThrow(() -> new ResourceNotFoundException("Carrier", "Id", dto.getId())));
-        ListEntity packegeType = listRepository.findById(detailDto.getPackageTypeId())
-                .orElseThrow(() -> new ResourceNotFoundException("List", "packegeTypeId", detailDto.getPackageTypeId()));
-        detailEntity.setPackageTypeName(packegeType.getNameRu());
-
-        detailEntity = detailRepository.save(detailEntity);
-        cargoDetails.add(detailEntity);
-      }
-    }
-    entity.setCargoDetails(cargoDetails);
-
     lastEntity = repository.saveAndFlush(entity);
 
     return ResponseEntity.ok().body(new ApiResponse("Сохранено успешно", true));
@@ -382,51 +322,16 @@ public class CargoService {
     return dto;
   }
 
-  public List<ResCargo> getCargoList() {
-    List<ResCargo> list = new ArrayList<>();
-    List<CargoEntity> entityList = repository.getAllCargos();
-    for (CargoEntity entity : entityList) {
-      ResCargo resCargo = getResCargo(entity);
-      if (entity.getExpenseList() != null && entity.getExpenseList().size() > 0) {
-        List<ExpenseDto> expenseList = new ArrayList<>();
-        for (ExpenseEntity expense : entity.getExpenseList()) {
-          if (expense.getOldId() == null) {
-            expenseList.add(new ExpenseDto(
-                    expense.getId(),
-                    ExpenseType.Cargo,
-                    expense.getInvoiceInId(),
-                    expense.getInvoiceOutId(),
-                    expense.getFromCurrencyName(),
-                    expense.getFromPrice(),
-                    expense.getToCurrencyName(),
-                    expense.getToPrice()
-            ));
-          } else {
-            expenseList.add(new ExpenseDto(
-                    expense.getId(),
-                    ExpenseType.Shipping,
-                    expense.getInvoiceInId(),
-                    expense.getInvoiceOutId(),
-                    expense.getToCurrencyName(),
-                    expense.getToPrice()
-            ));
-          }
-        }
-        resCargo.setExpenseList(expenseList);
+  private List<ResCargo> getCargoList(List<CargoEntity> entityList) {
+      List<ResCargo> list = new ArrayList<>();
+      for (CargoEntity entity : entityList) {
+          list.add(getResCargo(entity));
       }
-      list.add(resCargo);
-    }
 
-    return list;
+      return list;
   }
 
-  private List<ResCargo> getCargoList(List<CargoEntity> entityList) {
-    List<ResCargo> list = new ArrayList<>();
-    for (CargoEntity entity : entityList) {
-      list.add(getResCargo(entity));
-    }
-
-    public HttpEntity<?> getCargoList(ReqCargoSearch req) {
+  public HttpEntity<?> getCargoList(ReqCargoSearch req) {
         List<ResCargo> list = new ArrayList<>();
         Set<CargoEntity> entityList;
         long totalElement = 0;

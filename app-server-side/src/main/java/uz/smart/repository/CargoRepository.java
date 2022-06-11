@@ -16,8 +16,6 @@ import java.util.*;
 
 public interface CargoRepository extends JpaRepository<CargoEntity, UUID> {
 
-
-
     @Query("select c from cargo c where c.state > 0 and c.id = :id")
     Optional<CargoEntity> getCargoById(UUID id);
 

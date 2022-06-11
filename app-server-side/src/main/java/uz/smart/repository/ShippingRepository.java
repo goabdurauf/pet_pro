@@ -17,11 +17,6 @@ import java.util.*;
 
 public interface ShippingRepository extends JpaRepository<ShippingEntity, UUID> {
 
-    @Transactional
-    @Modifying
-    @Query("delete from shipping where id = :id")
-    void updateById(UUID id);
-
     @Query("select s from shipping s where s.state = 1 and s.id = :id")
     Optional<ShippingEntity> getShippingById(UUID id);
 

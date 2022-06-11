@@ -52,6 +52,8 @@ public class ShippingService {
     DocumentRepository documentRepository;
     @Autowired
     ExpenseRepository expenseRepository;
+    @Autowired
+    InvoiceRepository invoiceRepository;
 
     @Autowired
     OrderService orderService;
@@ -92,8 +94,6 @@ public class ShippingService {
                 }
             }
         }
-      }
-    }
 
     if (dto.getTransportKindId() != null) {
       ListEntity transportKind = listRepository.findById(dto.getTransportKindId())
@@ -166,22 +166,6 @@ public class ShippingService {
        */
 
         return ResponseEntity.ok().body(new ApiResponse("Сохранено успешно", true));
-    }
-
-    public HttpEntity<?> deleteShipping(UUID id) {
-        ShippingEntity entity = repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Shipping", "Id", id));
-
-        if (entity.getDocuments() != null && entity.getDocuments().size() > 0) {
-            List<DocumentEntity> documentList = entity.getDocuments().stream().map(document -> documentRepository.findById(document.getId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Shipping", "documentId", document.getId()))).collect(Collectors.toList());
-            entity.setDocuments(null);
-            entity = repository.saveAndFlush(entity);
-            documentService.deleteAllDocuments(documentList);
-        }
-        setCargoShippingToNull(entity);
-
-        repository.delete(entity);
-        return ResponseEntity.ok().body(new ApiResponse("Удалено успешно", true));
     }
 
     private void setCargoShippingToNull(ShippingEntity entity) {
@@ -291,62 +275,9 @@ public class ShippingService {
     return ResponseEntity.ok().body(new ApiResponse("Удалено успешно", true));
   }
 
-  private void setCargoShippingToNull(ShippingEntity entity) {
-    if (entity.getCargoEntities() != null && entity.getCargoEntities().size() > 0) {
-      for (CargoEntity cargo : entity.getCargoEntities()) {
-        cargo.setShipping(null);
-        cargoRepository.saveAndFlush(cargo);
-      }
-    }
-  }
-
-  public ShippingDto getShipping(UUID id) {
-    ShippingEntity entity = repository.getShippingById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Shipping", "id", id));
-    ShippingDto dto = mapper.toShippingDto(entity);
-    if (entity.getCargoEntities() != null) {
-      dto.setCargoList(entity.getCargoEntities().stream().map(AbsEntity::getId).collect(Collectors.toList()));
-    }
-    dto.setStatusId(entity.getStatus().get());
-    dto.setOrderSelect(orderService.getOrdersForSelect(entity));
-
-    return dto;
-  }
-
-  public List<ResShipping> getShippingListByOrderId(UUID id) {
-    return getShippingList(
-            repository.getAllByOrderEntitiesInAndStateGreaterThan(
-                    List.of(orderRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Shipping", "cargoId", id))),
-                    0), true);
-  }
-
   public List<ResShipping> getShippingList() {
     List<ShippingEntity> entityList = repository.getAllShipping();
     return getShippingListWithExpenses(entityList);
-  }
-
-  public List<ResShipping> getShippingListWithExpenses(List<ShippingEntity> entityList) {
-    List<ResShipping> list = new ArrayList<>();
-    for (ShippingEntity entity : entityList) {
-      ResShipping resShipping = getResShipping(entity, true);
-      if (entity.getExpenseList() != null && entity.getExpenseList().size() > 0) {
-        List<ExpenseDto> expenseList = new ArrayList<>();
-        for (ExpenseEntity expense : entity.getExpenseList()) {
-          expenseList.add(new ExpenseDto(
-                  expense.getId(),
-                  ExpenseType.Shipping,
-                  expense.getInvoiceInId(),
-                  expense.getInvoiceOutId(),
-                  expense.getFromCurrencyName(),
-                  expense.getFromPrice()
-          ));
-        }
-        resShipping.setExpenseList(expenseList);
-      }
-
-      list.add(resShipping);
-    }
-    return list;
   }
 
   public List<ResShipping> getShippingList(List<ShippingEntity> entityList, boolean hasDetails) {
