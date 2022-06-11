@@ -74,18 +74,16 @@ public class OrderService {
     }
 
     public HttpEntity<?> deleteOrder(UUID id) {
-        List<Integer> statesOfOrderCargo = cargoRepository.getStatesByOrderId(id);
-        if (!statesOfOrderCargo.isEmpty()) {
-            boolean isNotStateActive = statesOfOrderCargo
-                    .stream()
-                    .allMatch(el -> el == 0);
-
-            if (!isNotStateActive) {
-                return ResponseEntity.ok().body(new ApiResponse("Ошибка, у этого клиента есть груз!", false));
+        OrderEntity entity = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Order", "Id", id));
+        List<CargoEntity> cargoEntityList = cargoRepository.getAllByOrder_IdAndStateOrderByCreatedAt(id, 1);
+        if (cargoEntityList != null && cargoEntityList.size() > 0){
+            for (CargoEntity cargoEntity : cargoEntityList) {
+                cargoService.deleteCargo(cargoEntity);
             }
         }
 
-        repository.updateById(id);
+        repository.delete(entity);
         return ResponseEntity.ok().body(new ApiResponse("Удалено успешно", true));
     }
 
@@ -171,7 +169,5 @@ public class OrderService {
         }
         return resOrder;
     }
-
-
 
 }

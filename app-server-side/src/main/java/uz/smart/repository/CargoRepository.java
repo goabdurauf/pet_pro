@@ -16,7 +16,10 @@ import java.util.*;
 
 public interface CargoRepository extends JpaRepository<CargoEntity, UUID> {
 
-
+    @Transactional
+    @Modifying
+    @Query("delete from cargo where id = :id")
+    void updateById(UUID id);
 
     @Query("select c from cargo c where c.state > 0 and c.id = :id")
     Optional<CargoEntity> getCargoById(UUID id);
@@ -72,17 +75,4 @@ public interface CargoRepository extends JpaRepository<CargoEntity, UUID> {
     Optional<CargoEntity> findByDocumentListIn(List<DocumentEntity> documentList);
 
     Optional<CargoEntity> findByExpenseListIn(List<ExpenseEntity> expenseList);
-
-
-
-
-    //Get cargo's state by order id
-    @Query(value = "select state from cargo o where o.order_id = :orderId", nativeQuery = true)
-    List<Integer> getStatesByOrderId(UUID orderId);
-
-    //Update cargo's state
-    @Modifying
-    @Transactional
-    @Query("update cargo set state = 0 where id = :id")
-    void updateById(UUID id);
 }
