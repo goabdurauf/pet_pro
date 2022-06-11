@@ -18,12 +18,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface ShippingRepository extends JpaRepository<ShippingEntity, UUID> {
-
-    @Transactional
-    @Modifying
-    @Query("delete from shipping where id = :id")
-    void updateById(UUID id);
-
     @Query("select s from shipping s where s.state > 0 and s.id = :id")
     Optional<ShippingEntity> getShippingById(UUID id);
 
@@ -36,4 +30,11 @@ public interface ShippingRepository extends JpaRepository<ShippingEntity, UUID> 
 
 //    Optional<ShippingEntity> getFirstByOrderByCreatedAtDesc();
     Optional<ShippingEntity> getFirstByStatusOrderByCreatedAtDesc(ShippingStatus status);
+
+
+    //Update shipping's state
+    @Modifying
+    @Transactional
+    @Query("update shipping set state = 0 where id = :id")
+    void updateById(UUID id);
 }
