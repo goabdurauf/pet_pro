@@ -13,7 +13,7 @@ import {
   getSelectOrders,
   saveShipping,
   searchProduct,
-  getProductById, getClientList
+  getProductById
 } from '@/services/service'
 import {Link} from "umi";
 import {notification, Tag} from "antd";
@@ -35,10 +35,9 @@ export default ({
     isLoading: false,
     isPlanning: false,
     selectedStatusId: null,
-    searchParams: {page:0, size:50},
     pagination: {
       current: 1,
-      pageSize: 50,
+      pageSize: 20,
       position: ["bottomCenter"]
     },
     isTableLoading: false,
@@ -51,7 +50,6 @@ export default ({
     cargoRegTypeList: [],
     selectOrderList: [],
     carrierList: [],
-    clientList: [],
     managerList: [],
     shipTypeList: [],
     transportKindList: [],
@@ -205,15 +203,16 @@ export default ({
   },
   effects: {
     * queryCargo({payload}, {call, put, select}) {
-      const {searchParams, pagination} = yield select(_ => _.cargo);
-      let data = yield call(getCargoList, searchParams);
+      if (payload === undefined){
+        payload = {page:0, size:50}
+      }
+      let data = yield call(getCargoList, payload);
 
       if (data.success) {
         yield put({
           type: 'updateState',
           payload: {
-            itemList: data.object,
-            pagination: {...pagination, total: data.totalElements},
+            itemList: data.list,
             isBtnDisabled: false,
             isModalOpen: false,
             isPlanning: false,
@@ -236,7 +235,6 @@ export default ({
       let shipType = yield call(getListItems, 5);
       let trKindList = yield call(getListItems, 10);
       let trCondList = yield call(getListItems, 11);
-      let client = yield call(getClientList);
 
       if (country.success && packageType.success) {
         yield put({
@@ -249,25 +247,9 @@ export default ({
             cargoRegTypeList: cargoRegType.list,
             managerList: manager.list,
             carrierList: carrier.list,
-            clientList: client.list,
             shipTypeList: shipType.list,
             transportKindList: trKindList.list,
             transportConditionList: trCondList.list,
-          }
-        })
-      }
-    },
-    * searchCargo({payload}, {call, put, select}) {
-      const {pagination} = yield select(_ => _.cargo);
-      let data = yield call(getCargoList, payload);
-
-      if (data.success) {
-        yield put({
-          type: 'updateState',
-          payload: {
-            itemList: data.object,
-            searchParams: {...payload},
-            pagination: {...pagination, current: payload.page + 1, total: data.totalElements}
           }
         })
       }
@@ -317,7 +299,6 @@ export default ({
             documentAttachments: result.docAttachments !== null ? result.docAttachments : [],
             isModalOpen: true,
             currentModal: 'Cargo',
-            modalWidth: 1200,
             productList
           }
         })

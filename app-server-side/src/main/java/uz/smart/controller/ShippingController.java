@@ -11,8 +11,6 @@ import uz.smart.dto.CargoTrackingDto;
 import uz.smart.dto.DocumentDto;
 import uz.smart.dto.ExpenseDto;
 import uz.smart.dto.ShippingDto;
-import uz.smart.payload.ReqOrderSearch;
-import uz.smart.payload.ReqShippingSearch;
 import uz.smart.payload.ResShipping;
 import uz.smart.payload.ResShippingDivide;
 import uz.smart.service.ShippingService;
@@ -42,8 +40,8 @@ public class ShippingController {
         return service.getShipping(id);
     }
 
-    @PostMapping("/list")
-    public HttpEntity<?> getList(@RequestBody ReqShippingSearch req) {return service.getShippingList(req);}
+    @GetMapping("/list")
+    public List<ResShipping> getList() {return service.getShippingList();}
 
     @GetMapping("/order/{id}")
     public List<ResShipping> getListByOrderId(@PathVariable UUID id) {return service.getShippingListByOrderId(id);}

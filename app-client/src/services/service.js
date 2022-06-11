@@ -39,7 +39,7 @@ export function getCarrierById(id) {return request({url: '/api/carrier/' + id, m
 export function deleteCarrierById(id) {return request({url: '/api/carrier/' + id, method: 'delete',})}
 
 export function saveShipping(data) {return request({url: '/api/shipping/save', method: 'post', data})}
-export function getShippingList(data) {return request({url: '/api/shipping/list', method: 'post', data})}
+export function getShippingList() {return request({url: '/api/shipping/list', method: 'get',})}
 export function getShippingListByOrderId(id) {return request({url: '/api/shipping/order/' + id, method: 'get',})}
 export function getShippingById(id) {return request({url: '/api/shipping/' + id, method: 'get',})}
 export function getShippingDetailById(id) {return request({url: '/api/shipping/detail/' + id, method: 'get',})}
@@ -70,7 +70,7 @@ export function deleteFile(id) {return request({url: '/api/file/' + id, method: 
 export function saveCargo(data) {return request({url: '/api/cargo/save', method: 'post', data})}
 export function cloneCargo(data) {return request({url: '/api/cargo/clone', method: 'post', data})}
 export function setCargoStatus(data) {return request({url: '/api/cargo/status', method: 'post', data})}
-export function getCargoList(data) {return request({url: '/api/cargo/list', method: 'post', data})}
+export function getCargoList() {return request({url: '/api/cargo/list', method: 'get',})}
 export function getCargoListByOrderId(id) {return request({url: '/api/cargo/order/' + id, method: 'get',})}
 export function getCargoDocumentByOrderId(id) {return request({url: '/api/cargo/document/' + id, method: 'get',})}
 export function getCargoById(id) {return request({url: '/api/cargo/' + id, method: 'get',})}
@@ -95,7 +95,7 @@ export function getExpenseForInvoiceInById(id) {return request({url: '/api/expen
 
 export function saveInvoice(data) {return request({url: '/api/invoice/save', method: 'post', data})}
 export function updateInvoice(data) {return request({url: '/api/invoice/update', method: 'put', data})}
-export function getInvoiceList(data) {return request({url: '/api/invoice/list/' + data.type, method: 'post', data})}
+export function getInvoiceList(data) {return request({url: '/api/invoice/list/' + data.type, method: 'get',})}
 export function getInvoicesByTypeAndClientId(data) {return request({url: '/api/invoice/' + data.type + '/' + data.clientId, method: 'get'})}
 export function getInvoicesByTypeAndClientIdAndCurrencyId(data) {return request({url: '/api/invoice/' + data.type + '/' + data.clientId + '/' + data.currencyId, method: 'get'})}
 export function getInvoiceById(id) {return request({url: '/api/invoice/' + id, method: 'get',})}
@@ -110,7 +110,7 @@ export function saveTransactionIn(data) {return request({url: '/api/transaction/
 export function updateTransactionIn(data) {return request({url: '/api/transaction/in/update', method: 'put', data})}
 export function saveTransactionOut(data) {return request({url: '/api/transaction/out/save', method: 'post', data})}
 export function updateTransactionOut(data) {return request({url: '/api/transaction/out/update', method: 'put', data})}
-export function getTransactionList(data) {return request({url: '/api/transaction/list', method: 'post', data})}
+export function getTransactionList() {return request({url: '/api/transaction/list', method: 'get',})}
 export function getTransactionById(id) {return request({url: '/api/transaction/' + id, method: 'get',})}
 export function getTransactionNextNum() {return request({url: '/api/transaction/num', method: 'get',})}
 

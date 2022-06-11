@@ -16,14 +16,13 @@ import uz.smart.exception.ResourceNotFoundException;
 import uz.smart.mapper.MapperUtil;
 import uz.smart.payload.*;
 import uz.smart.repository.*;
-import uz.smart.utils.AppConstants;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.sql.Timestamp;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.TreeSet;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -66,7 +65,6 @@ public class CargoService {
     MapperUtil mapper;
 
     private CargoEntity lastEntity;
-    private final SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy");
 
     public HttpEntity<?> saveAndUpdate(CargoDto dto) {
         CargoEntity entity = dto.getId() == null
@@ -426,31 +424,9 @@ public class CargoService {
       list.add(getResCargo(entity));
     }
 
-    public HttpEntity<?> getCargoList(ReqCargoSearch req) {
+    public List<ResCargo> getCargoList() {
         List<ResCargo> list = new ArrayList<>();
-        Set<CargoEntity> entityList;
-        long totalElement = 0;
-        req.setWord(req.getWord() == null ? null : req.getWord().toLowerCase());
-        try {
-            entityList = repository.getCargoListByFilter(
-                    req.getWord(), req.getWord(), req.getWord(), req.getWord(),
-                    req.getClientId(), req.getCarrierId(), req.getSenderCountryId(), req.getReceiverCountryId(), req.getStatusId(),
-                    new Timestamp(format.parse(req.getLoadStart() != null ? req.getLoadStart() : AppConstants.BEGIN_DATE).getTime()),
-                    new Timestamp(format.parse(req.getLoadEnd() != null ? req.getLoadEnd() : AppConstants.END_DATE).getTime()),
-                    new Timestamp(format.parse(req.getUnloadStart() != null ? req.getUnloadStart() : AppConstants.END_DATE).getTime()),
-                    new Timestamp(format.parse(req.getUnloadEnd() != null ? req.getUnloadEnd() : AppConstants.END_DATE).getTime()),
-                    req.getPage() * req.getSize(), req.getSize());
-            totalElement = repository.getCargoCountByFilter(
-                    req.getWord(), req.getWord(), req.getWord(), req.getWord(),
-                    req.getClientId(), req.getCarrierId(), req.getSenderCountryId(), req.getReceiverCountryId(), req.getStatusId(),
-                    new Timestamp(format.parse(req.getLoadStart() != null ? req.getLoadStart() : AppConstants.BEGIN_DATE).getTime()),
-                    new Timestamp(format.parse(req.getLoadEnd() != null ? req.getLoadEnd() : AppConstants.END_DATE).getTime()),
-                    new Timestamp(format.parse(req.getUnloadStart() != null ? req.getUnloadStart() : AppConstants.END_DATE).getTime()),
-                    new Timestamp(format.parse(req.getUnloadEnd() != null ? req.getUnloadEnd() : AppConstants.END_DATE).getTime()));
-        } catch (ParseException e) {
-            e.printStackTrace();
-            return ResponseEntity.ok(new ResPageable(new ArrayList<>(), totalElement, req.getPage()));
-        }
+        List<CargoEntity> entityList = repository.getAllCargos();
         for (CargoEntity entity : entityList) {
             ResCargo resCargo = getResCargo(entity);
             if (entity.getExpenseList() != null && entity.getExpenseList().size() > 0) {
@@ -483,7 +459,7 @@ public class CargoService {
             list.add(resCargo);
         }
 
-        return ResponseEntity.ok(new ResPageable(list, totalElement, req.getPage()));
+        return list;
     }
 
   public ResCargo getResCargo(CargoEntity entity) {

@@ -180,7 +180,7 @@ export default ({
           payload: {
             itemList: data.object,
             searchParams: {...payload},
-            pagination: {...pagination, current: payload.page + 1, total: data.totalElements}
+            pagination: {...pagination, current: payload.page + 1}
           }
         })
       }

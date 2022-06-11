@@ -9,9 +9,9 @@ import org.springframework.http.HttpEntity;
 import org.springframework.web.bind.annotation.*;
 import uz.smart.dto.TransactionsDto;
 import uz.smart.payload.ApiResponse;
-import uz.smart.payload.ReqTransactionSearch;
 import uz.smart.service.TransactionService;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -46,9 +46,9 @@ public class TransactionController {
         return service.getById(id);
     }
 
-    @PostMapping("/list")
-    public HttpEntity<?> getByFilter(@RequestBody ReqTransactionSearch req) {
-        return service.getTransactionByFilter(req);
+    @GetMapping("/list")
+    public List<TransactionsDto> getList() {
+        return service.getTransactionList();
     }
 
     @GetMapping("/num")

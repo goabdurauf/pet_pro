@@ -20,13 +20,9 @@ import uz.smart.exception.ResourceNotFoundException;
 import uz.smart.mapper.MapperUtil;
 import uz.smart.payload.*;
 import uz.smart.repository.*;
-import uz.smart.utils.AppConstants;
 import uz.smart.utils.CommonUtils;
 
 import java.math.BigDecimal;
-import java.sql.Timestamp;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -64,7 +60,6 @@ public class ShippingService {
     @Autowired
     MapperUtil mapper;
 
-    private final SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy");
 
     public HttpEntity<?> saveAndUpdateShipping(ShippingDto dto) {
         ShippingEntity entity = dto.getId() == null
@@ -213,31 +208,9 @@ public class ShippingService {
                         0), true);
     }
 
-    public HttpEntity<?> getShippingList(ReqShippingSearch req) {
-        Set<ShippingEntity> list;
-        long totalElement = 0;
-        req.setWord(req.getWord() == null ? null : req.getWord().toLowerCase());
-        try {
-            list = repository.getShippingByFilter(
-                    req.getWord(), req.getWord(), req.getWord(),
-                    req.getTransportKindId(), req.getClientId(), req.getCarrierId(), req.getManagerId(),
-                    new Timestamp(format.parse(req.getLoadStart() != null ? req.getLoadStart() : AppConstants.BEGIN_DATE).getTime()),
-                    new Timestamp(format.parse(req.getLoadEnd() != null ? req.getLoadEnd() : AppConstants.END_DATE).getTime()),
-                    new Timestamp(format.parse(req.getUnloadStart() != null ? req.getUnloadStart() : AppConstants.END_DATE).getTime()),
-                    new Timestamp(format.parse(req.getUnloadEnd() != null ? req.getUnloadEnd() : AppConstants.END_DATE).getTime()),
-                    req.getPage() * req.getSize(), req.getSize());
-            totalElement = repository.getShippingCountByFilter(
-                    req.getWord(), req.getWord(), req.getWord(),
-                    req.getTransportKindId(), req.getClientId(), req.getCarrierId(), req.getManagerId(),
-                    new Timestamp(format.parse(req.getLoadStart() != null ? req.getLoadStart() : AppConstants.BEGIN_DATE).getTime()),
-                    new Timestamp(format.parse(req.getLoadEnd() != null ? req.getLoadEnd() : AppConstants.END_DATE).getTime()),
-                    new Timestamp(format.parse(req.getUnloadStart() != null ? req.getUnloadStart() : AppConstants.END_DATE).getTime()),
-                    new Timestamp(format.parse(req.getUnloadEnd() != null ? req.getUnloadEnd() : AppConstants.END_DATE).getTime()));
-        } catch (ParseException e) {
-            e.printStackTrace();
-            return ResponseEntity.ok(new ResPageable(new ArrayList<>(), totalElement, req.getPage()));
-        }
-        return ResponseEntity.ok(new ResPageable(getShippingListWithExpenses(new ArrayList<>(list)), totalElement, req.getPage()));
+    public List<ResShipping> getShippingList() {
+        List<ShippingEntity> entityList = repository.getAllShipping();
+        return getShippingListWithExpenses(entityList);
     }
 
     public List<ResShipping> getShippingListWithExpenses(List<ShippingEntity> entityList) {

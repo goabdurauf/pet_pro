@@ -406,8 +406,7 @@ class Catalog extends Component {
         dispatch({
           type: 'catalog/updateState',
           payload: {
-            isModalOpen: false,
-            productAttachments: []
+            isModalOpen: false
           }
         })
       }

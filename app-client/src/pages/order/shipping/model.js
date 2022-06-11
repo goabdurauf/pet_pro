@@ -1,14 +1,4 @@
-import {
-  getSelectOrders,
-  getManagers,
-  getListItems,
-  saveShipping,
-  getShippingList,
-  getShippingById,
-  deleteShippingById,
-  getCarrierList,
-  getClientList
-} from '@/services/service'
+import {getSelectOrders, getManagers, getListItems, saveShipping, getShippingList, getShippingById, deleteShippingById, getCarrierList} from '@/services/service'
 import {notification} from 'antd'
 import {routerRedux} from "dva/router";
 import {Link} from "umi";
@@ -27,14 +17,8 @@ export default ({
     modalWidth: 800,
     isBtnDisabled: false,
     isPlanning: false,
-    searchParams: {page:0, size:50},
-    pagination: {
-      current: 1,
-      pageSize: 50,
-      position: ["bottomCenter"]
-    },    managerList: [],
+    managerList: [],
     carrierList: [],
-    clientList: [],
     currencyList: [],
     shipTypeList: [],
     transportKindList: [],
@@ -182,7 +166,6 @@ export default ({
     * getAdditionals({payload}, {call, put, select}) {
       let manager = yield call(getManagers);
       let carrier = yield call(getCarrierList);
-      let client = yield call(getClientList);
       let currency = yield call(getListItems, 4);
       let shipType = yield call(getListItems, 5);
       let trKindList = yield call(getListItems, 10);
@@ -195,7 +178,6 @@ export default ({
           payload: {
             managerList: manager.list,
             carrierList: carrier.list,
-            clientList: client.list,
             currencyList: currency.list,
             shipTypeList: shipType.list,
             transportKindList: trKindList.list,
@@ -206,35 +188,18 @@ export default ({
       }
     },
     * queryShipping({payload}, {call, put, select}) {
-      const {searchParams, pagination} = yield select(_ => _.shipping);
-      let data = yield call(getShippingList, searchParams);
+      let data = yield call(getShippingList);
 
       if (data.success) {
         yield put({
           type: 'updateState',
           payload: {
             model: 'Shipping',
-            itemList: data.object,
-            pagination: {...pagination, total: data.totalElements},
+            itemList: data.list,
             isModalOpen: false,
             isBtnDisabled: false,
             isPlanning: false,
             modalType: 'create',
-          }
-        })
-      }
-    },
-    * searchShipping({payload}, {call, put, select}) {
-      const {pagination} = yield select(_ => _.shipping);
-      let data = yield call(getShippingList, payload);
-
-      if (data.success) {
-        yield put({
-          type: 'updateState',
-          payload: {
-            itemList: data.object,
-            searchParams: {...payload},
-            pagination: {...pagination, current: payload.page + 1, total: data.totalElements}
           }
         })
       }
@@ -280,8 +245,7 @@ export default ({
             currentItem: result,
             isModalOpen: true,
             modalType: 'update',
-            selectOrderList: result.orderSelect,
-            modalWidth: 800
+            selectOrderList: result.orderSelect
           }
         })
       } else {
@@ -326,8 +290,7 @@ export default ({
           currentItem: {rate:1},
           modalType: 'create',
           isBtnDisabled: false,
-          selectOrderList: orders.object,
-          modalWidth: 800
+          selectOrderList: orders.object
         }
       })
     },

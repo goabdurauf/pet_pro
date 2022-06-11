@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import {Col, Form, Modal, Row} from 'antd'
 import {Label} from "reactstrap";
 
-const searchModal = ({ formItems, handleSubmit, searchParams,
+const modal = ({ formItems, handleSubmit, searchParams,
                  ...modalProps }) => {
   const [form] = Form.useForm()
   function handleFormSubmit (values) {
@@ -25,8 +25,8 @@ const searchModal = ({ formItems, handleSubmit, searchParams,
   </Modal>)
 };
 
-searchModal.propTypes = {
+modal.propTypes = {
   handleSubmit: PropTypes.func
 };
 
-export default (searchModal);
+export default (modal);
