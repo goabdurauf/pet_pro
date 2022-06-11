@@ -16,76 +16,141 @@ import uz.smart.exception.ResourceNotFoundException;
 import uz.smart.mapper.MapperUtil;
 import uz.smart.payload.*;
 import uz.smart.repository.*;
+import uz.smart.utils.AppConstants;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.sql.Timestamp;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 public class CargoService {
 
-  @Autowired
-  CargoRepository repository;
-  @Autowired
-  CargoDetailRepository detailRepository;
-  @Autowired
-  ListRepository listRepository;
-  @Autowired
-  AttachmentRepository attachmentRepository;
-  @Autowired
-  AttachmentContentRepository attachmentContentRepository;
-  @Autowired
-  OrderRepository orderRepository;
-  @Autowired
-  DocumentRepository documentRepository;
-  @Autowired
-  ShippingRepository shippingRepository;
-  @Autowired
-  ExpenseRepository expenseRepository;
-  @Autowired
-  InvoiceRepository invoiceRepository;
-  @Autowired
-  ClientRepository clientRepository;
-  @Autowired
-  ProductRepository productRepository;
+    @Autowired
+    CargoRepository repository;
+    @Autowired
+    CargoDetailRepository detailRepository;
+    @Autowired
+    ListRepository listRepository;
+    @Autowired
+    AttachmentRepository attachmentRepository;
+    @Autowired
+    AttachmentContentRepository attachmentContentRepository;
+    @Autowired
+    OrderRepository orderRepository;
+    @Autowired
+    DocumentRepository documentRepository;
+    @Autowired
+    ShippingRepository shippingRepository;
+    @Autowired
+    ExpenseRepository expenseRepository;
+    @Autowired
+    InvoiceRepository invoiceRepository;
+    @Autowired
+    ClientRepository clientRepository;
+    @Autowired
+    ProductRepository productRepository;
 
-  @Autowired
-  DocumentService documentService;
-  @Autowired
-  OrderService orderService;
-  @Autowired
-  ShippingService shippingService;
-  @Autowired
-  ExpenseService expenseService;
-  @Autowired
-  MapperUtil mapper;
+    @Autowired
+    DocumentService documentService;
+    @Autowired
+    OrderService orderService;
+    @Autowired
+    ShippingService shippingService;
+    @Autowired
+    ExpenseService expenseService;
+    @Autowired
+    MapperUtil mapper;
 
-  private CargoEntity lastEntity;
+    private CargoEntity lastEntity;
+    private final SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy");
 
-  public HttpEntity<?> saveAndUpdate(CargoDto dto) {
-    CargoEntity entity = dto.getId() == null
-            ? mapper.toCargoEntity(dto, new CargoEntity())
-            : mapper.toCargoEntity(dto, repository.findById(dto.getId())
-            .orElseThrow(() -> new ResourceNotFoundException("Cargo", "Id", dto.getId())));
+    public HttpEntity<?> saveAndUpdate(CargoDto dto) {
+        CargoEntity entity = dto.getId() == null
+                ? mapper.toCargoEntity(dto, new CargoEntity())
+                : mapper.toCargoEntity(dto, repository.findById(dto.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Cargo", "Id", dto.getId())));
 
-    OrderEntity order = orderRepository.findById(dto.getOrderId())
-            .orElseThrow(() -> new ResourceNotFoundException("Cargo", "orderId", dto.getOrderId()));
-    entity.setOrder(order);
+        OrderEntity order = orderRepository.findById(dto.getOrderId())
+                .orElseThrow(() -> new ResourceNotFoundException("Cargo", "orderId", dto.getOrderId()));
+        entity.setOrder(order);
 
-    if (dto.getProductId() != null)
-      entity.setProduct(productRepository.findById(dto.getProductId())
-              .orElseThrow(() -> new ResourceNotFoundException("Cargo", "productId", dto.getProductId())));
+        if (dto.getProductId() != null)
+            entity.setProduct(productRepository.findById(dto.getProductId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Cargo", "productId", dto.getProductId())));
 
-    if (dto.getId() == null) {
-      List<CargoEntity> entityList = repository.getAllByOrder_IdAndStateOrderByCreatedAt(order.getId(), 1);
-      if (entityList.size() > 0) {
-        String lastNum = entityList.get(entityList.size() - 1).getNum();
-        int num = Integer.parseInt(lastNum.substring(lastNum.lastIndexOf("-") + 1)) + 1;
-        entity.setNum(lastNum.substring(0, lastNum.lastIndexOf("-") + 1) + num);
-      } else
-        entity.setNum(order.getNum() + "-" + 1);
-    }
+        if (dto.getId() == null) {
+            List<CargoEntity> entityList = repository.getAllByOrder_IdAndStateOrderByCreatedAt(order.getId(), 1);
+            if (entityList.size() > 0) {
+                String lastNum = entityList.get(entityList.size() - 1).getNum();
+                int num = Integer.parseInt(lastNum.substring(lastNum.lastIndexOf("-") + 1)) + 1;
+                entity.setNum(lastNum.substring(0, lastNum.lastIndexOf("-") + 1) + num);
+            } else
+                entity.setNum(order.getNum() + "-" + 1);
+        }
+
+        if (dto.getTransportKindId() != null) {
+            ListEntity transportKind = listRepository.findById(dto.getTransportKindId())
+                    .orElseThrow(() -> new ResourceNotFoundException("List", "transportKindId", dto.getTransportKindId()));
+            entity.setTransportKindName(transportKind.getNameRu());
+        }
+        if (dto.getTransportConditionId() != null) {
+            ListEntity transportCondition = listRepository.findById(dto.getTransportConditionId())
+                    .orElseThrow(() -> new ResourceNotFoundException("List", "transportConditionId", dto.getTransportConditionId()));
+            entity.setTransportConditionName(transportCondition.getNameRu());
+        }
+        if (dto.getSenderCountryId() != null) {
+            ListEntity senderCountry = listRepository.findById(dto.getSenderCountryId())
+                    .orElseThrow(() -> new ResourceNotFoundException("List", "senderCountryId", dto.getSenderCountryId()));
+            entity.setSenderCountryName(senderCountry.getNameRu());
+        }
+        if (dto.getReceiverCountryId() != null) {
+            ListEntity receiverCountry = listRepository.findById(dto.getReceiverCountryId())
+                    .orElseThrow(() -> new ResourceNotFoundException("List", "receiverCountryId", dto.getReceiverCountryId()));
+            entity.setReceiverCountryName(receiverCountry.getNameRu());
+        }
+        if (dto.getCustomFromCountryId() != null) {
+            ListEntity customFromCountry = listRepository.findById(dto.getCustomFromCountryId())
+                    .orElseThrow(() -> new ResourceNotFoundException("List", "customFromCountryId", dto.getCustomFromCountryId()));
+            entity.setCustomFromCountryName(customFromCountry.getNameRu());
+        }
+        if (dto.getCustomToCountryId() != null) {
+            ListEntity customToCountry = listRepository.findById(dto.getCustomToCountryId())
+                    .orElseThrow(() -> new ResourceNotFoundException("List", "customToCountryId", dto.getCustomToCountryId()));
+            entity.setCustomToCountryName(customToCountry.getNameRu());
+        }
+        if (dto.getRegTypeId() != null) {
+            ListEntity regType = listRepository.findById(dto.getRegTypeId())
+                    .orElseThrow(() -> new ResourceNotFoundException("List", "cargoRegTypeId", dto.getRegTypeId()));
+            entity.setRegTypeName(regType.getNameRu());
+        }
+
+        ListEntity currency = listRepository.findById(dto.getCurrencyId())
+                .orElseThrow(() -> new ResourceNotFoundException("List", "currencyId", dto.getCurrencyId()));
+        entity.setCurrencyName(currency.getNameRu());
+
+        entity.setCargoDetails(null);
+        entity = repository.saveAndFlush(entity);
+
+        List<CargoDetailEntity> cargoDetails = new ArrayList<>();
+        if (dto.getCargoDetails() != null) {
+            for (CargoDetailDto detailDto : dto.getCargoDetails()) {
+                CargoDetailEntity detailEntity = detailDto.getId() == null
+                        ? mapper.toCargoDetailEntity(detailDto, new CargoDetailEntity())
+                        : mapper.toCargoDetailEntity(detailDto, detailRepository.findById(detailDto.getId())
+                        .orElseThrow(() -> new ResourceNotFoundException("Carrier", "Id", dto.getId())));
+                ListEntity packegeType = listRepository.findById(detailDto.getPackageTypeId())
+                        .orElseThrow(() -> new ResourceNotFoundException("List", "packegeTypeId", detailDto.getPackageTypeId()));
+                detailEntity.setPackageTypeName(packegeType.getNameRu());
+
+                detailEntity = detailRepository.save(detailEntity);
+                cargoDetails.add(detailEntity);
+            }
+        }
+        entity.setCargoDetails(cargoDetails);
 
     if (dto.getTransportKindId() != null) {
       ListEntity transportKind = listRepository.findById(dto.getTransportKindId())
@@ -361,8 +426,65 @@ public class CargoService {
       list.add(getResCargo(entity));
     }
 
-    return list;
-  }
+    public HttpEntity<?> getCargoList(ReqCargoSearch req) {
+        List<ResCargo> list = new ArrayList<>();
+        Set<CargoEntity> entityList;
+        long totalElement = 0;
+        req.setWord(req.getWord() == null ? null : req.getWord().toLowerCase());
+        try {
+            entityList = repository.getCargoListByFilter(
+                    req.getWord(), req.getWord(), req.getWord(), req.getWord(),
+                    req.getClientId(), req.getCarrierId(), req.getSenderCountryId(), req.getReceiverCountryId(), req.getStatusId(),
+                    new Timestamp(format.parse(req.getLoadStart() != null ? req.getLoadStart() : AppConstants.BEGIN_DATE).getTime()),
+                    new Timestamp(format.parse(req.getLoadEnd() != null ? req.getLoadEnd() : AppConstants.END_DATE).getTime()),
+                    new Timestamp(format.parse(req.getUnloadStart() != null ? req.getUnloadStart() : AppConstants.END_DATE).getTime()),
+                    new Timestamp(format.parse(req.getUnloadEnd() != null ? req.getUnloadEnd() : AppConstants.END_DATE).getTime()),
+                    req.getPage() * req.getSize(), req.getSize());
+            totalElement = repository.getCargoCountByFilter(
+                    req.getWord(), req.getWord(), req.getWord(), req.getWord(),
+                    req.getClientId(), req.getCarrierId(), req.getSenderCountryId(), req.getReceiverCountryId(), req.getStatusId(),
+                    new Timestamp(format.parse(req.getLoadStart() != null ? req.getLoadStart() : AppConstants.BEGIN_DATE).getTime()),
+                    new Timestamp(format.parse(req.getLoadEnd() != null ? req.getLoadEnd() : AppConstants.END_DATE).getTime()),
+                    new Timestamp(format.parse(req.getUnloadStart() != null ? req.getUnloadStart() : AppConstants.END_DATE).getTime()),
+                    new Timestamp(format.parse(req.getUnloadEnd() != null ? req.getUnloadEnd() : AppConstants.END_DATE).getTime()));
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return ResponseEntity.ok(new ResPageable(new ArrayList<>(), totalElement, req.getPage()));
+        }
+        for (CargoEntity entity : entityList) {
+            ResCargo resCargo = getResCargo(entity);
+            if (entity.getExpenseList() != null && entity.getExpenseList().size() > 0) {
+                List<ExpenseDto> expenseList = new ArrayList<>();
+                for (ExpenseEntity expense : entity.getExpenseList()) {
+                    if (expense.getOldId() == null) {
+                        expenseList.add(new ExpenseDto(
+                                expense.getId(),
+                                ExpenseType.Cargo,
+                                expense.getInvoiceInId(),
+                                expense.getInvoiceOutId(),
+                                expense.getFromCurrencyName(),
+                                expense.getFromPrice(),
+                                expense.getToCurrencyName(),
+                                expense.getToPrice()
+                        ));
+                    } else {
+                        expenseList.add(new ExpenseDto(
+                                expense.getId(),
+                                ExpenseType.Shipping,
+                                expense.getInvoiceInId(),
+                                expense.getInvoiceOutId(),
+                                expense.getToCurrencyName(),
+                                expense.getToPrice()
+                        ));
+                    }
+                }
+                resCargo.setExpenseList(expenseList);
+            }
+            list.add(resCargo);
+        }
+
+        return ResponseEntity.ok(new ResPageable(list, totalElement, req.getPage()));
+    }
 
   public ResCargo getResCargo(CargoEntity entity) {
     ResCargo resCargo = getCargo(entity);

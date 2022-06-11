@@ -98,7 +98,7 @@ public class OrderService {
         Page<OrderEntity> page = null;
         try {
             page = repository.getOrdersByFilter(
-                    req.getNum(),
+                    req.getNum() != null ? req.getNum().toLowerCase() : null,
                     new Timestamp(format.parse(req.getStart() != null ? req.getStart() : AppConstants.BEGIN_DATE).getTime()),
                     new Timestamp(format.parse(req.getEnd() != null ? req.getEnd() : AppConstants.END_DATE).getTime()),
                     req.getClientId(), req.getManagerId(), req.getStatusId(),

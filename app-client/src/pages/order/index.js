@@ -5,7 +5,7 @@ import {
 import {connect} from "react-redux";
 import {DeleteOutlined, FormOutlined, PlusOutlined, SearchOutlined} from "@ant-design/icons";
 import {Button, Label} from "reactstrap";
-import SearchModal from './modal'
+import SearchModal from './modals/searchModal'
 import 'moment/locale/ru';
 import locale from 'antd/es/date-picker/locale/ru_RU';
 import moment from "moment";
@@ -143,7 +143,9 @@ class Order extends Component {
       dispatch({
         type: 'order/searchOrder',
         payload: {
-          ...values
+          ...searchParams,
+          ...values,
+          page: 0,
         }
       })
     }

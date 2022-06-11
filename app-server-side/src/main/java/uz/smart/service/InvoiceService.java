@@ -15,12 +15,19 @@ import uz.smart.entity.enums.VerificationType;
 import uz.smart.exception.ResourceNotFoundException;
 import uz.smart.mapper.MapperUtil;
 import uz.smart.payload.ApiResponse;
+import uz.smart.payload.ReqInvoiceSearch;
 import uz.smart.payload.ResInvoice;
+import uz.smart.payload.ResPageable;
 import uz.smart.repository.*;
+import uz.smart.utils.AppConstants;
 
 import java.math.BigDecimal;
+import java.sql.Timestamp;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -48,6 +55,8 @@ public class InvoiceService {
     VerificationActRepository verificationActRepository;
     @Autowired
     MapperUtil mapperUtil;
+
+    private final SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy");
 
     public HttpEntity<?> saveInvoice(InvoiceDto dto) {
         InvoiceEntity entity = dto.getId() == null
@@ -169,14 +178,44 @@ public class InvoiceService {
                 .orElseThrow(() -> new ResourceNotFoundException("Invoice", "Id", id)));
     }
 
-    public List<ResInvoice> getByType(String type) {
+    public HttpEntity<?> getByType(String type, ReqInvoiceSearch req) {
+        req.setWord(req.getWord() == null ? null : req.getWord().toLowerCase());
+        long totalElement = 0;
         List<ResInvoice> list = new ArrayList<>();
-        List<InvoiceEntity> entities = repository.getAllInvoices(type.equals("in") ? List.of(1, 2, 3) : List.of(4, 5));
-        for (InvoiceEntity invoice : entities) {
+        Set<InvoiceEntity> entityList; // = repository.getInvoicesByTypeAndFilter(type.equals("in") ? List.of(1, 2, 3) : List.of(4, 5));
+        try {
+            if (type.equals("in")) {
+                entityList = repository.getInvoicesInByFilter(
+                        req.getWord(), req.getWord(), req.getWord(), req.getCarrierId(),
+                        new Timestamp(format.parse(req.getStart() != null ? req.getStart() : AppConstants.BEGIN_DATE).getTime()),
+                        new Timestamp(format.parse(req.getEnd() != null ? req.getEnd() : AppConstants.BEGIN_DATE).getTime()),
+                        req.getPage() * req.getSize(), req.getSize(), List.of(1, 2, 3));
+                totalElement = repository.getInvoicesInCount(
+                        req.getWord(), req.getWord(), req.getWord(), req.getCarrierId(),
+                        new Timestamp(format.parse(req.getStart() != null ? req.getStart() : AppConstants.BEGIN_DATE).getTime()),
+                        new Timestamp(format.parse(req.getEnd() != null ? req.getEnd() : AppConstants.BEGIN_DATE).getTime()),
+                        List.of(1, 2, 3));
+            } else {
+                entityList = repository.getInvoicesOutByFilter(
+                        req.getWord(), req.getWord(), req.getWord(), req.getClientId(),
+                        new Timestamp(format.parse(req.getStart() != null ? req.getStart() : AppConstants.BEGIN_DATE).getTime()),
+                        new Timestamp(format.parse(req.getEnd() != null ? req.getEnd() : AppConstants.BEGIN_DATE).getTime()),
+                        req.getPage() * req.getSize(), req.getSize(), List.of(4, 5));
+                totalElement = repository.getInvoicesOutCount(
+                        req.getWord(), req.getWord(), req.getWord(), req.getClientId(),
+                        new Timestamp(format.parse(req.getStart() != null ? req.getStart() : AppConstants.BEGIN_DATE).getTime()),
+                        new Timestamp(format.parse(req.getEnd() != null ? req.getEnd() : AppConstants.BEGIN_DATE).getTime()),
+                        List.of(4, 5));
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return ResponseEntity.ok(new ResPageable(new ArrayList<>(), totalElement, req.getPage()));
+        }
+        for (InvoiceEntity invoice : entityList) {
             list.add(getResInvoice(invoice));
         }
 
-        return list;
+        return ResponseEntity.ok(new ResPageable(list, totalElement, req.getPage()));
     }
 
     public ResInvoice getResInvoice(InvoiceEntity entity) {
@@ -197,9 +236,7 @@ public class InvoiceService {
             res.setName(expense != null ? expense.getName() : "Трансортная услуга (рейс)");
         } else {
             ExpenseEntity expense = expenseRepository.findTopByInvoiceOutId(res.getId()).orElse(new ExpenseEntity());
-
             CargoEntity cargo = entity.getCargo();
-
             ClientEntity client = clientRepository.findById(entity.getClientId())
                     .orElseThrow(() -> new ResourceNotFoundException("Invoice", "clientId", entity.getClientId()));
             res.setClientName(client.getName());

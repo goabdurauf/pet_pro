@@ -1,11 +1,15 @@
 import React, {Component} from 'react';
-import {Card, Col, Popconfirm, Row, Space, Table, Tabs, Tooltip, Typography} from 'antd';
+import {Card, Col, DatePicker, Input, Popconfirm, Row, Select, Space, Table, Tabs, Tooltip, Typography} from 'antd';
 import {connect} from "react-redux";
 import {Button} from "reactstrap";
-import {DeleteOutlined, FormOutlined, PlusOutlined, MinusOutlined} from "@ant-design/icons";
+import {DeleteOutlined, FormOutlined, PlusOutlined, MinusOutlined, SearchOutlined} from "@ant-design/icons";
 import InvoiceModal from "../order/shipping/$shipping_detail/modals/invoiceModal";
 import KassaInModal from "./modals/kassaInModal";
 import KassaOutModal from "./modals/kassaOutModal";
+import SearchModal from "../order/modals/searchModal"
+import KassaSearchModal from "./modals/kassaSearchModal"
+import moment from "moment";
+import locale from "antd/es/date-picker/locale/ru_RU";
 const { TabPane } = Tabs;
 
 @connect(({app, finance}) => ({app, finance}))
@@ -13,8 +17,76 @@ class Finance extends Component {
   render() {
     const {dispatch, finance} = this.props;
     const {model, isModalOpen, itemList, invoiceList, currentItem, modalType, isBtnDisabled, currencyList, visibleColumns, clientList, kassaList, agentList,
-      otherExpenseList, createTitle, editTitle, modalWidth, carrierList, kassaInOutType, clientId, currencyId, kassaBalance} = finance;
+      otherExpenseList, createTitle, editTitle, modalWidth, carrierList, kassaInOutType, clientId, currencyId, kassaBalance, searchParams, pagination} = finance;
 
+    const getSearchItems = () => {
+      switch (model) {
+        case 'SentInvoices': return [
+          {
+            label: "Название расхода, номер рейса или номер транспорта",
+            name: 'word',
+            width: 24,
+            rules: [{required: false, message: ''}],
+            obj: <Input allowClear placeholder='название расхода, номер рейса или номер транспорта' />
+          },
+          {
+            label: "Клиент",
+            name: 'clientId',
+            width: 12,
+            rules: [{required: false, message: ''}],
+            obj: <Select allowClear placeholder='клиент'>
+              {clientList.map(client => <Select.Option key={client.id} value={client.id}>{client.name}</Select.Option>)}
+            </Select>
+          },
+          {
+            label: "Начальная дата счёта",
+            name: 'start',
+            width: 12,
+            rules: [{required: false, message: ''}],
+            obj: <DatePicker format={'DD.MM.YYYY'} locale={locale}/>
+          },
+          {
+            label: "Конечная дата счёта",
+            name: 'end',
+            width: 12,
+            rules: [{required: false, message: ''}],
+            obj: <DatePicker format={'DD.MM.YYYY'} locale={locale}/>
+          }];
+        case 'ReceivedInvoices': return [
+          {
+            label: "Название расхода, номер рейса или номер транспорта",
+            name: 'word',
+            width: 24,
+            rules: [{required: false, message: ''}],
+            obj: <Input allowClear placeholder='название расхода, номер рейса или номер транспорта' />
+          },
+          {
+            label: "Перевозчик",
+            name: 'carrierId',
+            width: 12,
+            rules: [{required: false, message: ''}],
+            obj: <Select allowClear placeholder='перевозчик'>
+              {carrierList.map(carrier => <Select.Option key={carrier.id} value={carrier.id}>{carrier.name}</Select.Option>)}
+            </Select>
+          },
+          {
+            label: "Начальная дата счёта",
+            name: 'start',
+            width: 12,
+            rules: [{required: false, message: ''}],
+            obj: <DatePicker format={'DD.MM.YYYY'} locale={locale}/>
+          },
+          {
+            label: "Конечная дата счёта",
+            name: 'end',
+            width: 12,
+            rules: [{required: false, message: ''}],
+            obj: <DatePicker format={'DD.MM.YYYY'} locale={locale}/>
+          }];
+
+        default: return [];
+      }
+    }
     const onChange = (key) => {
       if (key === 'ReceivedInvoices') {
         dispatch({
@@ -48,7 +120,8 @@ class Finance extends Component {
           clientId: null,
           currencyId: null,
           createTitle:'Добавить поступление в кассу',
-          isBtnDisabled: false
+          isBtnDisabled: false,
+          modalWidth: 1100
         }
       })
       dispatch({
@@ -65,7 +138,8 @@ class Finance extends Component {
           clientId: null,
           currencyId: null,
           createTitle:'Добавить расход из кассы',
-          isBtnDisabled: false
+          isBtnDisabled: false,
+          modalWidth: 1100
         }
       })
       dispatch({
@@ -79,6 +153,24 @@ class Finance extends Component {
         payload: {
           isModalOpen: !isModalOpen,
           currentItem: null,
+        }
+      })
+    }
+    const openSearchModal = () => {
+      if (searchParams !== null) {
+        if (searchParams.start !== null && searchParams.start !== undefined)
+          searchParams.start = moment(searchParams.start, 'DD.MM.YYYY HH:mm:ss');
+        if (searchParams.end !== null && searchParams.end !== undefined)
+          searchParams.end = moment(searchParams.end, 'DD.MM.YYYY HH:mm:ss');
+      }
+      dispatch({
+        type: 'finance/updateState',
+        payload: {
+          isModalOpen: !isModalOpen,
+          modalType: 'Search',
+          createTitle: 'Поиск',
+          editTitle: 'Поиск',
+          modalWidth: 600
         }
       })
     }
@@ -145,6 +237,30 @@ class Finance extends Component {
         type: 'finance/updateState',
         payload: {
           kassaInOutType: val
+        }
+      })
+    }
+    const handleSearch = (values) => {
+      dispatch({
+        type: 'finance/updateState',
+        payload: {isModalOpen: false}
+      })
+
+      let start = values.start;
+      if (start !== undefined && start !== null)
+        values.start = start.format('DD.MM.YYYY HH:mm:ss');
+
+      let end = values.end;
+      if (end !== undefined && end !== null)
+        values.end = end.format('DD.MM.YYYY HH:mm:ss');
+
+      dispatch({
+        type: 'finance/search' + model,
+        payload: {
+          ...searchParams,
+          ...values,
+          page: 0,
+          type: model === 'SentInvoices' ? 'out' : 'in'
         }
       })
     }
@@ -222,28 +338,27 @@ class Finance extends Component {
       );
       return data;
     }
+    const handleTableChange = (pagination) => {
+      dispatch({
+        type: 'finance/searchSentInvoices',
+        payload: {
+          ...searchParams,
+          page: pagination.current - 1,
+          type: model === 'SentInvoices' ? 'out' : 'in'
+        }
+      })
+    }
 
     const TabBody = () => {
       return <div>
-        {/*
         <Row>
-          <Col span={4} offset={20}>
-            <Button className="float-right" outline color="primary" size="sm" onClick={openModal}><PlusOutlined/> Добавить</Button>
+          <Col span={1} offset={23}>
+            <Button className="float-right" outline color="primary" size="sm" onClick={openSearchModal}><SearchOutlined/></Button>
           </Col>
         </Row>
-        <Row>
-          <Col span={4}><Typography.Title level={4}>EURO Logistics</Typography.Title></Col>
-        </Row>
-        */}
         <Table columns={columns} dataSource={itemList} bordered size="middle" rowKey={record => record.id}
-               pagination={{position: ["bottomCenter"]}} style={{marginBottom: '0.5em'}}/>
-        {/*
-        <Row>
-          <Col span={4}><Typography.Title level={4}>ASIA Logistics</Typography.Title></Col>
-        </Row>
-        <Table columns={columns} dataSource={itemList} bordered size="middle" rowKey={record => record.id}
-               pagination={{position: ["bottomCenter"]}}/>
-        */}
+               pagination={pagination} style={{marginBottom: '0.5em'}}
+               onChange={handleTableChange} scroll={{ y: 600 }}/>
       </div>;
     }
 
@@ -264,6 +379,9 @@ class Finance extends Component {
                 <Col span={3}>
                   <Button className="float-left" outline color="primary" size="sm" onClick={openKassaOutModal}><MinusOutlined style={{color: 'red'}}/> Расход</Button>
                 </Col>
+                <Col span={1}>
+                  <Button outline color="primary" size="sm" onClick={openSearchModal}><SearchOutlined/></Button>
+                </Col>
                 {getKassaInfo()}
               </Row>
               <Table columns={columns} dataSource={itemList} bordered size="middle" rowKey={record => record.id}
@@ -272,13 +390,25 @@ class Finance extends Component {
           </Tabs>
         </Card>
 
-        {isModalOpen && (model === 'ReceivedInvoices' || model === 'SentInvoices') &&
+        {isModalOpen && (model === 'ReceivedInvoices' || model === 'SentInvoices') && modalType !== 'Search' &&
           <InvoiceModal
             {...invoiceModalProps}
             currencyList={currencyList} currentItem={currentItem} handleSubmit={handleSubmit} isBtnDisabled={isBtnDisabled}
           />
         }
-        {isModalOpen && model === 'Kassa' && kassaInOutType < 200 &&
+        {isModalOpen && modalType === 'Search' && model !== 'Kassa' &&
+          <SearchModal
+            {...modalProps} formItems={getSearchItems()} searchParams={searchParams} handleSubmit={handleSearch}
+          />
+        }
+        {isModalOpen && modalType === 'Search' && model === 'Kassa' &&
+          <KassaSearchModal
+            {...modalProps}
+            searchParams={searchParams} handleSubmit={handleSearch} handleInTypeChange={handleInTypeChange} kassaType={kassaInOutType}
+            clientList={clientList} carrierList={carrierList} agentList={agentList} otherExpenseList={otherExpenseList} kassaList={kassaList}
+          />
+        }
+        {isModalOpen && model === 'Kassa' && kassaInOutType < 200 && modalType !== 'Search' &&
           <KassaInModal
             {...modalProps}
             isBtnDisabled={isBtnDisabled} handleSubmit={handleKassaSubmit} currentItem={currentItem} currencyList={currencyList}
@@ -287,7 +417,7 @@ class Finance extends Component {
             clientId={clientId} currencyId={currencyId} setClient={setClient} setCurrency={setCurrency} kassaBalance={kassaBalance} setKassaBalance={setKassaBalance}
           />
         }
-        {isModalOpen && model === 'Kassa' && kassaInOutType > 200 &&
+        {isModalOpen && model === 'Kassa' && kassaInOutType > 200 && modalType !== 'Search' &&
           <KassaOutModal
             {...modalProps}
             isBtnDisabled={isBtnDisabled} handleSubmit={handleKassaSubmit} currentItem={currentItem} currencyList={currencyList}
