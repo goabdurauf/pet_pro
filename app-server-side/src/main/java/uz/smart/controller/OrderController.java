@@ -15,11 +15,9 @@ import uz.smart.dto.OrderSelectDto;
 import uz.smart.payload.ReqOrderSearch;
 import uz.smart.payload.ResOrder;
 import uz.smart.payload.ResPageable;
-import uz.smart.service.report.OrderReportService;
 import uz.smart.service.OrderService;
 
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
@@ -30,9 +28,6 @@ public class OrderController {
 
     @Autowired
     OrderService service;
-
-    @Autowired
-    OrderReportService reportService;
 
     @PostMapping("/save")
     public HttpEntity<?> save(@RequestBody OrderDto dto) {
@@ -63,7 +58,7 @@ public class OrderController {
     }
 
     @GetMapping("/report")
-    public void getDetail(@RequestBody ReqOrderSearch req, HttpServletResponse response) throws IOException {
-        reportService.download(response, req);
+    public void getOrderReport(@RequestBody ReqOrderSearch req, HttpServletResponse response) {
+        service.getExcelFile(response, req);
     }
 }

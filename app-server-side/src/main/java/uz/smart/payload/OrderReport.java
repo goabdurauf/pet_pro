@@ -1,16 +1,17 @@
 package uz.smart.payload;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Setter;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 
 import java.util.Date;
 
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class OrderReport {
-    private Long rowNum;
     private String num;
     private Date date;
     private String clientName;
