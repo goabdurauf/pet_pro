@@ -1,6 +1,21 @@
-import {getInvoiceList, getListItems, updateInvoice, getInvoiceById, deleteInvoiceById, getClientList, getKassaList, getCarrierList,
-  saveTransactionIn, updateTransactionIn, getTransactionList, getTransactionById, getInvoicesByTypeAndClientIdAndCurrencyId, getInvoicesByTypeAndClientId,
-  saveTransactionOut, updateTransactionOut, getTransactionNextNum
+import {
+  getInvoiceList,
+  getListItems,
+  updateInvoice,
+  getInvoiceById,
+  deleteInvoiceById,
+  getClientList,
+  getKassaList,
+  getCarrierList,
+  saveTransactionIn,
+  updateTransactionIn,
+  getTransactionList,
+  getTransactionById,
+  getInvoicesByTypeAndClientIdAndCurrencyId,
+  getInvoicesByTypeAndClientId,
+  saveTransactionOut,
+  updateTransactionOut,
+  getTransactionNextNum
 } from '@/services/service'
 import {notification} from 'antd'
 import {BsCircle, BsCircleHalf, BsCircleFill} from 'react-icons/bs'
@@ -23,6 +38,12 @@ export default ({
     modalWidth: 500,
     kassaInOutType: 0,
     kassaBalance: null,
+    searchParams: {page:0, size:50},
+    pagination: {
+      current: 1,
+      pageSize: 50,
+      position: ["bottomCenter"]
+    },
     currencyList: [],
     clientList: [],
     kassaList: [],
@@ -81,14 +102,18 @@ export default ({
       }
     },
     * queryReceivedInvoices({payload}, {call, put, select}) {
-      let data = yield call(getInvoiceList, payload);
+      let searchParams = {page:0, size:50};
+      let pagination = {current: 1, pageSize: 50, position: ["bottomCenter"]};
+      let data = yield call(getInvoiceList, {...payload, ...searchParams});
 
       if (data.success) {
         yield put({
           type: 'updateState',
           payload: {
             model: 'ReceivedInvoices',
-            itemList: data.list,
+            itemList: data.object,
+            searchParams,
+            pagination: {...pagination, total: data.totalElements},
             currentItem: null,
             isModalOpen: false,
             isBtnDisabled: false,
@@ -239,14 +264,18 @@ export default ({
       }
     },
     * querySentInvoices({payload}, {call, put, select}) {
-      let data = yield call(getInvoiceList, payload);
+      let searchParams = {page:0, size:50};
+      let pagination = {current: 1, pageSize: 50, position: ["bottomCenter"]};
+      let data = yield call(getInvoiceList, {...payload, ...searchParams});
 
       if (data.success) {
         yield put({
           type: 'updateState',
           payload: {
             model: 'SentInvoices',
-            itemList: data.list,
+            itemList: data.object,
+            searchParams,
+            pagination: {...pagination, total: data.totalElements},
             currentItem: null,
             isModalOpen: false,
             isBtnDisabled: false,
@@ -328,6 +357,27 @@ export default ({
         })
       }
     },
+    * searchSentInvoices({payload}, {call, put, select}) {
+      const {pagination} = yield select(_ => _.finance);
+      let data = yield call(getInvoiceList, payload);
+
+      if (data.success) {
+        yield put({
+          type: 'updateState',
+          payload: {
+            itemList: data.object,
+            searchParams: {...payload},
+            pagination: {...pagination, current: payload.page + 1, total: data.totalElements}
+          }
+        })
+      }
+    },
+    * searchReceivedInvoices({payload}, {call, put, select}) {
+      yield put({
+        type: 'searchSentInvoices',
+        payload: {...payload}
+      })
+    },
     * saveSentInvoices({payload}, {call, put, select}) {
       const result = yield call(updateInvoice, payload);
       if (result.success) {
@@ -397,7 +447,9 @@ export default ({
       }
     },
     * queryKassa({payload}, {call, put, select}) {
-      let data = yield call(getTransactionList);
+      let searchParams = {page:0, size:50};
+      let pagination = {current: 1, pageSize: 50, position: ["bottomCenter"]};
+      let data = yield call(getTransactionList, searchParams);
       let kassa = yield call(getKassaList);
 
       if (data.success) {
@@ -405,7 +457,8 @@ export default ({
           type: 'updateState',
           payload: {
             model: 'Kassa',
-            itemList: data.list,
+            itemList: data.object,
+            pagination: {...pagination, total: data.totalElements},
             kassaList: kassa.list,
             currentItem: null,
             isModalOpen: false,
@@ -572,6 +625,21 @@ export default ({
           duration: 3,
           style: {backgroundColor: '#ffd9d9'}
         });
+      }
+    },
+    * searchKassa({payload}, {call, put, select}) {
+      const {pagination} = yield select(_ => _.finance);
+      let data = yield call(getTransactionList, payload);
+
+      if (data.success) {
+        yield put({
+          type: 'updateState',
+          payload: {
+            itemList: data.object,
+            searchParams: {...payload},
+            pagination: {...pagination, current: payload.page + 1, total: data.totalElements}
+          }
+        })
       }
     },
     * getKassaNextNum({payload}, {call, put, select}) {

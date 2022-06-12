@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.web.bind.annotation.*;
 import uz.smart.dto.InvoiceDto;
+import uz.smart.payload.ReqInvoiceSearch;
 import uz.smart.payload.ResInvoice;
 import uz.smart.service.InvoiceService;
 
@@ -36,9 +37,9 @@ public class InvoiceController {
         return service.getOne(id);
     }
 
-    @GetMapping("/list/{type}")
-    public List<ResInvoice> getList(@PathVariable String type) {
-        return service.getByType(type);
+    @PostMapping("/list/{type}")
+    public HttpEntity<?> getList(@PathVariable String type, @RequestBody ReqInvoiceSearch req) {
+        return service.getByType(type, req);
     }
 
     @GetMapping("/{type}/{clientId}")

@@ -15,76 +15,90 @@ import uz.smart.entity.ListEntity;
 import uz.smart.exception.ResourceNotFoundException;
 import uz.smart.mapper.MapperUtil;
 import uz.smart.payload.ApiResponse;
+import uz.smart.projection.ClientGrowthCount;
 import uz.smart.repository.ClientRepository;
 import uz.smart.repository.ListRepository;
 import uz.smart.repository.OrderRepository;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
 public class ClientService {
 
-    private final ClientRepository repository;
-    private final ListRepository listRepository;
-    private final OrderRepository orderRepository;
+  private final ClientRepository repository;
+  private final ListRepository listRepository;
+  private final OrderRepository orderRepository;
 
-    private final MapperUtil mapperUtil;
+  private final MapperUtil mapperUtil;
 
-    private Long days = 120L;
+  private Long days = 120L;
 
-    public HttpEntity<?> saveAndUpdateClient(ClientDto dto) {
-        ClientEntity entity = dto.getId() == null
-                ? mapperUtil.toClientEntity(dto)
-                : mapperUtil.updateClientEntity(dto, repository.findById(dto.getId())
-                .orElseThrow(() -> new ResourceNotFoundException("Client", "Id", dto.getId())));
+  public HttpEntity<?> saveAndUpdateClient(ClientDto dto) {
+    ClientEntity entity = dto.getId() == null
+            ? mapperUtil.toClientEntity(dto)
+            : mapperUtil.updateClientEntity(dto, repository.findById(dto.getId())
+            .orElseThrow(() -> new ResourceNotFoundException("Client", "Id", dto.getId())));
 
-        ListEntity country = listRepository.findById(dto.getCountryId())
-                .orElseThrow(() -> new ResourceNotFoundException("List", "countryId", dto.getCountryId()));
-        entity.setCountryName(country.getNameRu());
+    ListEntity country = listRepository.findById(dto.getCountryId())
+            .orElseThrow(() -> new ResourceNotFoundException("List", "countryId", dto.getCountryId()));
+    entity.setCountryName(country.getNameRu());
 
-        ListEntity about = listRepository.findById(dto.getAboutId())
-                .orElseThrow(() -> new ResourceNotFoundException("List", "aboutId", dto.getAboutId()));
-        entity.setAboutName(about.getNameRu());
+    ListEntity about = listRepository.findById(dto.getAboutId())
+            .orElseThrow(() -> new ResourceNotFoundException("List", "aboutId", dto.getAboutId()));
+    entity.setAboutName(about.getNameRu());
 
-        repository.save(entity);
-        return ResponseEntity.ok().body(new ApiResponse("Сохранено успешно", true));
+    repository.save(entity);
+    return ResponseEntity.ok().body(new ApiResponse("Сохранено успешно", true));
+  }
+
+  public HttpEntity<?> deleteClient(UUID id) {
+    List<Integer> stateOfClientOrder = orderRepository.getStatesByClientId(id);
+
+    if (!stateOfClientOrder.isEmpty()) {
+      boolean isNotStateActive = stateOfClientOrder
+              .stream()
+              .allMatch(el -> el == 0);
+
+      if (!isNotStateActive) {
+        return ResponseEntity.ok().body(new ApiResponse("Ошибка, у этого клиента есть доступные заказы!", false));
+      }
     }
 
-    public HttpEntity<?> deleteClient(UUID id) {
-        repository.updateById(id);
-        return ResponseEntity.ok().body(new ApiResponse("Удалено успешно", true));
+    repository.updateById(id);
+    return ResponseEntity.ok().body(new ApiResponse("Удалено успешно", true));
+  }
+
+  public ClientDto getClient(UUID id) {
+    return mapperUtil.toClientDto(repository.getClientById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Client", "id", id)));
+  }
+
+  public List<ClientDto> getClientList() {
+    List<ClientDto> resList = new ArrayList<>();
+    List<ClientEntity> clients = repository.getAllClients();
+    for (ClientEntity entity : clients) {
+      ClientDto dto = mapperUtil.toClientDto(entity);
+      orderRepository.getFirstByClientIdOrderByCreatedAtDesc(entity.getId())
+              .ifPresent(order -> dto.setLastOrder(TimeUnit.DAYS.convert(Math.abs(new Date().getTime() - order.getCreatedAt().getTime()), TimeUnit.MILLISECONDS)));
+      resList.add(dto);
     }
 
-    public ClientDto getClient(UUID id) {
-        return mapperUtil.toClientDto(repository.getClientById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Client", "id", id)));
-    }
+    return resList;
+  }
 
-    public List<ClientDto> getClientList() {
-        List<ClientDto> resList = new ArrayList<>();
-        List<ClientEntity> clients = repository.getAllClients();
-        for (ClientEntity entity : clients) {
-            ClientDto dto = mapperUtil.toClientDto(entity);
-            orderRepository.getFirstByClientIdOrderByCreatedAtDesc(entity.getId())
-                    .ifPresent(order -> dto.setLastOrder(TimeUnit.DAYS.convert(Math.abs(new Date().getTime() - order.getCreatedAt().getTime()), TimeUnit.MILLISECONDS)));
-            resList.add(dto);
-        }
+  public ClientReportDto getClientReport(Long day) {
+    if (day != -1)
+      days = day;
+    return new ClientReportDto(
+            repository.countAllByState(1),
+            orderRepository.getActiveClientsCount(days),
+            days
+    );
+  }
 
-        return resList;
-    }
-
-    public ClientReportDto getClientReport(Long day) {
-        if (day != -1)
-            days = day;
-        return new ClientReportDto(
-                repository.countAllByState(1),
-                orderRepository.getActiveClientsCount(days),
-                days
-        );
-    }
+  public List<ClientGrowthCount> getClientCountByCreatedAt(Date begin, Date end) {
+   return repository.getClientCountByCreatedAt(begin, end);
+  }
 }
