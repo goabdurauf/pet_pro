@@ -7,8 +7,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-public class ResPageable {
-    private Object object;
+public class ResPageable<T> {
+    private T object;
     private long totalElements;
     private int currentPage;
 }

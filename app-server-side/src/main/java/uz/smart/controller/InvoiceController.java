@@ -8,9 +8,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.web.bind.annotation.*;
 import uz.smart.dto.InvoiceDto;
+import uz.smart.payload.ReqInvoiceSearch;
 import uz.smart.payload.ResInvoice;
 import uz.smart.service.InvoiceService;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 import java.util.UUID;
 
@@ -36,9 +38,9 @@ public class InvoiceController {
         return service.getOne(id);
     }
 
-    @GetMapping("/list/{type}")
-    public List<ResInvoice> getList(@PathVariable String type) {
-        return service.getByType(type);
+    @PostMapping("/list/{type}")
+    public HttpEntity<?> getList(@PathVariable String type, @RequestBody ReqInvoiceSearch req) {
+        return service.getByType(type, req);
     }
 
     @GetMapping("/{type}/{clientId}")
@@ -54,5 +56,10 @@ public class InvoiceController {
     @DeleteMapping("/{id}")
     public HttpEntity<?> delete(@PathVariable UUID id) {
         return service.delete(id);
+    }
+
+    @PostMapping("/report/{type}")
+    public void getExcelFile(HttpServletResponse response, @PathVariable String type, @RequestBody ReqInvoiceSearch req) {
+         service.getExcelFile(response ,type, req);
     }
 }

@@ -9,7 +9,9 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
 import uz.smart.entity.ClientEntity;
+import uz.smart.projection.ClientGrowthCount;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -28,4 +30,11 @@ public interface ClientRepository extends JpaRepository<ClientEntity, UUID> {
     List<ClientEntity> getAllClients();
 
     long countAllByState(int state);
+
+    @Query(value = "select count(*) as clientCount, cast(created_at as date) as date" +
+            "  from clients " +
+            " where created_at between :begin and :end" +
+            " group by cast(created_at as date)" +
+            " order by cast(created_at as date)", nativeQuery = true)
+   List<ClientGrowthCount> getClientCountByCreatedAt(Date begin, Date end);
 }

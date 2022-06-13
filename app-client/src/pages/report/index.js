@@ -265,7 +265,7 @@ class Report extends Component {
     const IncomeShippingTabBody = () => {
       var data = [];
       itemList && model === 'IncomeByShipping' && itemList.forEach((item, i) => {
-        item && item.forEach((aRow, index) => {
+        item && Array.isArray(item) && item.forEach((aRow, index) => {
           aRow.rowCount = item.length;
           aRow.id = (i + 1) * 100 + index;
           data.push(aRow);

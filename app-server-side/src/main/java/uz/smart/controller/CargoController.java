@@ -42,8 +42,8 @@ public class CargoController {
     @GetMapping("/{id}")
     public CargoDto get(@PathVariable UUID id) { return service.getCargo(id); }
 
-    @GetMapping("/list")
-    public List<ResCargo> getList() { return service.getCargoList(); }
+    @PostMapping("/list")
+    public HttpEntity<?> getList(@RequestBody ReqCargoSearch req) { return service.getCargoList(req); }
 
     @GetMapping("/order/{id}")
     public List<ResCargo> getListByOrder(@PathVariable UUID id) { return service.getCargoListByOrderId(id); }
