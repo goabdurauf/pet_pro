@@ -103,7 +103,7 @@ export default {
   ],
   proxy: {
     "/api": {
-      "target": "http://localhost:80/",
+      "target": "http://10.226.32.99:80/",
       "changeOrigin": true
     }
   },

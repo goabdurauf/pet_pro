@@ -208,6 +208,13 @@ export default ({
         });
       }
     },
+    download({ payload }, { call, put, select}) {
+      console.log(payload)
+      // put({
+      //   type: 'download',
+      //   payload: {}
+      // })
+    },
     * getOrderById({payload}, {call, put, select}) {
       const result = yield call(getOrderById, payload.id);
       if (result.success) {
