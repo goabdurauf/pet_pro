@@ -165,4 +165,20 @@ body {
     body .course-section .container .row .col-md-12 .row .col-md-1 img {
       cursor: pointer; }
 
+.table-cell {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ant-table-cell div.table-cell:not(:last-child) {
+  border-bottom: 1px solid rgba(0,0,0, .2);
+}
+
+table .ant-table-row  {
+  height: 1px !important;
+}
+.ant-table-tbody > tr > td {
+  height: inherit;
+}
+
 /*# sourceMappingURL=global.css.map */
