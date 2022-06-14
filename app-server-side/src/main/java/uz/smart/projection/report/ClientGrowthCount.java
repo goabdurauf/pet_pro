@@ -1,4 +1,4 @@
-package uz.smart.projection;
+package uz.smart.projection.report;
 
 import java.util.Date;
 

@@ -5,6 +5,7 @@ package uz.smart.controller;
 */
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +17,7 @@ import uz.smart.payload.ResOrder;
 import uz.smart.payload.ResPageable;
 import uz.smart.service.OrderService;
 
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -52,5 +54,11 @@ public class OrderController {
         List<OrderSelectDto> result = service.getOrdersForSelect(null);
 
         return ResponseEntity.status(HttpStatus.OK).body(new ResPageable(result, 0, 0));
+    }
+
+    @GetMapping("/growth-report")
+    public HttpEntity<?> getClientCountByCreatedAt(@RequestParam @DateTimeFormat(pattern = "dd.MM.yyyy") Date begin,
+                                                   @RequestParam @DateTimeFormat(pattern = "dd.MM.yyyy") Date end) {
+        return ResponseEntity.ok(service.getClientCountByCreatedAt(begin, end));
     }
 }

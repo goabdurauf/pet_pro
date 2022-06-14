@@ -15,7 +15,8 @@ import uz.smart.entity.ListEntity;
 import uz.smart.exception.ResourceNotFoundException;
 import uz.smart.mapper.MapperUtil;
 import uz.smart.payload.ApiResponse;
-import uz.smart.projection.ClientGrowthCount;
+import uz.smart.projection.report.ClientDebtGrowth;
+import uz.smart.projection.report.ClientGrowthCount;
 import uz.smart.repository.ClientRepository;
 import uz.smart.repository.ListRepository;
 import uz.smart.repository.OrderRepository;
@@ -99,6 +100,10 @@ public class ClientService {
   }
 
   public List<ClientGrowthCount> getClientCountByCreatedAt(Date begin, Date end) {
-   return repository.getClientCountByCreatedAt(begin, end);
+    return repository.getClientCountByCreatedAt(begin, end);
+  }
+
+  public List<ClientDebtGrowth> getClientsDebt() {
+    return repository.getClientsDebt();
   }
 }

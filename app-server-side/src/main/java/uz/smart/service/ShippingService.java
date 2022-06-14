@@ -34,66 +34,66 @@ import java.util.stream.Collectors;
 @Service
 public class ShippingService {
 
-    @Autowired
-    UserRepository userRepository;
-    @Autowired
-    CarrierRepository carrierRepository;
-    @Autowired
-    OrderRepository orderRepository;
-    @Autowired
-    ShippingRepository repository;
-    @Autowired
-    ListRepository listRepository;
-    @Autowired
-    ClientRepository clientRepository;
-    @Autowired
-    CargoRepository cargoRepository;
-    @Autowired
-    DocumentRepository documentRepository;
-    @Autowired
-    ExpenseRepository expenseRepository;
-    @Autowired
-    InvoiceRepository invoiceRepository;
+  @Autowired
+  UserRepository userRepository;
+  @Autowired
+  CarrierRepository carrierRepository;
+  @Autowired
+  OrderRepository orderRepository;
+  @Autowired
+  ShippingRepository repository;
+  @Autowired
+  ListRepository listRepository;
+  @Autowired
+  ClientRepository clientRepository;
+  @Autowired
+  CargoRepository cargoRepository;
+  @Autowired
+  DocumentRepository documentRepository;
+  @Autowired
+  ExpenseRepository expenseRepository;
+  @Autowired
+  InvoiceRepository invoiceRepository;
 
-    @Autowired
-    OrderService orderService;
-    @Autowired
-    DocumentService documentService;
-    @Autowired
-    CargoService cargoService;
-    @Autowired
-    ExpenseService expenseService;
-    @Autowired
-    MapperUtil mapper;
+  @Autowired
+  OrderService orderService;
+  @Autowired
+  DocumentService documentService;
+  @Autowired
+  CargoService cargoService;
+  @Autowired
+  ExpenseService expenseService;
+  @Autowired
+  MapperUtil mapper;
 
-    private final SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy");
+  private final SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy");
 
-    public HttpEntity<?> saveAndUpdateShipping(ShippingDto dto) {
-        ShippingEntity entity = dto.getId() == null
-                ? mapper.toShippingEntity(dto)
-                : mapper.updateShippingEntity(dto, repository.findById(dto.getId())
-                .orElseThrow(() -> new ResourceNotFoundException("Shipping", "Id", dto.getId())));
+  public HttpEntity<?> saveAndUpdateShipping(ShippingDto dto) {
+    ShippingEntity entity = dto.getId() == null
+            ? mapper.toShippingEntity(dto)
+            : mapper.updateShippingEntity(dto, repository.findById(dto.getId())
+            .orElseThrow(() -> new ResourceNotFoundException("Shipping", "Id", dto.getId())));
 
-        if (dto.getId() == null || (entity.getStatus() == ShippingStatus.Draft && dto.getStatusId() == null)) {
-            if (dto.getStatusId() == null) {
-                entity.setStatus(ShippingStatus.Standart);
-                Optional<ShippingEntity> opt = repository.getFirstByStatusOrderByCreatedAtDesc(ShippingStatus.Standart);
-                if (opt.isEmpty())
-                    entity.setNum(CommonUtils.generateNextNum("R", ""));
-                else
-                    entity.setNum(CommonUtils.generateNextNum("R", opt.get().getNum()));
-            } else {
-                entity.setStatus(ShippingStatus.Draft);
-                Optional<ShippingEntity> opt = repository.getFirstByStatusOrderByCreatedAtDesc(ShippingStatus.Draft);
-                if (opt.isEmpty())
-                    entity.setNum("R-P-01");
-                else {
-                    String lastNum = opt.get().getNum();
-                    int num = Integer.parseInt(lastNum.substring(lastNum.lastIndexOf('-') + 1)) + 1;
-                    entity.setNum("R-P-" + (num < 10 ? "0" + num : num));
-                }
-            }
+    if (dto.getId() == null || (entity.getStatus() == ShippingStatus.Draft && dto.getStatusId() == null)) {
+      if (dto.getStatusId() == null) {
+        entity.setStatus(ShippingStatus.Standart);
+        Optional<ShippingEntity> opt = repository.getFirstByStatusOrderByCreatedAtDesc(ShippingStatus.Standart);
+        if (opt.isEmpty())
+          entity.setNum(CommonUtils.generateNextNum("R", ""));
+        else
+          entity.setNum(CommonUtils.generateNextNum("R", opt.get().getNum()));
+      } else {
+        entity.setStatus(ShippingStatus.Draft);
+        Optional<ShippingEntity> opt = repository.getFirstByStatusOrderByCreatedAtDesc(ShippingStatus.Draft);
+        if (opt.isEmpty())
+          entity.setNum("R-P-01");
+        else {
+          String lastNum = opt.get().getNum();
+          int num = Integer.parseInt(lastNum.substring(lastNum.lastIndexOf('-') + 1)) + 1;
+          entity.setNum("R-P-" + (num < 10 ? "0" + num : num));
         }
+      }
+    }
 
     if (dto.getTransportKindId() != null) {
       ListEntity transportKind = listRepository.findById(dto.getTransportKindId())
@@ -165,88 +165,88 @@ public class ShippingService {
         cargoTrackingRepository.saveAndFlush(tracking);
        */
 
-        return ResponseEntity.ok().body(new ApiResponse("Сохранено успешно", true));
-    }
+    return ResponseEntity.ok().body(new ApiResponse("Сохранено успешно", true));
+  }
 
-    private void setCargoShippingToNull(ShippingEntity entity) {
-        if (entity.getCargoEntities() != null && entity.getCargoEntities().size() > 0) {
-            for (CargoEntity cargo : entity.getCargoEntities()) {
-                cargo.setShipping(null);
-                cargoRepository.saveAndFlush(cargo);
-            }
+  private void setCargoShippingToNull(ShippingEntity entity) {
+    if (entity.getCargoEntities() != null && entity.getCargoEntities().size() > 0) {
+      for (CargoEntity cargo : entity.getCargoEntities()) {
+        cargo.setShipping(null);
+        cargoRepository.saveAndFlush(cargo);
+      }
+    }
+  }
+
+  public ShippingDto getShipping(UUID id) {
+    ShippingEntity entity = repository.getShippingById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Shipping", "id", id));
+    ShippingDto dto = mapper.toShippingDto(entity);
+    if (entity.getCargoEntities() != null) {
+      dto.setCargoList(entity.getCargoEntities().stream().map(AbsEntity::getId).collect(Collectors.toList()));
+    }
+    dto.setStatusId(entity.getStatus().get());
+    dto.setOrderSelect(orderService.getOrdersForSelect(entity));
+
+    return dto;
+  }
+
+  public List<ResShipping> getShippingListByOrderId(UUID id) {
+    return getShippingList(
+            repository.getAllByOrderEntitiesInAndStateGreaterThan(
+                    List.of(orderRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Shipping", "cargoId", id))),
+                    0), true);
+  }
+
+  public HttpEntity<?> getShippingList(ReqShippingSearch req) {
+    Set<ShippingEntity> list;
+    long totalElement = 0;
+    req.setWord(req.getWord() == null ? null : req.getWord().toLowerCase());
+    try {
+      list = repository.getShippingByFilter(
+              req.getWord(), req.getWord(), req.getWord(),
+              req.getTransportKindId(), req.getClientId(), req.getCarrierId(), req.getManagerId(),
+              new Timestamp(format.parse(req.getLoadStart() != null ? req.getLoadStart() : AppConstants.BEGIN_DATE).getTime()),
+              new Timestamp(format.parse(req.getLoadEnd() != null ? req.getLoadEnd() : AppConstants.END_DATE).getTime()),
+              new Timestamp(format.parse(req.getUnloadStart() != null ? req.getUnloadStart() : AppConstants.END_DATE).getTime()),
+              new Timestamp(format.parse(req.getUnloadEnd() != null ? req.getUnloadEnd() : AppConstants.END_DATE).getTime()),
+              req.getPage() * req.getSize(), req.getSize());
+      totalElement = repository.getShippingCountByFilter(
+              req.getWord(), req.getWord(), req.getWord(),
+              req.getTransportKindId(), req.getClientId(), req.getCarrierId(), req.getManagerId(),
+              new Timestamp(format.parse(req.getLoadStart() != null ? req.getLoadStart() : AppConstants.BEGIN_DATE).getTime()),
+              new Timestamp(format.parse(req.getLoadEnd() != null ? req.getLoadEnd() : AppConstants.END_DATE).getTime()),
+              new Timestamp(format.parse(req.getUnloadStart() != null ? req.getUnloadStart() : AppConstants.END_DATE).getTime()),
+              new Timestamp(format.parse(req.getUnloadEnd() != null ? req.getUnloadEnd() : AppConstants.END_DATE).getTime()));
+    } catch (ParseException e) {
+      e.printStackTrace();
+      return ResponseEntity.ok(new ResPageable(new ArrayList<>(), totalElement, req.getPage()));
+    }
+    return ResponseEntity.ok(new ResPageable(getShippingListWithExpenses(new ArrayList<>(list)), totalElement, req.getPage()));
+  }
+
+  public List<ResShipping> getShippingListWithExpenses(List<ShippingEntity> entityList) {
+    List<ResShipping> list = new ArrayList<>();
+    for (ShippingEntity entity : entityList) {
+      ResShipping resShipping = getResShipping(entity, true);
+      if (entity.getExpenseList() != null && entity.getExpenseList().size() > 0) {
+        List<ExpenseDto> expenseList = new ArrayList<>();
+        for (ExpenseEntity expense : entity.getExpenseList()) {
+          expenseList.add(new ExpenseDto(
+                  expense.getId(),
+                  ExpenseType.Shipping,
+                  expense.getInvoiceInId(),
+                  expense.getInvoiceOutId(),
+                  expense.getFromCurrencyName(),
+                  expense.getFromPrice()
+          ));
         }
+        resShipping.setExpenseList(expenseList);
+      }
+
+      list.add(resShipping);
     }
-
-    public ShippingDto getShipping(UUID id) {
-        ShippingEntity entity = repository.getShippingById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Shipping", "id", id));
-        ShippingDto dto = mapper.toShippingDto(entity);
-        if (entity.getCargoEntities() != null) {
-            dto.setCargoList(entity.getCargoEntities().stream().map(AbsEntity::getId).collect(Collectors.toList()));
-        }
-        dto.setStatusId(entity.getStatus().get());
-        dto.setOrderSelect(orderService.getOrdersForSelect(entity));
-
-        return dto;
-    }
-
-    public List<ResShipping> getShippingListByOrderId(UUID id) {
-        return getShippingList(
-                repository.getAllByOrderEntitiesInAndStateGreaterThan(
-                        List.of(orderRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Shipping", "cargoId", id))),
-                        0), true);
-    }
-
-    public HttpEntity<?> getShippingList(ReqShippingSearch req) {
-        Set<ShippingEntity> list;
-        long totalElement = 0;
-        req.setWord(req.getWord() == null ? null : req.getWord().toLowerCase());
-        try {
-            list = repository.getShippingByFilter(
-                    req.getWord(), req.getWord(), req.getWord(),
-                    req.getTransportKindId(), req.getClientId(), req.getCarrierId(), req.getManagerId(),
-                    new Timestamp(format.parse(req.getLoadStart() != null ? req.getLoadStart() : AppConstants.BEGIN_DATE).getTime()),
-                    new Timestamp(format.parse(req.getLoadEnd() != null ? req.getLoadEnd() : AppConstants.END_DATE).getTime()),
-                    new Timestamp(format.parse(req.getUnloadStart() != null ? req.getUnloadStart() : AppConstants.END_DATE).getTime()),
-                    new Timestamp(format.parse(req.getUnloadEnd() != null ? req.getUnloadEnd() : AppConstants.END_DATE).getTime()),
-                    req.getPage() * req.getSize(), req.getSize());
-            totalElement = repository.getShippingCountByFilter(
-                    req.getWord(), req.getWord(), req.getWord(),
-                    req.getTransportKindId(), req.getClientId(), req.getCarrierId(), req.getManagerId(),
-                    new Timestamp(format.parse(req.getLoadStart() != null ? req.getLoadStart() : AppConstants.BEGIN_DATE).getTime()),
-                    new Timestamp(format.parse(req.getLoadEnd() != null ? req.getLoadEnd() : AppConstants.END_DATE).getTime()),
-                    new Timestamp(format.parse(req.getUnloadStart() != null ? req.getUnloadStart() : AppConstants.END_DATE).getTime()),
-                    new Timestamp(format.parse(req.getUnloadEnd() != null ? req.getUnloadEnd() : AppConstants.END_DATE).getTime()));
-        } catch (ParseException e) {
-            e.printStackTrace();
-            return ResponseEntity.ok(new ResPageable(new ArrayList<>(), totalElement, req.getPage()));
-        }
-        return ResponseEntity.ok(new ResPageable(getShippingListWithExpenses(new ArrayList<>(list)), totalElement, req.getPage()));
-    }
-
-    public List<ResShipping> getShippingListWithExpenses(List<ShippingEntity> entityList) {
-        List<ResShipping> list = new ArrayList<>();
-        for (ShippingEntity entity : entityList) {
-            ResShipping resShipping = getResShipping(entity, true);
-            if (entity.getExpenseList() != null && entity.getExpenseList().size() > 0) {
-                List<ExpenseDto> expenseList = new ArrayList<>();
-                for (ExpenseEntity expense : entity.getExpenseList()) {
-                    expenseList.add(new ExpenseDto(
-                            expense.getId(),
-                            ExpenseType.Shipping,
-                            expense.getInvoiceInId(),
-                            expense.getInvoiceOutId(),
-                            expense.getFromCurrencyName(),
-                            expense.getFromPrice()
-                    ));
-                }
-                resShipping.setExpenseList(expenseList);
-            }
-
-            list.add(resShipping);
-        }
-        return list;
-    }
+    return list;
+  }
 
   public HttpEntity<?> deleteShipping(UUID id) {
     ShippingEntity shipping = repository.getShippingById(id)
@@ -532,6 +532,37 @@ public class ShippingService {
       });
     }
 
+
+    /* Get client's cargos, and details */
+    List<InTrackingClient> inTrackingClients = new ArrayList<>();
+
+    entity.getOrderEntities().forEach(order -> {
+      // Get client from order
+      ClientEntity client = clientRepository.getClientById(order.getClientId()).orElseThrow();
+
+      // Get cargos from order
+      List<CargoEntity> cargos = cargoRepository.getAllCargosByOrderId(order.getId());
+
+      //Making new dto for tracking
+      InTrackingClient inTrackingClient = new InTrackingClient();
+      inTrackingClient.setClientId(client.getId());
+      inTrackingClient.setClientName(client.getName());
+
+      List<InTrackingClientCargo> clientCargos = new ArrayList<>();
+      cargos.forEach(cargo -> {
+        InTrackingClientCargo inTrackingClientCargo = new InTrackingClientCargo();
+        inTrackingClientCargo.setCargoId(cargo.getId());
+        inTrackingClientCargo.setCargoName(cargo.getName());
+        inTrackingClientCargo.setCargoDetails(cargo.getCargoDetails());
+        clientCargos.add(inTrackingClientCargo);
+      });
+
+      inTrackingClient.setClientCargos(clientCargos);
+      inTrackingClients.add(inTrackingClient);
+    });
+
+
+    dto.setCargos(inTrackingClients);
     return dto;
   }
 

@@ -4,9 +4,7 @@ package uz.smart.entity;
     Created by Ilhom Ahmadjonov on 22.10.2021. 
 */
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import uz.smart.entity.enums.ShippingStatus;
 import uz.smart.entity.template.BaseEntity;
 
@@ -17,7 +15,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-@Data @NoArgsConstructor @AllArgsConstructor
+@Getter
+@Setter
+@NoArgsConstructor @AllArgsConstructor
 @Entity(name = "shipping")
 public class ShippingEntity extends BaseEntity {
     private String num;
