@@ -1,9 +1,11 @@
 import {saveOrder, getOrderList, getOrderById, deleteOrderById, getClientList, getManagers, getListItems,
-        getCarrierList} from '@/services/service'
+        getCarrierList, downloadOrder} from '@/services/service'
 import {notification, Tag} from 'antd'
 import moment from "moment";
 import {Link} from "umi";
 import {routerRedux} from "dva/router";
+import fileDownload from 'js-file-download'
+
 
 export default ({
   namespace: 'order',
@@ -12,7 +14,7 @@ export default ({
     isModalOpen: false,
     itemList: [],
     currentItem: null,
-    searchParams: {page:0, size:50},
+    searchParams: {page:0, size:50, num: '', clientId: null, managerId: null, statusId: null, start: null, end: null},
     modalType: 'create',
     createTitle: '',
     editTitle: '',
@@ -207,6 +209,9 @@ export default ({
           style: {backgroundColor: '#ffd9d9'}
         });
       }
+    },
+    * download({ payload }, { call, put, select}) {
+      yield call(downloadOrder, payload);
     },
     * getOrderById({payload}, {call, put, select}) {
       const result = yield call(getOrderById, payload.id);

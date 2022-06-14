@@ -15,7 +15,7 @@ import {
   getInvoicesByTypeAndClientId,
   saveTransactionOut,
   updateTransactionOut,
-  getTransactionNextNum
+  getTransactionNextNum, downloadInvoiceReport
 } from '@/services/service'
 import {notification} from 'antd'
 import {BsCircle, BsCircleHalf, BsCircleFill} from 'react-icons/bs'
@@ -102,7 +102,7 @@ export default ({
       }
     },
     * queryReceivedInvoices({payload}, {call, put, select}) {
-      let searchParams = {page:0, size:50};
+      let searchParams = {page:0, size:50, clientId: null, end: null, start: null, word: null};
       let pagination = {current: 1, pageSize: 50, position: ["bottomCenter"]};
       let data = yield call(getInvoiceList, {...payload, ...searchParams});
 
@@ -264,7 +264,7 @@ export default ({
       }
     },
     * querySentInvoices({payload}, {call, put, select}) {
-      let searchParams = {page:0, size:50};
+      let searchParams = {page:0, size:50, };
       let pagination = {current: 1, pageSize: 50, position: ["bottomCenter"]};
       let data = yield call(getInvoiceList, {...payload, ...searchParams});
 
@@ -660,8 +660,10 @@ export default ({
           style: {backgroundColor: '#ffd9d9'}
         });
       }
+    },
+    * download({payload}, {call, put, select}) {
+      yield call(downloadInvoiceReport, payload)
     }
-
   },
   reducers: {
     updateState(state, {payload}) {

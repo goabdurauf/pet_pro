@@ -63,6 +63,7 @@ export function getSelectOrders() {return request({url: '/api/order/select', met
 export function getOrderById(id) {return request({url: '/api/order/' + id, method: 'get',})}
 export function getOrderDetailById(id) {return request({url: '/api/order/detail/' + id, method: 'get',})}
 export function deleteOrderById(id) {return request({url: '/api/order/' + id, method: 'delete',})}
+export function downloadOrder(data) { return request({url: '/api/order/report', method: 'post', data, responseType: 'blob'}) }
 
 export function uploadFile(data) {return request({url: '/api/file', method: 'post', data})}
 export function deleteFile(id) {return request({url: '/api/file/' + id, method: 'delete'})}
@@ -100,6 +101,7 @@ export function getInvoicesByTypeAndClientId(data) {return request({url: '/api/i
 export function getInvoicesByTypeAndClientIdAndCurrencyId(data) {return request({url: '/api/invoice/' + data.type + '/' + data.clientId + '/' + data.currencyId, method: 'get'})}
 export function getInvoiceById(id) {return request({url: '/api/invoice/' + id, method: 'get',})}
 export function deleteInvoiceById(id) {return request({url: '/api/invoice/' + id, method: 'delete',})}
+export function downloadInvoiceReport(data) {return request({url: '/api/invoice/report/' + data.type, method: 'post', data, responseType: 'blob'})}
 
 export function saveKassa(data) {return request({url: '/api/kassa/save', method: 'post', data})}
 export function getKassaList() {return request({url: '/api/kassa/list', method: 'get',})}
@@ -120,4 +122,5 @@ export function getBalancesByDate(date) {return request({url: '/api/balances/bar
 export function getClientVerificationActs() {return request({url: '/api/balances/client/verification', method: 'get'})}
 export function getCarrierVerificationActs() {return request({url: '/api/balances/carrier/verification', method: 'get'})}
 export function getIncomeByShipping() {return request({url: '/api/balances/shipping/income', method: 'get'})}
-
+export function downloadClientReport() {return request({url: '/api/client/report', method: 'get', responseType: 'blob'})}
+export function downloadCarrierReport() { return request({url: '/api/carrier/report', method: 'get', responseType: 'blob'}) }

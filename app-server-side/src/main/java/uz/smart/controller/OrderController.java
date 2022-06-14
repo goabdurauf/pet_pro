@@ -17,6 +17,7 @@ import uz.smart.payload.ResOrder;
 import uz.smart.payload.ResPageable;
 import uz.smart.service.OrderService;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -61,4 +62,10 @@ public class OrderController {
                                                    @RequestParam @DateTimeFormat(pattern = "dd.MM.yyyy") Date end) {
         return ResponseEntity.ok(service.getClientCountByCreatedAt(begin, end));
     }
+
+    @PostMapping("/report")
+    public void getList(HttpServletResponse response, @RequestBody ReqOrderSearch req) {
+         service.getExcelFile(response, req);
+    }
+
 }

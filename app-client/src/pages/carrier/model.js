@@ -1,4 +1,12 @@
-import {getManagers, getListItems, getCarrierList, saveCarrier, getCarrierById, deleteCarrierById} from '@/services/service'
+import {
+  getManagers,
+  getListItems,
+  getCarrierList,
+  saveCarrier,
+  getCarrierById,
+  deleteCarrierById,
+  downloadCarrierReport
+} from '@/services/service'
 import {notification} from 'antd'
 
 export default ({
@@ -170,6 +178,9 @@ export default ({
           style: {backgroundColor: '#ffd9d9'}
         });
       }
+    },
+    * download({payload}, {call, put, select}) {
+      yield call(downloadCarrierReport)
     }
   },
   reducers: {

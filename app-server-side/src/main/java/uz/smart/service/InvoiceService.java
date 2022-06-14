@@ -14,21 +14,16 @@ import uz.smart.entity.enums.BalanceType;
 import uz.smart.entity.enums.VerificationType;
 import uz.smart.exception.ResourceNotFoundException;
 import uz.smart.mapper.MapperUtil;
-import uz.smart.payload.ApiResponse;
-import uz.smart.payload.ReqInvoiceSearch;
-import uz.smart.payload.ResInvoice;
-import uz.smart.payload.ResPageable;
+import uz.smart.payload.*;
 import uz.smart.repository.*;
 import uz.smart.utils.AppConstants;
 
+import javax.servlet.http.HttpServletResponse;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class InvoiceService {
@@ -55,6 +50,8 @@ public class InvoiceService {
     VerificationActRepository verificationActRepository;
     @Autowired
     MapperUtil mapperUtil;
+    @Autowired
+    ReportService reportService;
 
     private final SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy");
 
@@ -179,6 +176,11 @@ public class InvoiceService {
     }
 
     public HttpEntity<?> getByType(String type, ReqInvoiceSearch req) {
+        ResPageable<?> resPageable = getResPageable(type, req);
+        return ResponseEntity.ok(resPageable);
+    }
+
+    public ResPageable<List<ResInvoice>> getResPageable(String type, ReqInvoiceSearch req) {
         req.setWord(req.getWord() == null ? null : req.getWord().toLowerCase());
         long totalElement = 0;
         List<ResInvoice> list = new ArrayList<>();
@@ -209,13 +211,13 @@ public class InvoiceService {
             }
         } catch (ParseException e) {
             e.printStackTrace();
-            return ResponseEntity.ok(new ResPageable(new ArrayList<>(), totalElement, req.getPage()));
+            return new ResPageable<>(new ArrayList<>(), totalElement, req.getPage());
         }
         for (InvoiceEntity invoice : entityList) {
             list.add(getResInvoice(invoice));
         }
 
-        return ResponseEntity.ok(new ResPageable(list, totalElement, req.getPage()));
+        return new ResPageable<>(list, totalElement, req.getPage());
     }
 
     public ResInvoice getResInvoice(InvoiceEntity entity) {
@@ -299,5 +301,24 @@ public class InvoiceService {
         return list;
     }
 
+    public void getExcelFile(HttpServletResponse response, String type, ReqInvoiceSearch req) {
 
+        String[] sheetNames = new String[1];
+        String templateName = "";
+        String fileName = "";
+        HashMap<String, Object> params = new HashMap<>();
+        List<ResInvoice> invoiceReports = getResPageable(type, req).getObject();
+        if (type.equals("in")) {
+            sheetNames[0] = "Полученные счёта";
+            templateName = "ReceivedInvoiceReport.jrxml";
+            fileName = "ReceivedInvoiceReport";
+            params.put("isClient", false);
+        }else if(type.equals("out")) {
+            sheetNames[0] = "Выписанные счёта";
+            templateName = "ReceivedInvoiceReport.jrxml";
+            fileName = "IssuedInvoiceReport";
+            params.put("isClient", true);
+        }
+        reportService.getExcelFile(response, new Report<>(templateName, sheetNames, fileName, params, invoiceReports));
+    }
 }

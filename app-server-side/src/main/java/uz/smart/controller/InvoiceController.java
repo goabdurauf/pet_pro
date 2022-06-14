@@ -12,6 +12,7 @@ import uz.smart.payload.ReqInvoiceSearch;
 import uz.smart.payload.ResInvoice;
 import uz.smart.service.InvoiceService;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 import java.util.UUID;
 
@@ -55,5 +56,10 @@ public class InvoiceController {
     @DeleteMapping("/{id}")
     public HttpEntity<?> delete(@PathVariable UUID id) {
         return service.delete(id);
+    }
+
+    @PostMapping("/report/{type}")
+    public void getExcelFile(HttpServletResponse response, @PathVariable String type, @RequestBody ReqInvoiceSearch req) {
+         service.getExcelFile(response ,type, req);
     }
 }

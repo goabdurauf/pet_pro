@@ -14,15 +14,13 @@ import uz.smart.dto.OrderSelectDto;
 import uz.smart.entity.*;
 import uz.smart.exception.ResourceNotFoundException;
 import uz.smart.mapper.MapperUtil;
-import uz.smart.payload.ApiResponse;
-import uz.smart.payload.ReqOrderSearch;
-import uz.smart.payload.ResOrder;
-import uz.smart.payload.ResPageable;
+import uz.smart.payload.*;
 import uz.smart.projection.report.OrderGrowthCount;
 import uz.smart.repository.*;
 import uz.smart.utils.AppConstants;
 import uz.smart.utils.CommonUtils;
 
+import javax.servlet.http.HttpServletResponse;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -49,6 +47,8 @@ public class OrderService {
   ShippingService shippingService;
   @Autowired
   CargoService cargoService;
+  @Autowired
+  ReportService reportService;
 
   private final SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy");
 
@@ -106,9 +106,9 @@ public class OrderService {
               CommonUtils.getPageable(req.getPage(), req.getSize()));
     } catch (ParseException e) {
       e.printStackTrace();
-      return ResponseEntity.ok(new ResPageable(new ArrayList<>(), 0, req.getPage()));
+      return ResponseEntity.ok(new ResPageable<>(new ArrayList<>(), 0, req.getPage()));
     }
-    return ResponseEntity.ok(new ResPageable(getResOrderList(page.getContent(), true), page.getTotalElements(), req.getPage()));
+    return ResponseEntity.ok(new ResPageable<>(getResOrderList(page.getContent(), true), page.getTotalElements(), req.getPage()));
   }
 
   public List<OrderSelectDto> getOrdersForSelect(ShippingEntity shipping) {
@@ -177,4 +177,53 @@ public class OrderService {
   public List<OrderGrowthCount> getClientCountByCreatedAt(Date begin, Date end) {
     return repository.getOrderCountByCreatedAt(begin, end);
   }
+
+  public List<ResOrder> getOrderReportByFilter(ReqOrderSearch req) {
+    List<OrderEntity> orderReportByFilter;
+    try {
+      orderReportByFilter = repository.getOrderReportByFilter(
+          req.getNum(),
+          new Timestamp(format.parse(req.getStart() != null ? req.getStart() : AppConstants.BEGIN_DATE).getTime()),
+          new Timestamp(format.parse(req.getEnd() != null ? req.getEnd() : AppConstants.END_DATE).getTime()),
+          req.getClientId(), req.getManagerId(), req.getStatusId());
+    } catch (ParseException e) {
+      e.printStackTrace();
+      return new ArrayList<>();
+    }
+    return getResOrderList(orderReportByFilter, true);
+  }
+
+
+  public List<OrderReport> reportMapper(ReqOrderSearch req) {
+    List<ResOrder> orderReport = getOrderReportByFilter(req);
+    List<OrderReport> orderReports = new ArrayList<>();
+
+    for (ResOrder resOrder : orderReport) {
+      OrderReport report = new OrderReport();
+      report.setNum(resOrder.getNum());
+      report.setDate(resOrder.getDate());
+      report.setStatusId(resOrder.getStatusId());
+      report.setStatusName(resOrder.getStatusName());
+      report.setClientName(resOrder.getClientName());
+      report.setManagerName(resOrder.getManagerName());
+      if (!resOrder.getShippingList().isEmpty()) {
+        for (ResShipping resShipping : resOrder.getShippingList()) {
+          report.setCurrierName(resShipping.getCarrierName());
+          report.setShippingNum(resShipping.getNum());
+          report.setTransportNum(resShipping.getShippingNum());
+        }
+      }
+      orderReports.add(report);
+    }
+    return orderReports;
+  }
+
+  public void getExcelFile(HttpServletResponse response, ReqOrderSearch req) {
+    List<OrderReport> orderReports = reportMapper(req);
+    String[] sheetNames = {"Заказы"};
+    String templateName = "OrderReport.jrxml";
+    String fileName = "OrderReport";
+    reportService.getExcelFile(response, new Report<>(templateName, sheetNames, fileName, new HashMap<>(), orderReports));
+  }
+
 }
