@@ -33,7 +33,7 @@ public class ReportService {
 
     JasperReport jasper = JasperHelper.compileJasperReport(reportsDir, report.getTemplateName());
     JRBeanCollectionDataSource dataSource = new JRBeanCollectionDataSource(report.getData());
-    JasperPrint jasperPrint = JasperFillManager.fillReport(jasper, new HashMap<>(), dataSource);
+    JasperPrint jasperPrint = JasperFillManager.fillReport(jasper, report.getParams(), dataSource);
     List<JasperPrint> sheets = List.of(jasperPrint);
     return JasperHelper.exportReport(report.getSheetNames(), sheets).toByteArray();
   }

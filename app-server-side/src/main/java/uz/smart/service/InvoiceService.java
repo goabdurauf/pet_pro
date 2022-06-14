@@ -23,10 +23,7 @@ import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class InvoiceService {
@@ -305,10 +302,23 @@ public class InvoiceService {
     }
 
     public void getExcelFile(HttpServletResponse response, String type, ReqInvoiceSearch req) {
+
+        String[] sheetNames = new String[1];
+        String templateName = "";
+        String fileName = "";
+        HashMap<String, Object> params = new HashMap<>();
         List<ResInvoice> invoiceReports = getResPageable(type, req).getObject();
-        String[] sheetNames = {"Вы. счёт"};
-        String templateName = " ReceivedInvoiceReport.jrxml";
-        String fileName = "ReceivedInvoiceReport";
-        reportService.getExcelFile(response, new Report<>(templateName, sheetNames, fileName, invoiceReports));
+        if (type.equals("in")) {
+            sheetNames[0] = "Полученные счёта";
+            templateName = "ReceivedInvoiceReport.jrxml";
+            fileName = "ReceivedInvoiceReport";
+            params.put("isClient", false);
+        }else if(type.equals("out")) {
+            sheetNames[0] = "Выписанные счёта";
+            templateName = "ReceivedInvoiceReport.jrxml";
+            fileName = "IssuedInvoiceReport";
+            params.put("isClient", true);
+        }
+        reportService.getExcelFile(response, new Report<>(templateName, sheetNames, fileName, params, invoiceReports));
     }
 }

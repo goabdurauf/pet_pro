@@ -19,6 +19,7 @@ import uz.smart.repository.CarrierRepository;
 import uz.smart.repository.ListRepository;
 
 import javax.servlet.http.HttpServletResponse;
+import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
@@ -65,6 +66,6 @@ public class CarrierService {
         String[] sheetNames = {"Перевозчики"};
         String templateName = "CarrierReport.jrxml";
         String fileName = "CarrierReport";
-        reportService.getExcelFile(response, new Report<>(templateName, sheetNames, fileName, orderReports));
+        reportService.getExcelFile(response, new Report<>(templateName, sheetNames, fileName, new HashMap<>(), orderReports));
     }
 }
