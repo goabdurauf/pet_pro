@@ -48,9 +48,14 @@ public class ClientController {
     return ResponseEntity.ok(service.getClientReport(days));
   }
 
-  @GetMapping("/client-growth-report")
+  @GetMapping("/growth-report")
   public HttpEntity<?> getClientCountByCreatedAt(@RequestParam @DateTimeFormat(pattern = "dd.MM.yyyy") Date begin,
                                                  @RequestParam @DateTimeFormat(pattern = "dd.MM.yyyy") Date end) {
     return ResponseEntity.ok(service.getClientCountByCreatedAt(begin, end));
+  }
+
+  @GetMapping("/debt-report")
+  public HttpEntity<?> getClientsDebt() {
+    return ResponseEntity.ok(service.getClientsDebt());
   }
 }
