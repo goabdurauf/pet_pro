@@ -198,7 +198,7 @@ public class OrderService {
     List<ResOrder> orderReport = getOrderReportByFilter(req);
     List<OrderReport> orderReports = new ArrayList<>();
 
-    for (ResOrder resOrder : orderReport) {
+    orderReport.forEach(resOrder -> {
       OrderReport report = new OrderReport();
       report.setNum(resOrder.getNum());
       report.setDate(resOrder.getDate());
@@ -207,14 +207,14 @@ public class OrderService {
       report.setClientName(resOrder.getClientName());
       report.setManagerName(resOrder.getManagerName());
       if (!resOrder.getShippingList().isEmpty()) {
-        for (ResShipping resShipping : resOrder.getShippingList()) {
-          report.setCurrierName(resShipping.getCarrierName());
-          report.setShippingNum(resShipping.getNum());
-          report.setTransportNum(resShipping.getShippingNum());
+         resOrder.getShippingList().forEach(resShipping -> {
+           report.setCurrierName(resShipping.getCarrierName());
+           report.setShippingNum(resShipping.getNum());
+           report.setTransportNum(resShipping.getShippingNum());
+         });
         }
-      }
       orderReports.add(report);
-    }
+    });
     return orderReports;
   }
 
