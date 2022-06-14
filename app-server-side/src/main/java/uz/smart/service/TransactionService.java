@@ -17,15 +17,18 @@ import uz.smart.entity.enums.VerificationType;
 import uz.smart.exception.ResourceNotFoundException;
 import uz.smart.mapper.MapperUtil;
 import uz.smart.payload.ApiResponse;
+import uz.smart.payload.ReqTransactionSearch;
+import uz.smart.payload.ResPageable;
 import uz.smart.repository.*;
+import uz.smart.utils.AppConstants;
 import uz.smart.utils.CommonUtils;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.sql.Timestamp;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 @Service
 public class TransactionService {
@@ -51,6 +54,8 @@ public class TransactionService {
 
     @Autowired
     MapperUtil mapperUtil;
+    private final SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy");
+
 
     public HttpEntity<?> saveInTransaction(TransactionsDto dto) {
         TransactionsEntity entity = mapperUtil.toTransactionsEntity(dto, new TransactionsEntity());
@@ -532,14 +537,38 @@ public class TransactionService {
         return dto;
     }
 
-    public List<TransactionsDto> getTransactionList() {
-        List<TransactionsEntity> entityList = repository.findAllByOrderByDateDesc();
+    public HttpEntity<?> getTransactionByFilter(ReqTransactionSearch req) {
+        Set<TransactionsEntity> entityList;
         List<TransactionsDto> dtoList = new ArrayList<>();
+        long totalElement = 0;
+        req.setKassaInType(req.getKassaType() != null && req.getKassaType() == 100 ? req.getKassaInType() : null);
+        req.setKassaOutType(req.getKassaType() != null && req.getKassaType() == 200 ? req.getKassaOutType() : null);
+        try {
+            entityList = repository.getTransactionsByFilter(
+                    new Timestamp(format.parse(req.getStart() != null ? req.getStart() : AppConstants.BEGIN_DATE).getTime()),
+                    new Timestamp(format.parse(req.getEnd() != null ? req.getEnd() : AppConstants.END_DATE).getTime()),
+                    req.getKassaType() != null ? req.getKassaType() : 100,
+                    req.getKassaType() != null ? req.getKassaType() + 100 : 300,
+                    req.getKassaInType() != null ? req.getKassaInType() : req.getKassaOutType(),
+                    req.getClientId(), req.getCarrierId(), req.getKassaId(), req.getAgentId(),
+                    req.getPage() * req.getSize(), req.getSize());
+            totalElement = repository.getTransactionsCount(
+                    new Timestamp(format.parse(req.getStart() != null ? req.getStart() : AppConstants.BEGIN_DATE).getTime()),
+                    new Timestamp(format.parse(req.getEnd() != null ? req.getEnd() : AppConstants.END_DATE).getTime()),
+                    req.getKassaType() != null ? req.getKassaType() : 100,
+                    req.getKassaType() != null ? req.getKassaType() + 100 : 300,
+                    req.getKassaInType() != null ? req.getKassaInType() : req.getKassaOutType(),
+                    req.getClientId(), req.getCarrierId(), req.getKassaId(), req.getAgentId());
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return ResponseEntity.ok(new ResPageable(new ArrayList<>(), totalElement, req.getPage()));
+        }
+
         for (TransactionsEntity entity : entityList) {
             dtoList.add(getTransactionDto(entity));
         }
 
-        return dtoList;
+        return ResponseEntity.ok(new ResPageable(dtoList, totalElement, req.getPage()));
     }
 
     public String getNextNum() {
@@ -547,4 +576,6 @@ public class TransactionService {
         return "20" + optional.map(entity -> CommonUtils.generateNextNum("", entity.getNum().contains("-") ? entity.getNum() : ""))
                 .orElseGet(() -> CommonUtils.generateNextNum("", ""));
     }
+
+
 }
