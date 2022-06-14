@@ -63,7 +63,7 @@ export function getSelectOrders() {return request({url: '/api/order/select', met
 export function getOrderById(id) {return request({url: '/api/order/' + id, method: 'get',})}
 export function getOrderDetailById(id) {return request({url: '/api/order/detail/' + id, method: 'get',})}
 export function deleteOrderById(id) {return request({url: '/api/order/' + id, method: 'delete',})}
-export function downloadOrder(data) { return request({url: '/api/order/report', method: 'get'}) }
+export function downloadOrder(data) { return request({url: '/api/order/report', method: 'post', data, responseType: 'blob'}) }
 
 export function uploadFile(data) {return request({url: '/api/file', method: 'post', data})}
 export function deleteFile(id) {return request({url: '/api/file/' + id, method: 'delete'})}
@@ -121,3 +121,5 @@ export function getBalancesByDate(date) {return request({url: '/api/balances/bar
 export function getClientVerificationActs() {return request({url: '/api/balances/client/verification', method: 'get'})}
 export function getCarrierVerificationActs() {return request({url: '/api/balances/carrier/verification', method: 'get'})}
 export function getIncomeByShipping() {return request({url: '/api/balances/shipping/income', method: 'get'})}
+export function downloadClientReport() {return request({url: '/api/client/report', method: 'get', responseType: 'blob'})}
+export function downloadCarrierReport() { return request({url: '/api/carrier/report', method: 'get', responseType: 'blob'}) }

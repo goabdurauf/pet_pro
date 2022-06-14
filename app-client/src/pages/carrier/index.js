@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import {Button, Label} from "reactstrap";
 import {Card, Table, Space, Popconfirm, Row, Col, Typography, Form, Input, Modal, Select} from 'antd';
 import {connect} from "react-redux";
-import {FormOutlined, DeleteOutlined, PlusOutlined} from '@ant-design/icons'
+import {FormOutlined, DeleteOutlined, PlusOutlined, DownloadOutlined} from '@ant-design/icons'
 
 const FormItem = Form.Item;
 
@@ -137,6 +137,13 @@ class Carrier extends Component {
         payload: {id}
       })
     }
+
+    const handleDownload = () => {
+      dispatch({
+        type: model + '/download'
+      })
+    }
+
     const ModalForm = () => {
       const [form] = Form.useForm();
       const onOk = () => {
@@ -160,11 +167,18 @@ class Carrier extends Component {
     return (
       <div className="users-page">
         <Card style={{width: '100%'}} bordered={false}>
-          <Row>
+          <Row className='justify-content-between'>
             <Col span={4}><Typography.Title level={4}>Перевозчики</Typography.Title></Col>
-            <Col span={4} offset={16}>
+            <Col span={5} offset={13}>
               <Button className="float-right" outline color="primary" size="sm"
                       onClick={openModal}><PlusOutlined/> Добавить</Button>
+            </Col>
+            <Col className='ml-2'>
+              <Button className="float-right" outline color="success" size="sm"
+                onClick={handleDownload}
+              >
+                <DownloadOutlined className='mr-1' /> Скачать
+              </Button>
             </Col>
           </Row>
           <Table columns={columns} dataSource={itemList} bordered

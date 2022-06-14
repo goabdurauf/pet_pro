@@ -235,12 +235,10 @@ class Order extends Component {
       })
     }
 
-    const onDownloadReport = () => {
+    const handleDownload = () => {
       dispatch({
         type: 'order/download',
-        payload: {
-          test: 1
-        }
+        payload: searchParams
       })
     }
 
@@ -248,7 +246,7 @@ class Order extends Component {
       return <div>
         <Row>
           <Col span={4} offset={20}>
-            <Button className='float-right' size='sm' outline color='success' onClick={onDownloadReport}><DownloadOutlined className='mr-1' /> Скачать</Button>
+            <Button className='float-right' size='sm' outline color='success' onClick={handleDownload}><DownloadOutlined className='mr-1' /> Скачать</Button>
             <Button className="float-right mx-4" outline color="primary" size="sm" onClick={openModal}><PlusOutlined/> Добавить</Button>
             <Button className="float-right" outline color="primary" size="sm" onClick={openSearchModal}><SearchOutlined/></Button>
           </Col>
