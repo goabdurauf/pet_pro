@@ -15,13 +15,12 @@ import uz.smart.entity.ListEntity;
 import uz.smart.exception.ResourceNotFoundException;
 import uz.smart.mapper.MapperUtil;
 import uz.smart.payload.ApiResponse;
-import uz.smart.payload.Report;
-import uz.smart.projection.ClientGrowthCount;
+import uz.smart.projection.report.ClientDebtGrowth;
+import uz.smart.projection.report.ClientGrowthCount;
 import uz.smart.repository.ClientRepository;
 import uz.smart.repository.ListRepository;
 import uz.smart.repository.OrderRepository;
 
-import javax.servlet.http.HttpServletResponse;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -32,7 +31,6 @@ public class ClientService {
   private final ClientRepository repository;
   private final ListRepository listRepository;
   private final OrderRepository orderRepository;
-  private final ReportService reportService;
 
   private final MapperUtil mapperUtil;
 
@@ -102,14 +100,10 @@ public class ClientService {
   }
 
   public List<ClientGrowthCount> getClientCountByCreatedAt(Date begin, Date end) {
-   return repository.getClientCountByCreatedAt(begin, end);
+    return repository.getClientCountByCreatedAt(begin, end);
   }
 
-  public void getExcelFile(HttpServletResponse response) {
-    List<ClientDto> orderReports = getClientList();
-    String[] sheetNames = {"Клиенты"};
-    String templateName = "ClientReport.jrxml";
-    String fileName = "ClientReport";
-    reportService.getExcelFile(response, new Report<>(templateName, sheetNames, fileName, orderReports));
+  public List<ClientDebtGrowth> getClientsDebt() {
+    return repository.getClientsDebt();
   }
 }

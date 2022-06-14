@@ -11,6 +11,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
 import uz.smart.entity.OrderEntity;
+import uz.smart.projection.report.OrderGrowthCount;
 
 import java.util.Date;
 import java.util.List;
@@ -66,4 +67,12 @@ public interface OrderRepository extends JpaRepository<OrderEntity, UUID> {
   @Transactional
   @Query("update orders set state=0 where id = :id")
   void updateById(UUID id);
+
+  @Query(value = "select count(*) as orderCount, " +
+          "       cast(created_at as date) as date" +
+          "  from orders" +
+          " where created_at between :begin and :end" +
+          " group by cast(created_at as date)" +
+          " order by cast(created_at as date)", nativeQuery = true)
+  List<OrderGrowthCount> getOrderCountByCreatedAt(Date begin, Date end);
 }

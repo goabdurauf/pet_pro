@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.*;
 import uz.smart.dto.ClientDto;
 import uz.smart.service.ClientService;
 
-import javax.servlet.http.HttpServletResponse;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -49,14 +48,14 @@ public class ClientController {
     return ResponseEntity.ok(service.getClientReport(days));
   }
 
-  @GetMapping("/client-growth-report")
+  @GetMapping("/growth-report")
   public HttpEntity<?> getClientCountByCreatedAt(@RequestParam @DateTimeFormat(pattern = "dd.MM.yyyy") Date begin,
                                                  @RequestParam @DateTimeFormat(pattern = "dd.MM.yyyy") Date end) {
     return ResponseEntity.ok(service.getClientCountByCreatedAt(begin, end));
   }
 
-  @GetMapping("/report")
-  public void getExcelFile(HttpServletResponse response) {
-    service.getExcelFile(response);
+  @GetMapping("/debt-report")
+  public HttpEntity<?> getClientsDebt() {
+    return ResponseEntity.ok(service.getClientsDebt());
   }
 }
