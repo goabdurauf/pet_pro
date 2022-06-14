@@ -236,6 +236,9 @@ class Order extends Component {
     }
 
     const handleDownload = () => {
+      const itemListTotal = order.pagination.total
+      searchParams.size = itemListTotal
+
       dispatch({
         type: 'order/download',
         payload: searchParams

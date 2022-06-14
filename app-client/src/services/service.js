@@ -101,6 +101,7 @@ export function getInvoicesByTypeAndClientId(data) {return request({url: '/api/i
 export function getInvoicesByTypeAndClientIdAndCurrencyId(data) {return request({url: '/api/invoice/' + data.type + '/' + data.clientId + '/' + data.currencyId, method: 'get'})}
 export function getInvoiceById(id) {return request({url: '/api/invoice/' + id, method: 'get',})}
 export function deleteInvoiceById(id) {return request({url: '/api/invoice/' + id, method: 'delete',})}
+export function downloadInvoiceReport(data) {return request({url: '/api/invoice/report/' + data.type, method: 'post', data, responseType: 'blob'})}
 
 export function saveKassa(data) {return request({url: '/api/kassa/save', method: 'post', data})}
 export function getKassaList() {return request({url: '/api/kassa/list', method: 'get',})}

@@ -23,6 +23,7 @@ class Dashboard extends Component {
         })
       }
     }
+
     const getBarCharts = () => {
       let barCharts = [];
       barData && barData.forEach(aData =>

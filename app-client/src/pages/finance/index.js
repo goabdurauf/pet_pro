@@ -2,7 +2,14 @@ import React, {Component} from 'react';
 import {Card, Col, DatePicker, Input, Popconfirm, Row, Select, Space, Table, Tabs, Tooltip, Typography} from 'antd';
 import {connect} from "react-redux";
 import {Button} from "reactstrap";
-import {DeleteOutlined, FormOutlined, PlusOutlined, MinusOutlined, SearchOutlined} from "@ant-design/icons";
+import {
+  DeleteOutlined,
+  FormOutlined,
+  PlusOutlined,
+  MinusOutlined,
+  SearchOutlined,
+  DownloadOutlined
+} from "@ant-design/icons";
 import InvoiceModal from "../order/shipping/$shipping_detail/modals/invoiceModal";
 import KassaInModal from "./modals/kassaInModal";
 import KassaOutModal from "./modals/kassaOutModal";
@@ -349,11 +356,31 @@ class Finance extends Component {
       })
     }
 
+    const handleDownload = () => {
+      const totalFinances = finance.pagination.total
+      const financeType = model === 'SentInvoices' ? 'out' : 'in'
+      searchParams.size = totalFinances
+
+
+      dispatch({
+        type: 'finance/download',
+        payload: {
+          type: financeType,
+          ...searchParams
+        }
+      })
+    }
+
     const TabBody = () => {
       return <div>
-        <Row>
-          <Col span={1} offset={23}>
+        <Row className='justify-content-end'>
+          <Col span={1} offset={21}>
             <Button className="float-right" outline color="primary" size="sm" onClick={openSearchModal}><SearchOutlined/></Button>
+          </Col>
+          <Col className='ml-2'>
+            <Button className="float-right" outline color="success" size="sm" onClick={handleDownload}>
+              <DownloadOutlined className='mr-1' /> Скачать
+            </Button>
           </Col>
         </Row>
         <Table columns={columns} dataSource={itemList} bordered size="middle" rowKey={record => record.id}
