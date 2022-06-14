@@ -15,6 +15,7 @@ const fetch = (options) => {
     headers = {}
   } = options;
 
+
   const cloneData = cloneDeep(data);
 
   try {
@@ -68,7 +69,8 @@ const fetch = (options) => {
     case 'get':
       return axios.get(url, {
         params: cloneData,
-        headers: tokenHeader
+        headers: tokenHeader,
+        responseType: options.responseType || 'json'
       });
     case 'delete':
       return axios.delete(url, {
@@ -76,7 +78,7 @@ const fetch = (options) => {
         headers: tokenHeader
       });
     case 'post':
-      return axios.post(url, headers['Content-Type'] ? data : cloneData, {headers: tokenHeader});
+      return axios.post(url, headers['Content-Type'] ? data : cloneData, {headers: tokenHeader, responseType: options.responseType || 'json'});
     case 'put':
       return axios.put(url, cloneData, {headers: tokenHeader});
     case 'patch':
@@ -105,11 +107,21 @@ export default function request(options) {
   return fetch(options).then((response) => {
     const {statusText, status} = response;
     let data = response.data;
+
+    if (data.size) {
+      const a = document.createElement('a')
+
+      a.download = 'filename'
+      a.href = window.URL.createObjectURL(data);
+      a.click();
+    }
+
     if (data instanceof Array) {
       data = {
         list: data,
       }
     }
+
     return Promise.resolve({
       success: true,
       message: statusText,

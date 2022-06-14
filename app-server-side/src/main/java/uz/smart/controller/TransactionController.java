@@ -12,6 +12,7 @@ import uz.smart.payload.ApiResponse;
 import uz.smart.payload.ReqTransactionSearch;
 import uz.smart.service.TransactionService;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.UUID;
 
 @RestController
@@ -54,4 +55,8 @@ public class TransactionController {
     @GetMapping("/num")
     public ApiResponse getNextNum() { return new ApiResponse(service.getNextNum(), true); }
 
+    @PostMapping("/report")
+    public void getExcelFile(HttpServletResponse response, @RequestBody ReqTransactionSearch req) {
+         service.getExcelFile(response, req);
+    }
 }

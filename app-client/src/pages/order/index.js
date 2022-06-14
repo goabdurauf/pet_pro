@@ -3,7 +3,7 @@ import {
   Card, Row, Col, Tabs, Form, Input, Select, Space, Popconfirm, Table, DatePicker, Modal, Tooltip
 } from 'antd';
 import {connect} from "react-redux";
-import {DeleteOutlined, FormOutlined, PlusOutlined, SearchOutlined} from "@ant-design/icons";
+import {DeleteOutlined, FormOutlined, PlusOutlined, SearchOutlined, DownloadOutlined} from "@ant-design/icons";
 import {Button, Label} from "reactstrap";
 import SearchModal from './modals/searchModal'
 import 'moment/locale/ru';
@@ -175,6 +175,9 @@ class Order extends Component {
         }
       })
     };
+
+
+
     const columns = [
       ...visibleColumns,
       {
@@ -231,12 +234,24 @@ class Order extends Component {
         }
       })
     }
+
+    const handleDownload = () => {
+      const itemListTotal = order.pagination.total
+      searchParams.size = itemListTotal
+
+      dispatch({
+        type: 'order/download',
+        payload: searchParams
+      })
+    }
+
     const TabBody = () => {
       return <div>
         <Row>
           <Col span={4} offset={20}>
-            <Button className="float-right" outline color="primary" size="sm" onClick={openModal}><PlusOutlined/> Добавить</Button>
-            <Button className="float-right mr-4" outline color="primary" size="sm" onClick={openSearchModal}><SearchOutlined/></Button>
+            <Button className='float-right' size='sm' outline color='success' onClick={handleDownload}><DownloadOutlined className='mr-1' /> Скачать</Button>
+            <Button className="float-right mx-4" outline color="primary" size="sm" onClick={openModal}><PlusOutlined/> Добавить</Button>
+            <Button className="float-right" outline color="primary" size="sm" onClick={openSearchModal}><SearchOutlined/></Button>
           </Col>
         </Row>
         <Table columns={columns} dataSource={itemList} bordered size="middle" rowKey={record => record.id}

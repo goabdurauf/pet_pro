@@ -1,4 +1,12 @@
-import {saveClient, deleteClientById, getClientById, getClientList, getManagers, getListItems} from '@/services/service'
+import {
+  saveClient,
+  deleteClientById,
+  getClientById,
+  getClientList,
+  getManagers,
+  getListItems,
+  downloadClientReport
+} from '@/services/service'
 import {notification} from 'antd'
 
 export default ({
@@ -175,6 +183,9 @@ export default ({
           style: {backgroundColor: '#ffd9d9'}
         });
       }
+    },
+    * download({payload}, {call, put, select}) {
+      yield call(downloadClientReport)
     }
   },
   reducers: {

@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import uz.smart.dto.ClientDto;
 import uz.smart.service.ClientService;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -58,4 +59,10 @@ public class ClientController {
   public HttpEntity<?> getClientsDebt() {
     return ResponseEntity.ok(service.getClientsDebt());
   }
+
+  @GetMapping("/report")
+  public void getExcelFile(HttpServletResponse response) {
+    service.getExcelFile(response);
+  }
+
 }
