@@ -54,7 +54,7 @@ public class OrderController {
     public HttpEntity<?> getForSelect() {
         List<OrderSelectDto> result = service.getOrdersForSelect(null);
 
-        return ResponseEntity.status(HttpStatus.OK).body(new ResPageable(result, 0, 0));
+        return ResponseEntity.status(HttpStatus.OK).body(new ResPageable<>(result, 0, 0));
     }
 
     @GetMapping("/growth-report")
@@ -64,7 +64,7 @@ public class OrderController {
     }
 
     @PostMapping("/report")
-    public void getList(HttpServletResponse response, @RequestBody ReqOrderSearch req) {
+    public void getExcelFile(HttpServletResponse response, @RequestBody ReqOrderSearch req) {
          service.getExcelFile(response, req);
     }
 

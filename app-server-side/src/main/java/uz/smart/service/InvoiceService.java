@@ -310,12 +310,12 @@ public class InvoiceService {
         List<ResInvoice> invoiceReports = getResPageable(type, req).getObject();
         if (type.equals("in")) {
             sheetNames[0] = "Полученные счёта";
-            templateName = "ReceivedInvoiceReport.jrxml";
+            templateName = "InvoiceReport.jrxml";
             fileName = "ReceivedInvoiceReport";
             params.put("isClient", false);
         }else if(type.equals("out")) {
             sheetNames[0] = "Выписанные счёта";
-            templateName = "ReceivedInvoiceReport.jrxml";
+            templateName = "InvoiceReport.jrxml";
             fileName = "IssuedInvoiceReport";
             params.put("isClient", true);
         }
