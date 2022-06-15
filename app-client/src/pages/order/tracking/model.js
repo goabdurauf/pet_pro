@@ -6,6 +6,8 @@ import {notification, Tag} from "antd";
 import moment from "moment";
 import React from "react";
 
+const refs = {}
+
 export default ({
   namespace: 'orderTracking',
   state: {
@@ -59,10 +61,128 @@ export default ({
         key: 'carrierName'
       },
       {
-        title: 'Наимование груза',
-        dataIndex: 'cargoName',
-        key: 'cargoName'
+        title: 'Клиент',
+        dataIndex: 'cargos',
+        key: 'cargos',
+        width: 250,
+        render: (text, record) => {
+            let data = [];
+
+
+           record.cargos && record.cargos.forEach((cargo, idx) => {
+
+           data.push(
+              <div  className='py-2 table-cell' key={cargo.clientId}>
+                   {cargo.clientName}
+              </div>)
+           })
+
+           return data;
+         }
       },
+      {
+        title: 'Наимование груза',
+        dataIndex: 'cargos',
+        key: 'cargos',
+        width: 300,
+        render: (text, record) => {
+           let data = []
+           const mappedRecords = record.cargos.map(cargo => cargo.clientCargos)
+
+           const cargoItems = mappedRecords.map(arr =>  {
+            const innerArr = arr.map(inner => {
+              return inner.cargoName
+            })
+
+            return innerArr
+           })
+
+          cargoItems.forEach((cargoArr, idx) => {
+
+            data.push(
+                <div className='py-2 table-cell'  key={idx}>
+                    {
+                      cargoArr.map(item => <div key={item}>{item}</div>)
+                    }
+                </div>
+            )
+          })
+
+           return data
+        }
+      },
+      {
+        title: 'Вес',
+        dataIndex: 'cargos',
+        key: 'cargos',
+        render: (text, record) => {
+         let data = []
+         const mappedRecords = record.cargos.map(cargo => cargo.clientCargos)
+
+        const cargoItems = mappedRecords.map(arr =>  {
+            const innerArr = arr.map(inner => {
+                 return inner.cargoDetails
+            })
+
+           return innerArr
+        })
+
+        cargoItems.forEach((cargo, idx) => {
+
+          data.push(
+            <div className='py-2 table-cell'  key={idx}>
+                {
+                  cargo.map(innerProps => {
+                    return innerProps.map((i) => {
+                       return <div key={i.id}>{i.weight}</div>
+                    })
+                  })
+                }
+            </div>
+          )
+
+        })
+
+
+         return data
+        }
+      },
+      {
+        title: 'Объем',
+        dataIndex: 'cargos',
+        key: 'cargos',
+         render: (text, record) => {
+                 let data = []
+                 const mappedRecords = record.cargos.map(cargo => cargo.clientCargos)
+
+                const cargoItems = mappedRecords.map(arr =>  {
+                    const innerArr = arr.map(inner => {
+                         return inner.cargoDetails
+                    })
+
+                   return innerArr
+                })
+
+                cargoItems.forEach((cargo, idx) => {
+
+                  data.push(
+                    <div className='py-2 table-cell'  key={idx}>
+                        {
+                          cargo.map(innerProps => {
+                            return innerProps.map((i) => {
+                               return <div key={i.id}>{i.capacity}</div>
+                            })
+                          })
+                        }
+                    </div>
+                  )
+
+                })
+
+
+                 return data
+                }
+       },
       {
         title: 'Тип',
         dataIndex: 'shippingType',
