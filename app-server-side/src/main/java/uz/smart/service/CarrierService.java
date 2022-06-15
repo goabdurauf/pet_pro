@@ -14,9 +14,12 @@ import uz.smart.entity.ListEntity;
 import uz.smart.exception.ResourceNotFoundException;
 import uz.smart.mapper.MapperUtil;
 import uz.smart.payload.ApiResponse;
+import uz.smart.payload.Report;
 import uz.smart.repository.CarrierRepository;
 import uz.smart.repository.ListRepository;
 
+import javax.servlet.http.HttpServletResponse;
+import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
@@ -26,6 +29,7 @@ public class CarrierService {
     private CarrierRepository repository;
     private final ListRepository listRepository;
     private final MapperUtil mapperUtil;
+    private final ReportService reportService;
 
     public HttpEntity<?> saveAndUpdateCarrier(CarrierDto dto){
         CarrierEntity entity = dto.getId() == null
@@ -56,4 +60,12 @@ public class CarrierService {
     }
 
     public List<CarrierDto> getCarrierList() {return mapperUtil.toCarrierDto(repository.getAllCarriers());}
+
+    public void getExcelFile(HttpServletResponse response) {
+        List<CarrierDto> orderReports = getCarrierList();
+        String[] sheetNames = {"Перевозчики"};
+        String templateName = "CarrierReport.jrxml";
+        String fileName = "CarrierReport";
+        reportService.getExcelFile(response, new Report<>(templateName, sheetNames, fileName, new HashMap<>(), orderReports));
+    }
 }

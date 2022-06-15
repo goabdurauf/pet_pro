@@ -15,12 +15,14 @@ import uz.smart.entity.ListEntity;
 import uz.smart.exception.ResourceNotFoundException;
 import uz.smart.mapper.MapperUtil;
 import uz.smart.payload.ApiResponse;
+import uz.smart.payload.Report;
 import uz.smart.projection.report.ClientDebtGrowth;
 import uz.smart.projection.report.ClientGrowthCount;
 import uz.smart.repository.ClientRepository;
 import uz.smart.repository.ListRepository;
 import uz.smart.repository.OrderRepository;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -33,6 +35,7 @@ public class ClientService {
   private final OrderRepository orderRepository;
 
   private final MapperUtil mapperUtil;
+  private final ReportService reportService;
 
   private Long days = 120L;
 
@@ -106,4 +109,13 @@ public class ClientService {
   public List<ClientDebtGrowth> getClientsDebt() {
     return repository.getClientsDebt();
   }
+
+  public void getExcelFile(HttpServletResponse response) {
+    List<ClientDto> orderReports = getClientList();
+    String[] sheetNames = {"Клиенты"};
+    String templateName = "ClientReport.jrxml";
+    String fileName = "ClientReport";
+    reportService.getExcelFile(response, new Report<>(templateName, sheetNames, fileName, new HashMap<>(), orderReports));
+  }
+
 }

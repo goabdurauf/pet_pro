@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import uz.smart.dto.CarrierDto;
 import uz.smart.service.CarrierService;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 import java.util.UUID;
 
@@ -38,5 +39,10 @@ public class CarrierController {
     @GetMapping("/list")
     public List<CarrierDto> getList() {
         return service.getCarrierList();
+    }
+
+    @GetMapping("/report")
+    public void getExcelFile(HttpServletResponse response) {
+        service.getExcelFile(response);
     }
 }
