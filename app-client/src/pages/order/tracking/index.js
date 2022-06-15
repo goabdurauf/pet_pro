@@ -77,7 +77,7 @@ class OrderTracking extends Component {
             <TabPane tab="Рейсы" key="/order/shipping">Подождите пожалуйста ...</TabPane>
             <TabPane tab="Отслеживание" key="OrderTracking">
               <Table columns={columns} dataSource={itemList} bordered size="middle" rowKey={record => record.id}
-                     pagination={{position: ["bottomCenter"]}} scroll={{ x: 2800 }}/>
+                     pagination={{position: ["bottomCenter"]}} scroll={{ x: 3000 }}/>
             </TabPane>
           </Tabs>
 

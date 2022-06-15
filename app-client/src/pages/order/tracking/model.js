@@ -72,7 +72,7 @@ export default ({
            record.cargos && record.cargos.forEach((cargo, idx) => {
 
            data.push(
-              <div  className='py-2' key={cargo.clientId}>
+              <div  className='py-2 table-cell' key={cargo.clientId}>
                    {cargo.clientName}
               </div>)
            })
@@ -100,7 +100,7 @@ export default ({
           cargoItems.forEach((cargoArr, idx) => {
 
             data.push(
-                <div className='py-2'  key={idx}>
+                <div className='py-2 table-cell'  key={idx}>
                     {
                       cargoArr.map(item => <div key={item}>{item}</div>)
                     }
@@ -130,7 +130,7 @@ export default ({
         cargoItems.forEach((cargo, idx) => {
 
           data.push(
-            <div className='py-2'  key={idx}>
+            <div className='py-2 table-cell'  key={idx}>
                 {
                   cargo.map(innerProps => {
                     return innerProps.map((i) => {
@@ -166,7 +166,7 @@ export default ({
                 cargoItems.forEach((cargo, idx) => {
 
                   data.push(
-                    <div className='py-2'  key={idx}>
+                    <div className='py-2 table-cell'  key={idx}>
                         {
                           cargo.map(innerProps => {
                             return innerProps.map((i) => {
