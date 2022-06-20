@@ -101,6 +101,12 @@ class Report extends Component {
         dataIndex: 'debitFinalSum',
         key: 'debitFinalSum',
         render: (text, record) => text && (text + ' ' + record.currencyName)
+      },
+      {
+        title: 'Итог по договору',
+        dataIndex: 'balance',
+        key: 'balance',
+        render: (text, record) => text && (text + ' ' + record.currencyName)
       }
     ]
     const AktTabBody = () => {

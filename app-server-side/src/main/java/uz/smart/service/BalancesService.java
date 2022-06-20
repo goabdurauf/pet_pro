@@ -124,6 +124,7 @@ public class BalancesService {
                         currency.getNameRu(),
                         BigDecimal.ZERO
                 );
+                repository.getByCurrencyIdAndOwnerId(currency.getId(), carrier.getId()).ifPresent(balancesEntity -> total.setBalance(balancesEntity.getBalance()));
 
                 List<VerificationActEntity> verificationActList = verificationActRepository.findAllByOwnerIdAndCurrencyIdOrderByDate(carrier.getId(), currency.getId());
                 verificationActList.forEach(verAct -> {
@@ -207,6 +208,7 @@ public class BalancesService {
                         currency.getNameRu(),
                         BigDecimal.ZERO
                 );
+                repository.getByCurrencyIdAndOwnerId(currency.getId(), client.getId()).ifPresent(balancesEntity -> total.setBalance(balancesEntity.getBalance()));
 
                 List<VerificationActEntity> verificationActList = verificationActRepository.findAllByOwnerIdAndCurrencyIdOrderByDate(client.getId(), currency.getId());
                 verificationActList.forEach(verAct -> {

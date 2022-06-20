@@ -26,6 +26,7 @@ public class VerificationActDto {
     private BigDecimal debitFinalSum;
     private BigDecimal creditSum;
     private BigDecimal creditFinalSum;
+    private BigDecimal balance;
 
     public VerificationActDto(UUID id, boolean isHeader, String ownerName, String currencyName, BigDecimal summa) {
         this.id = id;
