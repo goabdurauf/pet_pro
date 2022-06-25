@@ -23,6 +23,7 @@ import uz.smart.repository.*;
 import uz.smart.utils.AppConstants;
 import uz.smart.utils.CommonUtils;
 
+import javax.servlet.http.HttpServletResponse;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.text.ParseException;
@@ -65,6 +66,8 @@ public class ShippingService {
   ExpenseService expenseService;
   @Autowired
   MapperUtil mapper;
+  @Autowired
+  ReportService reportService;
 
   private final SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy");
 
@@ -198,6 +201,11 @@ public class ShippingService {
   }
 
   public HttpEntity<?> getShippingList(ReqShippingSearch req) {
+    ResPageable<?> resPageable = getResPageable(req);
+    return ResponseEntity.ok(resPageable);
+  }
+
+  public ResPageable<List<ResShipping>> getResPageable(ReqShippingSearch req) {
     Set<ShippingEntity> list;
     long totalElement = 0;
     req.setWord(req.getWord() == null ? null : req.getWord().toLowerCase());
@@ -219,9 +227,9 @@ public class ShippingService {
               new Timestamp(format.parse(req.getUnloadEnd() != null ? req.getUnloadEnd() : AppConstants.END_DATE).getTime()));
     } catch (ParseException e) {
       e.printStackTrace();
-      return ResponseEntity.ok(new ResPageable(new ArrayList<>(), totalElement, req.getPage()));
+      return new ResPageable<>(new ArrayList<>(), totalElement, req.getPage());
     }
-    return ResponseEntity.ok(new ResPageable(getShippingListWithExpenses(new ArrayList<>(list)), totalElement, req.getPage()));
+    return new ResPageable<>(getShippingListWithExpenses(new ArrayList<>(list)), totalElement, req.getPage());
   }
 
   public List<ResShipping> getShippingListWithExpenses(List<ShippingEntity> entityList) {
@@ -564,6 +572,42 @@ public class ShippingService {
 
     dto.setCargos(inTrackingClients);
     return dto;
+  }
+
+  public List<ResShipping> reportMapper(ReqShippingSearch req) {
+    //    List<CargoReport> cargoReports = new ArrayList<>();
+//
+//    resCargos.forEach(resCargo -> {
+//      CargoReport cargoReport = new CargoReport();
+//
+//      String cargoDetails = CommonUtils.replace(resCargo.getCargoDetails().toString());
+//
+//      cargoReport.setOrderNum(resCargo.getOrderNum());
+//      cargoReport.setCargoNum(resCargo.getNum());
+//      cargoReport.setClientName(resCargo.getClientName());
+//      cargoReport.setLoadDate(resCargo.getLoadDate());
+//      cargoReport.setUnloadDate(resCargo.getUnloadDate());
+//      cargoReport.setSenderCountryName(resCargo.getSenderCountryName());
+//      cargoReport.setReceiverCountryName(resCargo.getReceiverCountryName());
+//      cargoReport.setStatusName(resCargo.getStatusName());
+//      cargoReport.setName(resCargo.getName());
+//      cargoReport.setCargoDetails(cargoDetails);
+//      cargoReport.setCarrierName(resCargo.getCarrierName());
+//      cargoReport.setShippingNum(resCargo.getShippingNum());
+//
+//      cargoReports.add(cargoReport);
+//
+//    });
+
+    return getResPageable(req).getObject();
+  }
+
+  public void getExcelFile(HttpServletResponse response, ReqShippingSearch req) {
+    List<ResShipping> shippingReports = reportMapper(req);
+    String[] sheetNames = {"Рейсы"};
+    String templateName = "ShippingReport.jrxml";
+    String fileName = "ShippingReport";
+    reportService.getExcelFile(response, new Report<>(templateName, null, sheetNames, fileName, new HashMap<>(), shippingReports));
   }
 
 }

@@ -19,4 +19,12 @@ public class CargoDetailDto {
     private BigDecimal packageAmount;
     private Long packageTypeId;
     private String packageTypeName;
+
+    @Override
+    public String toString() {
+        return
+            "\nВес: " + weight + "\n" +
+            "Объём: " + capacity + "\n" +
+            "Кол-во уп.: " + packageAmount + "\n";
+    }
 }

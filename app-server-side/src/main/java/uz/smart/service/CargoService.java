@@ -4,6 +4,10 @@ package uz.smart.service;
     Created by Ilhom Ahmadjonov on 08.11.2021. 
 */
 
+import lombok.extern.slf4j.Slf4j;
+import net.sf.jasperreports.engine.JRException;
+import net.sf.jasperreports.engine.JasperCompileManager;
+import net.sf.jasperreports.engine.JasperReport;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +21,9 @@ import uz.smart.mapper.MapperUtil;
 import uz.smart.payload.*;
 import uz.smart.repository.*;
 import uz.smart.utils.AppConstants;
+import uz.smart.utils.CommonUtils;
 
+import javax.servlet.http.HttpServletResponse;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.sql.Timestamp;
@@ -25,7 +31,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
-
+@Slf4j
 @Service
 public class CargoService {
 
@@ -64,6 +70,8 @@ public class CargoService {
     ExpenseService expenseService;
     @Autowired
     MapperUtil mapper;
+    @Autowired
+    ReportService reportService;
 
     private CargoEntity lastEntity;
     private final SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy");
@@ -332,6 +340,11 @@ public class CargoService {
   }
 
   public HttpEntity<?> getCargoList(ReqCargoSearch req) {
+    ResPageable<?> resPageable = getResPageable(req);
+    return ResponseEntity.ok(resPageable);
+  }
+
+  public ResPageable<List<ResCargo>> getResPageable(ReqCargoSearch req) {
         List<ResCargo> list = new ArrayList<>();
         Set<CargoEntity> entityList;
         long totalElement = 0;
@@ -354,7 +367,7 @@ public class CargoService {
                     new Timestamp(format.parse(req.getUnloadEnd() != null ? req.getUnloadEnd() : AppConstants.END_DATE).getTime()));
         } catch (ParseException e) {
             e.printStackTrace();
-            return ResponseEntity.ok(new ResPageable(new ArrayList<>(), totalElement, req.getPage()));
+            return new ResPageable<>(new ArrayList<>(), totalElement, req.getPage());
         }
         for (CargoEntity entity : entityList) {
             ResCargo resCargo = getResCargo(entity);
@@ -388,7 +401,7 @@ public class CargoService {
             list.add(resCargo);
         }
 
-        return ResponseEntity.ok(new ResPageable(list, totalElement, req.getPage()));
+        return new ResPageable<>(list, totalElement, req.getPage());
     }
 
   public ResCargo getResCargo(CargoEntity entity) {
@@ -564,6 +577,44 @@ public class CargoService {
     clientRepository.findById(cargo.getOrder().getClientId()).ifPresent(client -> dto.setClientName(client.getName()));
 
     return dto;
+  }
+
+  public List<CargoReport> reportMapper(ReqCargoSearch req) {
+    List<ResCargo> resCargos = getResPageable(req).getObject();
+    List<CargoReport> cargoReports = new ArrayList<>();
+
+    resCargos.forEach(resCargo -> {
+      CargoReport cargoReport = new CargoReport();
+
+      String cargoDetails = CommonUtils.replace(resCargo.getCargoDetails().toString());
+
+      cargoReport.setOrderNum(resCargo.getOrderNum());
+      cargoReport.setCargoNum(resCargo.getNum());
+      cargoReport.setClientName(resCargo.getClientName());
+      cargoReport.setLoadDate(resCargo.getLoadDate());
+      cargoReport.setUnloadDate(resCargo.getUnloadDate());
+      cargoReport.setSenderCountryName(resCargo.getSenderCountryName());
+      cargoReport.setReceiverCountryName(resCargo.getReceiverCountryName());
+      cargoReport.setStatusName(resCargo.getStatusName());
+      cargoReport.setName(resCargo.getName());
+      cargoReport.setCargoDetails(resCargo.getCargoDetails());
+      cargoReport.setCarrierName(resCargo.getCarrierName());
+      cargoReport.setShippingNum(resCargo.getShippingNum());
+
+      cargoReports.add(cargoReport);
+
+    });
+
+    return cargoReports;
+  }
+
+  public void getExcelFile(HttpServletResponse response, ReqCargoSearch req) {
+    List<CargoReport> cargoReports = reportMapper(req);
+    String[] sheetNames = {"Грузы"};
+    String templateName = "CargoReport.jrxml";
+    String subReportTemplateName = "CargoDetails.jrxml";
+    String fileName = "CargoReport";
+    reportService.getExcelFile(response, new Report<>(templateName, subReportTemplateName, sheetNames, fileName, new HashMap<>(), cargoReports));
   }
 
 }

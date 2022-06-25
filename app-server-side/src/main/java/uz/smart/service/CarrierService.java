@@ -66,6 +66,6 @@ public class CarrierService {
         String[] sheetNames = {"Перевозчики"};
         String templateName = "CarrierReport.jrxml";
         String fileName = "CarrierReport";
-        reportService.getExcelFile(response, new Report<>(templateName, sheetNames, fileName, new HashMap<>(), orderReports));
+        reportService.getExcelFile(response, new Report<>(templateName, null, sheetNames, fileName, new HashMap<>(), orderReports));
     }
 }
