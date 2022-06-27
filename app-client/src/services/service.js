@@ -90,6 +90,7 @@ export function downloadCargoReport(data) {return request({url: '/api/cargo/repo
 export function saveCargoTracking(data) {return request({url: '/api/shipping/tracking', method: 'post', data})}
 export function getCargoTrackingList() {return request({url: '/api/shipping/tracking', method: 'get'})}
 export function getCargoTrackingById(id) {return request({url: '/api/shipping/tracking/' + id, method: 'get'})}
+export function downloadShippingReport(data) {return request({url: '/api/shipping/report', data, method: 'post', responseType: 'blob'})}
 
 export function getExpenseById(id) {return request({url: '/api/expense/' + id, method: 'get',})}
 export function getExpenseForInvoiceById(id) {return request({url: '/api/expense/' + id + '/invoice', method: 'get',})}

@@ -362,6 +362,7 @@ class Finance extends Component {
       searchParams.size = totalFinances
 
 
+
       dispatch({
         type: 'finance/download',
         payload: {
@@ -374,8 +375,6 @@ class Finance extends Component {
     const handleTransactionDownload = () => {
       const itemListTotal = finance.pagination.total
       searchParams.size = itemListTotal
-
-      console.log(searchParams)
 
 
       dispatch({

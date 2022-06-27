@@ -7,7 +7,7 @@ import {
   getShippingById,
   deleteShippingById,
   getCarrierList,
-  getClientList
+  getClientList, downloadInvoiceReport, downloadShippingReport
 } from '@/services/service'
 import {notification} from 'antd'
 import {routerRedux} from "dva/router";
@@ -331,8 +331,9 @@ export default ({
         }
       })
     },
-
-
+    * download({payload}, {call, put, select}) {
+      yield call(downloadShippingReport, payload)
+    },
   },
   reducers: {
     updateState(state, {payload}) {
