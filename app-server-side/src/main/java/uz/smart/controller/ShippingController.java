@@ -4,6 +4,7 @@ package uz.smart.controller;
     Created by Ilhom Ahmadjonov on 31.10.2021.
 */
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.web.bind.annotation.*;

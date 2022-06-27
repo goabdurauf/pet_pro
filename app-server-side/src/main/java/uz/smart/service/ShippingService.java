@@ -4,6 +4,7 @@ package uz.smart.service;
     Created by Ilhom Ahmadjonov on 31.10.2021.
 */
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
@@ -31,7 +32,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-
+@Slf4j
 @Service
 public class ShippingService {
 
@@ -574,40 +575,64 @@ public class ShippingService {
     return dto;
   }
 
-  public List<ResShipping> reportMapper(ReqShippingSearch req) {
-    //    List<CargoReport> cargoReports = new ArrayList<>();
-//
-//    resCargos.forEach(resCargo -> {
-//      CargoReport cargoReport = new CargoReport();
-//
-//      String cargoDetails = CommonUtils.replace(resCargo.getCargoDetails().toString());
-//
-//      cargoReport.setOrderNum(resCargo.getOrderNum());
-//      cargoReport.setCargoNum(resCargo.getNum());
-//      cargoReport.setClientName(resCargo.getClientName());
-//      cargoReport.setLoadDate(resCargo.getLoadDate());
-//      cargoReport.setUnloadDate(resCargo.getUnloadDate());
-//      cargoReport.setSenderCountryName(resCargo.getSenderCountryName());
-//      cargoReport.setReceiverCountryName(resCargo.getReceiverCountryName());
-//      cargoReport.setStatusName(resCargo.getStatusName());
-//      cargoReport.setName(resCargo.getName());
-//      cargoReport.setCargoDetails(cargoDetails);
-//      cargoReport.setCarrierName(resCargo.getCarrierName());
-//      cargoReport.setShippingNum(resCargo.getShippingNum());
-//
-//      cargoReports.add(cargoReport);
-//
-//    });
+  public List<ShippingReport> reportMapper(ReqShippingSearch req) {
+    List<ResShipping> resShippings = getResPageable(req).getObject();
+    List<ShippingReport> shippingReports = new ArrayList<>();
+    log.info("size {} ",resShippings.size());
 
-    return getResPageable(req).getObject();
+    resShippings.forEach(resShipping -> {
+      ShippingReport shippingReport = new ShippingReport();
+      String orderNum = "";
+      String clientName = "";
+      String fromPrice = "";
+      String toPrice = CommonUtils.stringBuilder(resShipping.getPrice().toString(), resShipping.getCurrencyName());
+
+      for (ResOrder resOrder : resShipping.getOrderList()) {
+        String date = resOrder.getDate().toString().substring(0, 10);
+        orderNum = orderNum.concat(CommonUtils.stringBuilder(resOrder.getNum(),""));
+        orderNum = orderNum.concat(CommonUtils.stringBuilder(date,""));
+        clientName = clientName.concat(CommonUtils.stringBuilder(resOrder.getClientName(),""));
+      }
+
+      for (ExpenseDto expenseDto : resShipping.getExpenseList()) {
+        if (expenseDto.getToPrice() != null) {
+          toPrice = toPrice.concat(CommonUtils.stringBuilder(expenseDto.getToPrice().toString(),
+              expenseDto.getToCurrencyName()));
+        }
+        if (expenseDto.getFromPrice() != null) {
+          fromPrice = fromPrice.concat(CommonUtils.stringBuilder(expenseDto.getFromPrice().toString(),
+              expenseDto.getFromCurrencyName()));
+        }
+      }
+
+      shippingReport.setNum(resShipping.getNum());
+      shippingReport.setOrderNum(orderNum);
+      shippingReport.setLoadDate(resShipping.getLoadDate());
+      shippingReport.setUnloadDate(resShipping.getUnloadDate());
+      shippingReport.setClientName(clientName);
+      shippingReport.setManagerName(resShipping.getManagerName());
+      shippingReport.setCarrierName(resShipping.getCarrierName());
+      shippingReport.setCurrencyName(resShipping.getCurrencyName());
+      shippingReport.setPrice(resShipping.getPrice());
+      shippingReport.setFinalPrice(resShipping.getFinalPrice());
+      shippingReport.setShippingTypeName(resShipping.getShippingTypeName());
+      shippingReport.setShippingNum(resShipping.getShippingNum());
+      shippingReport.setToPrice(toPrice);
+      shippingReport.setFromPrice(fromPrice);
+
+      shippingReports.add(shippingReport);
+    });
+
+
+    return shippingReports;
   }
 
   public void getExcelFile(HttpServletResponse response, ReqShippingSearch req) {
-    List<ResShipping> shippingReports = reportMapper(req);
+    List<ShippingReport> shippingReports = reportMapper(req);
     String[] sheetNames = {"Рейсы"};
     String templateName = "ShippingReport.jrxml";
     String fileName = "ShippingReport";
-    reportService.getExcelFile(response, new Report<>(templateName, null, sheetNames, fileName, new HashMap<>(), shippingReports));
+    reportService.getExcelFile(response, new Report<>(templateName, sheetNames, fileName, new HashMap<>(), shippingReports));
   }
 
 }

@@ -23,7 +23,7 @@ public class CargoDetailDto {
     @Override
     public String toString() {
         return
-            "\nВес: " + weight + "\n" +
+            "Вес: " + weight + "\n" +
             "Объём: " + capacity + "\n" +
             "Кол-во уп.: " + packageAmount + "\n";
     }

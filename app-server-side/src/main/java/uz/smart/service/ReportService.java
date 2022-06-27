@@ -31,11 +31,6 @@ public class ReportService {
 
     JRBeanCollectionDataSource dataSource = new JRBeanCollectionDataSource(report.getData());
     JasperReport jasper = JasperHelper.compileJasperReport(reportsDir, report.getTemplateName());
-    if (report.getSubReportTemplateName() != null) {
-      JasperReport subReport = JasperHelper.compileJasperReport(reportsDir, report.getSubReportTemplateName());
-      HashMap<String, Object> params = report.getParams();
-      params.put("subReport", subReport);
-    }
     JasperPrint jasperPrint = JasperFillManager.fillReport(jasper, report.getParams(), dataSource);
     List<JasperPrint> sheets = List.of(jasperPrint);
     return JasperHelper.exportReport(report.getSheetNames(), sheets).toByteArray();

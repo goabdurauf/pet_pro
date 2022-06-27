@@ -15,7 +15,6 @@ import java.util.List;
 @AllArgsConstructor
 public class Report<T> {
   private String templateName;
-  private String subReportTemplateName;
   private String [] sheetNames;
   private String fileName;
   private HashMap<String,Object> params;

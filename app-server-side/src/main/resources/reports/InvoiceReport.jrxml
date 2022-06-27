@@ -33,7 +33,7 @@
 	<title>
 		<band height="86">
 			<staticText>
-				<reportElement x="260" y="38" width="90" height="41" uuid="04c1fd97-ffca-4447-a0ce-f48b03e0f189"/>
+				<reportElement mode="Opaque" x="260" y="38" width="90" height="41" backcolor="#F2F2F2" uuid="04c1fd97-ffca-4447-a0ce-f48b03e0f189"/>
 				<box>
 					<pen lineWidth="0.5"/>
 				</box>
@@ -43,7 +43,7 @@
 				<text><![CDATA[Счёт выписан (дата)]]></text>
 			</staticText>
 			<textField>
-				<reportElement x="0" y="21" width="1180" height="17" uuid="752defa0-4d9e-46e6-abe5-41ce9d6e2ca2"/>
+				<reportElement mode="Opaque" x="0" y="21" width="1180" height="17" backcolor="#F2F2F2" uuid="752defa0-4d9e-46e6-abe5-41ce9d6e2ca2"/>
 				<box>
 					<pen lineWidth="0.5"/>
 				</box>
@@ -53,7 +53,7 @@
 				<textFieldExpression><![CDATA[$P{isClient} ? "Выписанные счёта" : "Полученные счёта"]]></textFieldExpression>
 			</textField>
 			<staticText>
-				<reportElement x="0" y="38" width="30" height="41" uuid="38bdad02-2a2c-42c6-9f78-221722f93471"/>
+				<reportElement mode="Opaque" x="0" y="38" width="30" height="41" backcolor="#F2F2F2" uuid="38bdad02-2a2c-42c6-9f78-221722f93471"/>
 				<box>
 					<pen lineWidth="0.5"/>
 				</box>
@@ -63,7 +63,7 @@
 				<text><![CDATA[№	]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="30" y="38" width="110" height="41" uuid="4b8ad501-2f0f-45c7-811b-28f80af9c890"/>
+				<reportElement mode="Opaque" x="30" y="38" width="110" height="41" backcolor="#F2F2F2" uuid="4b8ad501-2f0f-45c7-811b-28f80af9c890"/>
 				<box>
 					<pen lineWidth="0.5"/>
 				</box>
@@ -73,7 +73,7 @@
 				<text><![CDATA[Название расхода]]></text>
 			</staticText>
 			<textField>
-				<reportElement x="140" y="38" width="120" height="41" uuid="23b289ab-4dd0-495e-bc15-d889eef97a0f"/>
+				<reportElement mode="Opaque" x="140" y="38" width="120" height="41" backcolor="#F2F2F2" uuid="23b289ab-4dd0-495e-bc15-d889eef97a0f"/>
 				<box>
 					<pen lineWidth="0.5"/>
 				</box>
@@ -83,7 +83,7 @@
 				<textFieldExpression><![CDATA[$P{isClient} ? "Клиент" : "Перевозчик"]]></textFieldExpression>
 			</textField>
 			<staticText>
-				<reportElement x="350" y="38" width="110" height="41" uuid="c05a1b1a-be8d-483b-bc30-1dd46e1f08b0"/>
+				<reportElement mode="Opaque" x="350" y="38" width="110" height="41" backcolor="#F2F2F2" uuid="c05a1b1a-be8d-483b-bc30-1dd46e1f08b0"/>
 				<box>
 					<pen lineWidth="0.5"/>
 				</box>
@@ -93,7 +93,7 @@
 				<text><![CDATA[Сумма]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="460" y="38" width="100" height="41" uuid="4ffdf901-44e8-44d3-beec-a44506c7a274"/>
+				<reportElement mode="Opaque" x="460" y="38" width="100" height="41" backcolor="#F2F2F2" uuid="4ffdf901-44e8-44d3-beec-a44506c7a274"/>
 				<box>
 					<pen lineWidth="0.5"/>
 				</box>
@@ -103,7 +103,7 @@
 				<text><![CDATA[Курс]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="560" y="38" width="90" height="41" uuid="a8b1883c-e3d0-423b-98b0-cfec65a86dcb"/>
+				<reportElement mode="Opaque" x="560" y="38" width="90" height="41" backcolor="#F2F2F2" uuid="a8b1883c-e3d0-423b-98b0-cfec65a86dcb"/>
 				<box>
 					<pen lineWidth="0.5"/>
 				</box>
@@ -113,7 +113,7 @@
 				<text><![CDATA[Конечное цена]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="650" y="38" width="110" height="41" uuid="fd769d64-37ca-4ba9-92ec-3b503866179e"/>
+				<reportElement mode="Opaque" x="650" y="38" width="110" height="41" backcolor="#F2F2F2" uuid="fd769d64-37ca-4ba9-92ec-3b503866179e"/>
 				<box>
 					<pen lineWidth="0.5"/>
 				</box>
@@ -123,7 +123,7 @@
 				<text><![CDATA[Рейс]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="760" y="38" width="100" height="41" uuid="ea6f8763-51cb-41f5-b6a6-5fcbb4be6791"/>
+				<reportElement mode="Opaque" x="760" y="38" width="100" height="41" backcolor="#F2F2F2" uuid="ea6f8763-51cb-41f5-b6a6-5fcbb4be6791"/>
 				<box>
 					<pen lineWidth="0.5"/>
 				</box>
@@ -133,7 +133,7 @@
 				<text><![CDATA[Номер транспорта]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="860" y="38" width="100" height="41" uuid="510da177-a11b-48cc-bf2f-00d97ac3c84f"/>
+				<reportElement mode="Opaque" x="860" y="38" width="100" height="41" backcolor="#F2F2F2" uuid="510da177-a11b-48cc-bf2f-00d97ac3c84f"/>
 				<box>
 					<pen lineWidth="0.5"/>
 				</box>
@@ -143,7 +143,7 @@
 				<text><![CDATA[Платёж]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="960" y="38" width="120" height="41" uuid="c181d041-9c7c-4d42-8b6b-043a3d221901"/>
+				<reportElement mode="Opaque" x="960" y="38" width="120" height="41" backcolor="#F2F2F2" uuid="c181d041-9c7c-4d42-8b6b-043a3d221901"/>
 				<box>
 					<pen lineWidth="0.5"/>
 				</box>
@@ -153,7 +153,7 @@
 				<text><![CDATA[Баланс платёжа]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="1080" y="38" width="100" height="41" uuid="215a22ae-6ada-47d6-8299-6e921fbee455"/>
+				<reportElement mode="Opaque" x="1080" y="38" width="100" height="41" backcolor="#F2F2F2" uuid="215a22ae-6ada-47d6-8299-6e921fbee455"/>
 				<box>
 					<pen lineWidth="0.5"/>
 				</box>

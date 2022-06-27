@@ -589,7 +589,7 @@ public class TransactionService {
         String[] sheetNames = {"Касса"};
         String templateName = "CashReport.jrxml";
         String fileName = "CashReport";
-        reportService.getExcelFile(response, new Report<>(templateName, null, sheetNames, fileName, new HashMap<>(), transactionsReport));
+        reportService.getExcelFile(response, new Report<>(templateName, sheetNames, fileName, new HashMap<>(), transactionsReport));
     }
 
 }
