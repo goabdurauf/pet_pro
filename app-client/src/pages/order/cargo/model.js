@@ -13,7 +13,7 @@ import {
   getSelectOrders,
   saveShipping,
   searchProduct,
-  getProductById, getClientList
+  getProductById, getClientList, downloadCargoReport
 } from '@/services/service'
 import {Link} from "umi";
 import {notification, Tag} from "antd";
@@ -467,6 +467,9 @@ export default ({
         });
       }
     },
+    * download({payload}, {call, put, select}) {
+      yield call(downloadCargoReport, payload)
+    }
   },
   reducers: {
     updateState(state, {payload}) {

@@ -85,6 +85,7 @@ export function getCargoExpenseByOrderId(id) {return request({url: '/api/cargo/e
 export function deleteExpenseFromCargoById(id) {return request({url: '/api/cargo/expense/' + id, method: 'delete',})}
 export function divideShippingExpenseToCargos(data) {return request({url: '/api/cargo/expense/divide', method: 'post', data})}
 export function getCargoForInvoiceById(id) {return request({url: '/api/cargo/' + id + '/invoice', method: 'get',})}
+export function downloadCargoReport(data) {return request({url: '/api/cargo/report', method: 'post', data, responseType: 'blob' })}
 
 export function saveCargoTracking(data) {return request({url: '/api/shipping/tracking', method: 'post', data})}
 export function getCargoTrackingList() {return request({url: '/api/shipping/tracking', method: 'get'})}
@@ -115,6 +116,7 @@ export function updateTransactionOut(data) {return request({url: '/api/transacti
 export function getTransactionList(data) {return request({url: '/api/transaction/list', method: 'post', data})}
 export function getTransactionById(id) {return request({url: '/api/transaction/' + id, method: 'get',})}
 export function getTransactionNextNum() {return request({url: '/api/transaction/num', method: 'get',})}
+export function downloadTransactionReport(data) { return request({url: '/api/transaction/report', method: 'post', data, responseType: 'blob'}) }
 
 export function getClientBalances() {return request({url: '/api/balances/client', method: 'get'})}
 export function getCarrierBalances() {return request({url: '/api/balances/carrier', method: 'get'})}

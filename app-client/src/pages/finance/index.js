@@ -371,6 +371,19 @@ class Finance extends Component {
       })
     }
 
+    const handleTransactionDownload = () => {
+      const itemListTotal = finance.pagination.total
+      searchParams.size = itemListTotal
+
+      console.log(searchParams)
+
+
+      dispatch({
+        type: 'finance/downloadTransactionReport',
+        payload: searchParams
+      })
+    }
+
     const TabBody = () => {
       return <div>
         <Row className='justify-content-end'>
@@ -408,6 +421,12 @@ class Finance extends Component {
                 </Col>
                 <Col span={1}>
                   <Button outline color="primary" size="sm" onClick={openSearchModal}><SearchOutlined/></Button>
+                </Col>
+
+                <Col span={2}>
+                  <Button className='float-right mr-3' size='sm' outline color='success' onClick={handleTransactionDownload}>
+                    <DownloadOutlined className='mr-1' /> Скачать
+                  </Button>
                 </Col>
                 {getKassaInfo()}
               </Row>
