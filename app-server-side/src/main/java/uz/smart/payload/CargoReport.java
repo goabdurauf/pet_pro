@@ -4,8 +4,11 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import uz.smart.dto.CargoDetailDto;
 
+import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
 
 @Getter
 @Setter
@@ -22,27 +25,25 @@ public class CargoReport {
   private String statusName;
 
   private String name;
-  private String weight;
-  private String capacity;
-  private String packageAmount;
+  private List<CargoDetailDto> cargoDetails;
 
   private String carrierName;
   private String shippingNum;
 
   private String currencyName;
-  private Double price;
-  private Double rate;
-  private Double finalPrice;
+  private BigDecimal price;
+  private BigDecimal rate;
+  private BigDecimal finalPrice;
 
   private String fromCurrencyName;
-  private Double fromPrice;
-  private Double fromRate;
-  private Double fromFinalPrice;
+  private BigDecimal fromPrice;
+  private BigDecimal fromRate;
+  private BigDecimal fromFinalPrice;
 
   private String toCurrencyName;
-  private Double toPrice;
-  private Double toRate;
-  private Double toFinalPrice;
+  private BigDecimal toPrice;
+  private BigDecimal toRate;
+  private BigDecimal toFinalPrice;
 
   private String invoiceOutId;
   private String invoiceInId;

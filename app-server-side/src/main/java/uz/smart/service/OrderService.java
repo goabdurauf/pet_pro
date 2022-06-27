@@ -223,7 +223,7 @@ public class OrderService {
     String[] sheetNames = {"Заказы"};
     String templateName = "OrderReport.jrxml";
     String fileName = "OrderReport";
-    reportService.getExcelFile(response, new Report<>(templateName, sheetNames, fileName, new HashMap<>(), orderReports));
+    reportService.getExcelFile(response, new Report<>(templateName, null, sheetNames, fileName, new HashMap<>(), orderReports));
   }
 
 }

@@ -14,6 +14,7 @@ import uz.smart.dto.ExpenseDto;
 import uz.smart.payload.*;
 import uz.smart.service.CargoService;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 import java.util.UUID;
 
@@ -77,4 +78,8 @@ public class CargoController {
     @GetMapping("/{id}/invoice")
     public ResInvoice getForInvoice(@PathVariable UUID id) { return service.getForInvoice(id); }
 
+    @PostMapping("/report")
+    public void getExcelFile(HttpServletResponse response, @RequestBody ReqCargoSearch req) {
+        service.getExcelFile(response, req);
+    }
 }

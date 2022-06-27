@@ -73,4 +73,14 @@ public class CommonUtils {
             return firstLetter + year + month + "-01";
         }
     }
+
+    public static String replace(String value) {
+        if (value == null) {
+            return "";
+        }
+        return value
+            .replace("[", "")
+            .replace("]", "")
+            .replace(",", "");
+    }
 }
