@@ -4,6 +4,7 @@ package uz.smart.service;
     Created by Ilhom Ahmadjonov on 31.10.2021.
 */
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +24,7 @@ import uz.smart.repository.*;
 import uz.smart.utils.AppConstants;
 import uz.smart.utils.CommonUtils;
 
+import javax.servlet.http.HttpServletResponse;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.text.ParseException;
@@ -30,7 +32,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-
+@Slf4j
 @Service
 public class ShippingService {
 
@@ -65,6 +67,8 @@ public class ShippingService {
   ExpenseService expenseService;
   @Autowired
   MapperUtil mapper;
+  @Autowired
+  ReportService reportService;
 
   private final SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy");
 
@@ -198,6 +202,11 @@ public class ShippingService {
   }
 
   public HttpEntity<?> getShippingList(ReqShippingSearch req) {
+    ResPageable<?> resPageable = getResPageable(req);
+    return ResponseEntity.ok(resPageable);
+  }
+
+  public ResPageable<List<ResShipping>> getResPageable(ReqShippingSearch req) {
     Set<ShippingEntity> list;
     long totalElement = 0;
     req.setWord(req.getWord() == null ? null : req.getWord().toLowerCase());
@@ -219,9 +228,9 @@ public class ShippingService {
               new Timestamp(format.parse(req.getUnloadEnd() != null ? req.getUnloadEnd() : AppConstants.END_DATE).getTime()));
     } catch (ParseException e) {
       e.printStackTrace();
-      return ResponseEntity.ok(new ResPageable(new ArrayList<>(), totalElement, req.getPage()));
+      return new ResPageable<>(new ArrayList<>(), totalElement, req.getPage());
     }
-    return ResponseEntity.ok(new ResPageable(getShippingListWithExpenses(new ArrayList<>(list)), totalElement, req.getPage()));
+    return new ResPageable<>(getShippingListWithExpenses(new ArrayList<>(list)), totalElement, req.getPage());
   }
 
   public List<ResShipping> getShippingListWithExpenses(List<ShippingEntity> entityList) {
@@ -564,6 +573,66 @@ public class ShippingService {
 
     dto.setCargos(inTrackingClients);
     return dto;
+  }
+
+  public List<ShippingReport> reportMapper(ReqShippingSearch req) {
+    List<ResShipping> resShippings = getResPageable(req).getObject();
+    List<ShippingReport> shippingReports = new ArrayList<>();
+    log.info("size {} ",resShippings.size());
+
+    resShippings.forEach(resShipping -> {
+      ShippingReport shippingReport = new ShippingReport();
+      String orderNum = "";
+      String clientName = "";
+      String fromPrice = "";
+      String toPrice = CommonUtils.stringBuilder(resShipping.getPrice().toString(), resShipping.getCurrencyName());
+
+      for (ResOrder resOrder : resShipping.getOrderList()) {
+        String date = resOrder.getDate().toString().substring(0, 10);
+        orderNum = orderNum.concat(CommonUtils.stringBuilder(resOrder.getNum(),""));
+        orderNum = orderNum.concat(CommonUtils.stringBuilder(date,""));
+        clientName = clientName.concat(CommonUtils.stringBuilder(resOrder.getClientName(),""));
+      }
+
+      for (ExpenseDto expenseDto : resShipping.getExpenseList()) {
+        if (expenseDto.getToPrice() != null) {
+          toPrice = toPrice.concat(CommonUtils.stringBuilder(expenseDto.getToPrice().toString(),
+              expenseDto.getToCurrencyName()));
+        }
+        if (expenseDto.getFromPrice() != null) {
+          fromPrice = fromPrice.concat(CommonUtils.stringBuilder(expenseDto.getFromPrice().toString(),
+              expenseDto.getFromCurrencyName()));
+        }
+      }
+
+      shippingReport.setNum(resShipping.getNum());
+      shippingReport.setOrderNum(orderNum);
+      shippingReport.setLoadDate(resShipping.getLoadDate());
+      shippingReport.setUnloadDate(resShipping.getUnloadDate());
+      shippingReport.setClientName(clientName);
+      shippingReport.setManagerName(resShipping.getManagerName());
+      shippingReport.setCarrierName(resShipping.getCarrierName());
+      shippingReport.setCurrencyName(resShipping.getCurrencyName());
+      shippingReport.setPrice(resShipping.getPrice());
+      shippingReport.setFinalPrice(resShipping.getFinalPrice());
+      shippingReport.setShippingTypeName(resShipping.getShippingTypeName());
+      shippingReport.setShippingNum(resShipping.getShippingNum());
+      shippingReport.setToPrice(toPrice);
+      shippingReport.setFromPrice(fromPrice);
+
+      shippingReports.add(shippingReport);
+    });
+
+
+    return shippingReports;
+  }
+
+  public void getExcelFile(HttpServletResponse response, ReqShippingSearch req) {
+    List<ShippingReport> shippingReports = reportMapper(req);
+    String[] sheetNames = {"Рейсы"};
+    String templateName = "ShippingReport.jrxml";
+    String fileName = "ShippingReport";
+    reportService.getExcelFile(response, new Report<>(templateName, sheetNames, fileName, new HashMap<>(), shippingReports));
   }
 
 }

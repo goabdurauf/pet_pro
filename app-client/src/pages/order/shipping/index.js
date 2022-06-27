@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import {Card, Row, Col, Tabs, Space, Popconfirm, Table, Tooltip, Input, Select, DatePicker} from 'antd';
 import {connect} from "react-redux";
-import {DeleteOutlined, FormOutlined, PlusOutlined, SearchOutlined} from "@ant-design/icons";
+import {DeleteOutlined, DownloadOutlined, FormOutlined, PlusOutlined, SearchOutlined} from "@ant-design/icons";
 import {Button} from "reactstrap";
 import ShippingModal from './modal'
 import SearchModal from '../modals/searchModal'
@@ -233,10 +233,24 @@ class Shipping extends Component {
         }
       })
     }
+
+    const handleDownload = () => {
+      const itemListTotal = shipping.pagination.total
+      searchParams.size = itemListTotal
+
+      dispatch({
+        type: 'shipping/download',
+        payload: searchParams
+      })
+    }
+
     const TabBody = () => {
       return <div>
         <Row>
           <Col span={4} offset={20}>
+            <Button className="float-right ml-4" outline color="success" size="sm" onClick={handleDownload}>
+              <DownloadOutlined className='mr-1' /> Скачать
+            </Button>
             <Button className="float-right" outline color="primary" size="sm" onClick={openModal}><PlusOutlined/> Добавить</Button>
             <Button className="float-right mr-4" outline color="primary" size="sm" onClick={openSearchModal}><SearchOutlined/></Button>
           </Col>

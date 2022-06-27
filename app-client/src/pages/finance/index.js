@@ -362,12 +362,24 @@ class Finance extends Component {
       searchParams.size = totalFinances
 
 
+
       dispatch({
         type: 'finance/download',
         payload: {
           type: financeType,
           ...searchParams
         }
+      })
+    }
+
+    const handleTransactionDownload = () => {
+      const itemListTotal = finance.pagination.total
+      searchParams.size = itemListTotal
+
+
+      dispatch({
+        type: 'finance/downloadTransactionReport',
+        payload: searchParams
       })
     }
 
@@ -408,6 +420,12 @@ class Finance extends Component {
                 </Col>
                 <Col span={1}>
                   <Button outline color="primary" size="sm" onClick={openSearchModal}><SearchOutlined/></Button>
+                </Col>
+
+                <Col span={2}>
+                  <Button className='float-right mr-3' size='sm' outline color='success' onClick={handleTransactionDownload}>
+                    <DownloadOutlined className='mr-1' /> Скачать
+                  </Button>
                 </Col>
                 {getKassaInfo()}
               </Row>

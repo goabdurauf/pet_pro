@@ -4,6 +4,7 @@ package uz.smart.controller;
     Created by Ilhom Ahmadjonov on 31.10.2021.
 */
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,12 +12,10 @@ import uz.smart.dto.CargoTrackingDto;
 import uz.smart.dto.DocumentDto;
 import uz.smart.dto.ExpenseDto;
 import uz.smart.dto.ShippingDto;
-import uz.smart.payload.ReqOrderSearch;
-import uz.smart.payload.ReqShippingSearch;
-import uz.smart.payload.ResShipping;
-import uz.smart.payload.ResShippingDivide;
+import uz.smart.payload.*;
 import uz.smart.service.ShippingService;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 import java.util.UUID;
 
@@ -91,6 +90,11 @@ public class ShippingController {
     @GetMapping("/tracking/{id}")
     public CargoTrackingDto getTrackingById(@PathVariable UUID id) {
         return service.getById(id);
+    }
+
+    @PostMapping("/report")
+    public void getExcelFile(HttpServletResponse response, @RequestBody ReqShippingSearch req) {
+        service.getExcelFile(response, req);
     }
 
 }

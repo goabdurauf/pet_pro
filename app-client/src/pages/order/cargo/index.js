@@ -15,7 +15,7 @@ import {
   Input, DatePicker
 } from 'antd';
 import {connect} from "react-redux";
-import {DeleteOutlined, FormOutlined, SearchOutlined} from "@ant-design/icons";
+import {DeleteOutlined, DownloadOutlined, FormOutlined, SearchOutlined} from "@ant-design/icons";
 import CargoModal from '../$order_detail/modals/cargoModal'
 import ShippingModal from '../shipping/modal'
 import SearchModal from '../modals/searchModal'
@@ -382,6 +382,17 @@ class Cargo extends Component {
       })
     }
 
+    const handleDownload = () => {
+      const itemListTotal = cargo.pagination.total
+      searchParams.size = itemListTotal
+
+
+      dispatch({
+        type: 'cargo/download',
+        payload: searchParams
+      })
+    }
+
     return (
       <div className="cargo-page">
         <Card style={{width: '100%'}} bordered={false}>
@@ -403,7 +414,11 @@ class Cargo extends Component {
                 <Col span={1}>
                   <Button className="float-right" outline color="primary" size="sm" onClick={openSearchModal}><SearchOutlined/></Button>
                 </Col>
-
+                <Col span={3}>
+                  <Button className='float-right' size='sm' outline color='success' onClick={handleDownload}>
+                    <DownloadOutlined className='mr-1' /> Скачать
+                  </Button>
+                </Col>
               </Row>
               <Table rowClassName={(record, index) => record.shippingStatusId === 1 ? 'planning-row' :  ''}
                      rowSelection={rowSelection} columns={columns} dataSource={itemList} bordered size="middle"

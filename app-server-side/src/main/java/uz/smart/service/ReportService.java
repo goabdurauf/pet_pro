@@ -1,10 +1,7 @@
 package uz.smart.service;
 
 import lombok.extern.slf4j.Slf4j;
-import net.sf.jasperreports.engine.JRException;
-import net.sf.jasperreports.engine.JasperFillManager;
-import net.sf.jasperreports.engine.JasperPrint;
-import net.sf.jasperreports.engine.JasperReport;
+import net.sf.jasperreports.engine.*;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 import org.apache.poi.ss.formula.functions.T;
 import org.springframework.beans.factory.annotation.Value;
@@ -31,8 +28,9 @@ public class ReportService {
 
   private byte[] exportFile(Report<?> report) throws JRException, IOException {
 
-    JasperReport jasper = JasperHelper.compileJasperReport(reportsDir, report.getTemplateName());
+
     JRBeanCollectionDataSource dataSource = new JRBeanCollectionDataSource(report.getData());
+    JasperReport jasper = JasperHelper.compileJasperReport(reportsDir, report.getTemplateName());
     JasperPrint jasperPrint = JasperFillManager.fillReport(jasper, report.getParams(), dataSource);
     List<JasperPrint> sheets = List.of(jasperPrint);
     return JasperHelper.exportReport(report.getSheetNames(), sheets).toByteArray();
