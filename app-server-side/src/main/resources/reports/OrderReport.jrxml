@@ -26,7 +26,7 @@
 	<title>
 		<band height="86">
 			<staticText>
-				<reportElement x="170" y="38" width="70" height="29" uuid="04c1fd97-ffca-4447-a0ce-f48b03e0f189"/>
+				<reportElement mode="Opaque" x="170" y="38" width="70" height="29" backcolor="#F2F2F2" uuid="04c1fd97-ffca-4447-a0ce-f48b03e0f189"/>
 				<box>
 					<pen lineWidth="0.5"/>
 				</box>
@@ -36,7 +36,7 @@
 				<text><![CDATA[Статус заказа]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="0" y="21" width="750" height="17" uuid="4a3cd730-6c88-4b50-91a6-feac36494772"/>
+				<reportElement mode="Opaque" x="0" y="21" width="750" height="17" backcolor="#F2F2F2" uuid="4a3cd730-6c88-4b50-91a6-feac36494772"/>
 				<box>
 					<pen lineWidth="0.5"/>
 				</box>
@@ -46,7 +46,7 @@
 				<text><![CDATA[Заказы]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="0" y="38" width="30" height="29" uuid="38bdad02-2a2c-42c6-9f78-221722f93471"/>
+				<reportElement mode="Opaque" x="0" y="38" width="30" height="29" backcolor="#F2F2F2" uuid="38bdad02-2a2c-42c6-9f78-221722f93471"/>
 				<box>
 					<pen lineWidth="0.5"/>
 				</box>
@@ -56,7 +56,7 @@
 				<text><![CDATA[№	]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="30" y="38" width="70" height="29" uuid="4b8ad501-2f0f-45c7-811b-28f80af9c890"/>
+				<reportElement mode="Opaque" x="30" y="38" width="70" height="29" backcolor="#F2F2F2" uuid="4b8ad501-2f0f-45c7-811b-28f80af9c890"/>
 				<box>
 					<pen lineWidth="0.5"/>
 				</box>
@@ -66,7 +66,7 @@
 				<text><![CDATA[Номер заказа]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="100" y="38" width="70" height="29" uuid="5a34a642-ddd7-4a34-9ed7-1549e3c25e99"/>
+				<reportElement mode="Opaque" x="100" y="38" width="70" height="29" backcolor="#F2F2F2" uuid="5a34a642-ddd7-4a34-9ed7-1549e3c25e99"/>
 				<box>
 					<pen lineWidth="0.5"/>
 				</box>
@@ -76,7 +76,7 @@
 				<text><![CDATA[Дата заказа]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="240" y="38" width="110" height="29" uuid="c05a1b1a-be8d-483b-bc30-1dd46e1f08b0"/>
+				<reportElement mode="Opaque" x="240" y="38" width="110" height="29" backcolor="#F2F2F2" uuid="c05a1b1a-be8d-483b-bc30-1dd46e1f08b0"/>
 				<box>
 					<pen lineWidth="0.5"/>
 				</box>
@@ -86,7 +86,7 @@
 				<text><![CDATA[Клиент]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="350" y="38" width="100" height="29" uuid="4ffdf901-44e8-44d3-beec-a44506c7a274"/>
+				<reportElement mode="Opaque" x="350" y="38" width="100" height="29" backcolor="#F2F2F2" uuid="4ffdf901-44e8-44d3-beec-a44506c7a274"/>
 				<box>
 					<pen lineWidth="0.5"/>
 				</box>
@@ -96,7 +96,7 @@
 				<text><![CDATA[Номер транспорта]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="450" y="38" width="90" height="29" uuid="a8b1883c-e3d0-423b-98b0-cfec65a86dcb"/>
+				<reportElement mode="Opaque" x="450" y="38" width="90" height="29" backcolor="#F2F2F2" uuid="a8b1883c-e3d0-423b-98b0-cfec65a86dcb"/>
 				<box>
 					<pen lineWidth="0.5"/>
 				</box>
@@ -106,7 +106,7 @@
 				<text><![CDATA[Перевозчик]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="540" y="38" width="110" height="29" uuid="fd769d64-37ca-4ba9-92ec-3b503866179e"/>
+				<reportElement mode="Opaque" x="540" y="38" width="110" height="29" backcolor="#F2F2F2" uuid="fd769d64-37ca-4ba9-92ec-3b503866179e"/>
 				<box>
 					<pen lineWidth="0.5"/>
 				</box>
@@ -116,7 +116,7 @@
 				<text><![CDATA[Номер рейса]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="650" y="38" width="100" height="29" uuid="77e0ba6b-972e-457b-927f-5228553b6e64"/>
+				<reportElement mode="Opaque" x="650" y="38" width="100" height="29" backcolor="#F2F2F2" uuid="77e0ba6b-972e-457b-927f-5228553b6e64"/>
 				<box>
 					<pen lineWidth="0.5"/>
 				</box>

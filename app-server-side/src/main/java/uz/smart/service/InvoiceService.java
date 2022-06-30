@@ -319,6 +319,6 @@ public class InvoiceService {
             fileName = "IssuedInvoiceReport";
             params.put("isClient", true);
         }
-        reportService.getExcelFile(response, new Report<>(templateName, null, sheetNames, fileName, params, invoiceReports));
+        reportService.getExcelFile(response, new Report<>(templateName, sheetNames, fileName, params, invoiceReports));
     }
 }

@@ -10,6 +10,7 @@
 	<property name="com.jaspersoft.studio.unit.rightMargin" value="pixel"/>
 	<property name="com.jaspersoft.studio.unit.columnWidth" value="pixel"/>
 	<property name="com.jaspersoft.studio.unit.columnSpacing" value="pixel"/>
+	<style name="background" isDefault="true" backcolor="#D4D4D4"/>
 	<parameter name="SUBREPORT_DIR" class="java.lang.String" isForPrompting="false"/>
 	<parameter name="subReport" class="net.sf.jasperreports.engine.JasperReport" isForPrompting="false"/>
 	<queryString>
@@ -24,200 +25,202 @@
 	<field name="receiverCountryName" class="java.lang.String"/>
 	<field name="statusName" class="java.lang.String"/>
 	<field name="name" class="java.lang.String"/>
-	<field name="cargoDetails" class="java.util.List"/>
+	<field name="cargoDetails" class="java.lang.String"/>
 	<field name="carrierName" class="java.lang.String"/>
 	<field name="shippingNum" class="java.lang.String"/>
+	<field name="toPrice" class="java.lang.String"/>
+	<field name="fromPrice" class="java.lang.String"/>
 	<background>
 		<band splitType="Stretch"/>
 	</background>
 	<title>
-		<band height="244">
+		<band height="144">
 			<staticText>
-				<reportElement x="170" y="38" width="70" height="41" uuid="04c1fd97-ffca-4447-a0ce-f48b03e0f189"/>
+				<reportElement style="background" mode="Opaque" x="170" y="54" width="70" height="41" backcolor="#F2F2F2" uuid="f250b029-d7c5-4538-ab6e-3dcdee5c67c1"/>
 				<box>
 					<pen lineWidth="0.5"/>
 				</box>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font fontName="Times New Roman"/>
+					<font fontName="Times New Roman" size="11" isBold="true"/>
 				</textElement>
 				<text><![CDATA[Клиент]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="0" y="21" width="1430" height="17" uuid="4a3cd730-6c88-4b50-91a6-feac36494772"/>
+				<reportElement style="background" mode="Opaque" x="0" y="37" width="1430" height="17" backcolor="#F2F2F2" uuid="c9e590f6-2e30-483b-b7c6-ed658043c791"/>
 				<box>
 					<pen lineWidth="0.5"/>
 				</box>
-				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font fontName="Times New Roman"/>
+				<textElement textAlignment="Center">
+					<font fontName="Times New Roman" size="11" isBold="true"/>
 				</textElement>
 				<text><![CDATA[Грузы]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="0" y="38" width="30" height="41" uuid="38bdad02-2a2c-42c6-9f78-221722f93471"/>
+				<reportElement style="background" mode="Opaque" x="0" y="54" width="30" height="41" backcolor="#F2F2F2" uuid="8676ca42-4614-42ee-a39a-78d47c89b34b"/>
 				<box>
 					<pen lineWidth="0.5"/>
 				</box>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font fontName="Times New Roman"/>
+					<font fontName="Times New Roman" size="11" isBold="true"/>
 				</textElement>
 				<text><![CDATA[№	]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="30" y="38" width="70" height="41" uuid="4b8ad501-2f0f-45c7-811b-28f80af9c890"/>
+				<reportElement style="background" mode="Opaque" x="30" y="54" width="70" height="41" backcolor="#F2F2F2" uuid="1250458c-134b-4355-ab6f-5c211c203a21"/>
 				<box>
 					<pen lineWidth="0.5"/>
 				</box>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font fontName="Times New Roman"/>
+					<font fontName="Times New Roman" size="11" isBold="true"/>
 				</textElement>
 				<text><![CDATA[Номер заказа]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="100" y="38" width="70" height="41" uuid="5a34a642-ddd7-4a34-9ed7-1549e3c25e99"/>
+				<reportElement style="background" mode="Opaque" x="100" y="54" width="70" height="41" backcolor="#F2F2F2" uuid="402ad39c-0363-4cfe-8287-cbe08ffddf04"/>
 				<box>
 					<pen lineWidth="0.5"/>
 				</box>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font fontName="Times New Roman"/>
+					<font fontName="Times New Roman" size="11" isBold="true"/>
 				</textElement>
 				<text><![CDATA[Номер груза]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="240" y="38" width="110" height="41" uuid="c05a1b1a-be8d-483b-bc30-1dd46e1f08b0"/>
+				<reportElement style="background" mode="Opaque" x="240" y="54" width="110" height="41" backcolor="#F2F2F2" uuid="5dfdb301-c4d1-4b25-93d1-f6893d062447"/>
 				<box>
 					<pen lineWidth="0.5"/>
 				</box>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font fontName="Times New Roman"/>
+					<font fontName="Times New Roman" size="11" isBold="true"/>
 				</textElement>
 				<text><![CDATA[Дата погрузки]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="350" y="38" width="100" height="41" uuid="4ffdf901-44e8-44d3-beec-a44506c7a274"/>
+				<reportElement style="background" mode="Opaque" x="350" y="54" width="100" height="41" backcolor="#F2F2F2" uuid="1050241e-e446-42da-816b-53f25ce1c80b"/>
 				<box>
 					<pen lineWidth="0.5"/>
 				</box>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font fontName="Times New Roman"/>
+					<font fontName="Times New Roman" size="11" isBold="true"/>
 				</textElement>
 				<text><![CDATA[Дата разгрузки]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="450" y="38" width="90" height="41" uuid="a8b1883c-e3d0-423b-98b0-cfec65a86dcb"/>
+				<reportElement style="background" mode="Opaque" x="450" y="54" width="90" height="41" backcolor="#F2F2F2" uuid="4d626873-b96b-4d6b-a43d-8d7bdc7fdc03"/>
 				<box>
 					<pen lineWidth="0.5"/>
 				</box>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font fontName="Times New Roman"/>
+					<font fontName="Times New Roman" size="11" isBold="true"/>
 				</textElement>
 				<text><![CDATA[Погрузка]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="540" y="38" width="110" height="41" uuid="fd769d64-37ca-4ba9-92ec-3b503866179e"/>
+				<reportElement style="background" mode="Opaque" x="540" y="54" width="110" height="41" backcolor="#F2F2F2" uuid="d7f32d69-8884-4ea6-b9d6-a747cbb43c1e"/>
 				<box>
 					<pen lineWidth="0.5"/>
 				</box>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font fontName="Times New Roman"/>
+					<font fontName="Times New Roman" size="11" isBold="true"/>
 				</textElement>
 				<text><![CDATA[Разгрузка]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="650" y="38" width="100" height="41" uuid="77e0ba6b-972e-457b-927f-5228553b6e64"/>
+				<reportElement style="background" mode="Opaque" x="650" y="54" width="100" height="41" backcolor="#F2F2F2" uuid="9e336cb3-4cd5-4f04-a04c-8f3716478690"/>
 				<box>
 					<pen lineWidth="0.5"/>
 				</box>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font fontName="Times New Roman"/>
+					<font fontName="Times New Roman" size="11" isBold="true"/>
 				</textElement>
 				<text><![CDATA[Статус груза]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="750" y="38" width="100" height="41" uuid="ea6f8763-51cb-41f5-b6a6-5fcbb4be6791"/>
+				<reportElement style="background" mode="Opaque" x="750" y="54" width="100" height="41" backcolor="#F2F2F2" uuid="beaefda4-9c9a-49a0-b151-439299d905ad"/>
 				<box>
 					<pen lineWidth="0.5"/>
 				</box>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font fontName="Times New Roman"/>
+					<font fontName="Times New Roman" size="11" isBold="true"/>
 				</textElement>
 				<text><![CDATA[Название груза]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="850" y="38" width="100" height="41" uuid="510da177-a11b-48cc-bf2f-00d97ac3c84f"/>
+				<reportElement style="background" mode="Opaque" x="850" y="54" width="100" height="41" backcolor="#F2F2F2" uuid="3747f046-2bc6-46c2-862c-e2ae5a9781fb"/>
 				<box>
 					<pen lineWidth="0.5"/>
 				</box>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font fontName="Times New Roman"/>
+					<font fontName="Times New Roman" size="11" isBold="true"/>
 				</textElement>
 				<text><![CDATA[Параметры груза]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="950" y="38" width="100" height="41" uuid="b222e4ab-6aa8-4fed-bee3-203a573bb355"/>
+				<reportElement style="background" mode="Opaque" x="950" y="54" width="100" height="41" backcolor="#F2F2F2" uuid="2a5e1166-34dd-4bad-ab9e-9825524c3fe2"/>
 				<box>
 					<pen lineWidth="0.5"/>
 				</box>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font fontName="Times New Roman"/>
+					<font fontName="Times New Roman" size="11" isBold="true"/>
 				</textElement>
 				<text><![CDATA[Перевозчик]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="1050" y="38" width="100" height="41" uuid="2f6c94fe-e23a-49fe-b96e-609ea1789eb3"/>
+				<reportElement style="background" mode="Opaque" x="1050" y="54" width="100" height="41" backcolor="#F2F2F2" uuid="d5ad3b3d-ee1b-483a-b54b-be95c1d08d52"/>
 				<box>
 					<pen lineWidth="0.5"/>
 				</box>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font fontName="Times New Roman"/>
+					<font fontName="Times New Roman" size="11" isBold="true"/>
 				</textElement>
 				<text><![CDATA[Рейс]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="1150" y="59" width="91" height="20" uuid="d8950a52-5814-4e89-8c08-7e525c3a9bfb"/>
+				<reportElement style="background" mode="Opaque" x="1150" y="75" width="91" height="20" backcolor="#F2F2F2" uuid="87b53106-3e18-4d59-92cc-bdaa90282c6d"/>
 				<box>
 					<pen lineWidth="0.5"/>
 				</box>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font fontName="Times New Roman"/>
+					<font fontName="Times New Roman" size="11" isBold="true"/>
 				</textElement>
 				<text><![CDATA[Вы. счёт]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="1241" y="59" width="89" height="20" uuid="d3f6ef59-04ce-4110-aec6-5490a24cd7bc"/>
+				<reportElement style="background" mode="Opaque" x="1241" y="75" width="89" height="20" backcolor="#F2F2F2" uuid="a4a39a11-47db-4370-aee5-6cff55b92ba0"/>
 				<box>
 					<pen lineWidth="0.5"/>
 				</box>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font fontName="Times New Roman"/>
+					<font fontName="Times New Roman" size="11" isBold="true"/>
 				</textElement>
 				<text><![CDATA[Пол. счёт]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="1330" y="38" width="100" height="41" uuid="c181d041-9c7c-4d42-8b6b-043a3d221901"/>
+				<reportElement style="background" mode="Opaque" x="1330" y="54" width="100" height="41" backcolor="#F2F2F2" uuid="e40d2ef8-4669-4f94-9f77-ebde3f85a31d"/>
 				<box>
 					<pen lineWidth="0.5"/>
 				</box>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font fontName="Times New Roman"/>
+					<font fontName="Times New Roman" size="11" isBold="true"/>
 				</textElement>
 				<text><![CDATA[Документы]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="1150" y="38" width="180" height="21" uuid="5110b494-7c2d-4e03-bedb-b9c5a3bd27bb"/>
+				<reportElement style="background" mode="Opaque" x="1150" y="54" width="180" height="21" backcolor="#F2F2F2" uuid="2b219a51-6529-4a2e-b8e6-26b8f88af45a"/>
 				<box>
 					<pen lineWidth="0.5"/>
 				</box>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font fontName="Times New Roman"/>
+					<font fontName="Times New Roman" size="11" isBold="true"/>
 				</textElement>
 				<text><![CDATA[Финанс]]></text>
 			</staticText>
 		</band>
 	</title>
 	<detail>
-		<band height="282" splitType="Stretch">
+		<band height="99" splitType="Stretch">
 			<textField textAdjust="StretchHeight" isBlankWhenNull="true">
-				<reportElement x="650" y="10" width="100" height="29" uuid="2fe772f2-6f06-4797-b7af-b77b8c4364b1"/>
+				<reportElement x="650" y="40" width="100" height="29" uuid="2fe772f2-6f06-4797-b7af-b77b8c4364b1"/>
 				<box>
 					<pen lineWidth="0.5"/>
 				</box>
@@ -227,7 +230,7 @@
 				<textFieldExpression><![CDATA[$F{statusName}]]></textFieldExpression>
 			</textField>
 			<textField textAdjust="StretchHeight" isBlankWhenNull="true">
-				<reportElement x="0" y="10" width="30" height="29" uuid="1611e6cd-d320-45fa-897b-a7ebc4e7859e"/>
+				<reportElement x="0" y="40" width="30" height="29" uuid="1611e6cd-d320-45fa-897b-a7ebc4e7859e"/>
 				<box>
 					<pen lineWidth="0.5"/>
 				</box>
@@ -236,8 +239,8 @@
 				</textElement>
 				<textFieldExpression><![CDATA[$V{REPORT_COUNT}]]></textFieldExpression>
 			</textField>
-			<textField textAdjust="StretchHeight" isBlankWhenNull="true">
-				<reportElement x="350" y="10" width="100" height="29" uuid="ede45fcd-700d-45db-8a9c-d3f80cb5cad1"/>
+			<textField textAdjust="StretchHeight" pattern="dd.MM.yyyy" isBlankWhenNull="true">
+				<reportElement x="350" y="40" width="100" height="29" uuid="ede45fcd-700d-45db-8a9c-d3f80cb5cad1"/>
 				<box>
 					<pen lineWidth="0.5"/>
 				</box>
@@ -247,7 +250,7 @@
 				<textFieldExpression><![CDATA[$F{unloadDate}]]></textFieldExpression>
 			</textField>
 			<textField textAdjust="StretchHeight" isBlankWhenNull="true">
-				<reportElement x="450" y="10" width="90" height="29" uuid="8f3e5e08-7675-4a46-a6b4-3e83d0d0fbd9"/>
+				<reportElement x="450" y="40" width="90" height="29" uuid="8f3e5e08-7675-4a46-a6b4-3e83d0d0fbd9"/>
 				<box>
 					<pen lineWidth="0.5"/>
 				</box>
@@ -257,7 +260,7 @@
 				<textFieldExpression><![CDATA[$F{senderCountryName}]]></textFieldExpression>
 			</textField>
 			<textField textAdjust="StretchHeight" isBlankWhenNull="true">
-				<reportElement x="540" y="10" width="110" height="29" uuid="500974ad-6aa7-4849-9de2-5bd1d90d198b"/>
+				<reportElement x="540" y="40" width="110" height="29" uuid="500974ad-6aa7-4849-9de2-5bd1d90d198b"/>
 				<box>
 					<pen lineWidth="0.5"/>
 				</box>
@@ -267,7 +270,7 @@
 				<textFieldExpression><![CDATA[$F{receiverCountryName}]]></textFieldExpression>
 			</textField>
 			<textField textAdjust="StretchHeight" isBlankWhenNull="true">
-				<reportElement x="30" y="10" width="70" height="29" uuid="0d7f47da-964e-4838-bfcf-4a936407633f"/>
+				<reportElement x="30" y="40" width="70" height="29" uuid="0d7f47da-964e-4838-bfcf-4a936407633f"/>
 				<box>
 					<pen lineWidth="0.5"/>
 				</box>
@@ -277,7 +280,7 @@
 				<textFieldExpression><![CDATA[$F{orderNum}]]></textFieldExpression>
 			</textField>
 			<textField textAdjust="StretchHeight" pattern="dd.MM.yyyy" isBlankWhenNull="true">
-				<reportElement x="100" y="10" width="70" height="29" uuid="9889a132-fd7d-4f04-b085-5412d835cc1d"/>
+				<reportElement x="100" y="40" width="70" height="29" uuid="9889a132-fd7d-4f04-b085-5412d835cc1d"/>
 				<box>
 					<pen lineWidth="0.5"/>
 				</box>
@@ -287,7 +290,7 @@
 				<textFieldExpression><![CDATA[$F{cargoNum}]]></textFieldExpression>
 			</textField>
 			<textField textAdjust="StretchHeight" isBlankWhenNull="true">
-				<reportElement key="" mode="Transparent" x="170" y="10" width="70" height="29" uuid="c05f84d5-9493-4ce5-8a0a-3f5641e42cfd"/>
+				<reportElement key="" mode="Transparent" x="170" y="40" width="70" height="29" uuid="c05f84d5-9493-4ce5-8a0a-3f5641e42cfd"/>
 				<box>
 					<pen lineWidth="0.5" lineColor="#000000"/>
 				</box>
@@ -296,8 +299,8 @@
 				</textElement>
 				<textFieldExpression><![CDATA[$F{clientName}]]></textFieldExpression>
 			</textField>
-			<textField textAdjust="StretchHeight" isBlankWhenNull="true">
-				<reportElement x="240" y="10" width="110" height="29" uuid="861e1475-ef46-4d0f-a7c9-06f039b6c352"/>
+			<textField textAdjust="StretchHeight" pattern="dd.MM.yyyy" isBlankWhenNull="true">
+				<reportElement x="240" y="40" width="110" height="29" uuid="861e1475-ef46-4d0f-a7c9-06f039b6c352"/>
 				<box>
 					<pen lineWidth="0.5"/>
 				</box>
@@ -307,7 +310,7 @@
 				<textFieldExpression><![CDATA[$F{loadDate}]]></textFieldExpression>
 			</textField>
 			<textField textAdjust="StretchHeight" isBlankWhenNull="true">
-				<reportElement x="750" y="10" width="100" height="29" uuid="d9cebd17-bac6-4874-bf62-8513b472c4c0"/>
+				<reportElement x="750" y="40" width="100" height="29" uuid="d9cebd17-bac6-4874-bf62-8513b472c4c0"/>
 				<box>
 					<pen lineWidth="0.5"/>
 				</box>
@@ -317,7 +320,7 @@
 				<textFieldExpression><![CDATA[$F{name}]]></textFieldExpression>
 			</textField>
 			<textField textAdjust="StretchHeight" isBlankWhenNull="true">
-				<reportElement x="950" y="10" width="100" height="29" uuid="2d792270-5c07-45b1-97ec-0613e6062230"/>
+				<reportElement x="950" y="40" width="100" height="29" uuid="2d792270-5c07-45b1-97ec-0613e6062230"/>
 				<box>
 					<pen lineWidth="0.5"/>
 				</box>
@@ -327,7 +330,7 @@
 				<textFieldExpression><![CDATA[$F{carrierName}]]></textFieldExpression>
 			</textField>
 			<textField textAdjust="StretchHeight" isBlankWhenNull="true">
-				<reportElement x="1050" y="10" width="100" height="29" uuid="92dc405c-6015-44ff-8345-b518dcfbd4a3"/>
+				<reportElement x="1050" y="40" width="100" height="29" uuid="92dc405c-6015-44ff-8345-b518dcfbd4a3"/>
 				<box>
 					<pen lineWidth="0.5"/>
 				</box>
@@ -337,7 +340,20 @@
 				<textFieldExpression><![CDATA[$F{shippingNum}]]></textFieldExpression>
 			</textField>
 			<textField textAdjust="StretchHeight" isBlankWhenNull="true">
-				<reportElement x="1150" y="10" width="91" height="29" uuid="08beca0e-782b-4855-8445-941127714292"/>
+				<reportElement x="1150" y="40" width="91" height="29" uuid="08beca0e-782b-4855-8445-941127714292">
+					<property name="com.jaspersoft.studio.unit.leftIndent" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Times New Roman"/>
+					<paragraph lineSpacingSize="1.0" leftIndent="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA["\n" + $F{toPrice}]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="StretchHeight" isBlankWhenNull="true">
+				<reportElement x="1330" y="40" width="100" height="29" uuid="9f7fa925-4e7d-42a6-ab23-4953c918b6d2"/>
 				<box>
 					<pen lineWidth="0.5"/>
 				</box>
@@ -346,29 +362,28 @@
 				</textElement>
 			</textField>
 			<textField textAdjust="StretchHeight" isBlankWhenNull="true">
-				<reportElement x="1330" y="10" width="100" height="29" uuid="9f7fa925-4e7d-42a6-ab23-4953c918b6d2"/>
+				<reportElement x="1241" y="40" width="89" height="29" uuid="b620d167-0a9f-4ed0-9037-c855646ca2d9">
+					<property name="com.jaspersoft.studio.unit.leftIndent" value="px"/>
+				</reportElement>
 				<box>
 					<pen lineWidth="0.5"/>
 				</box>
-				<textElement textAlignment="Center" verticalAlignment="Middle">
+				<textElement textAlignment="Left" verticalAlignment="Middle">
 					<font fontName="Times New Roman"/>
+					<paragraph leftIndent="10"/>
 				</textElement>
+				<textFieldExpression><![CDATA["\n" + $F{fromPrice}]]></textFieldExpression>
 			</textField>
 			<textField textAdjust="StretchHeight" isBlankWhenNull="true">
-				<reportElement x="1241" y="10" width="89" height="29" uuid="b620d167-0a9f-4ed0-9037-c855646ca2d9"/>
+				<reportElement x="850" y="40" width="100" height="29" uuid="628947bb-c3d3-4815-9e96-b5ae3dd6c7e5"/>
 				<box>
 					<pen lineWidth="0.5"/>
 				</box>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
 					<font fontName="Times New Roman"/>
 				</textElement>
+				<textFieldExpression><![CDATA["\n" + $F{cargoDetails}]]></textFieldExpression>
 			</textField>
-			<subreport isUsingCache="true" runToBottom="true">
-				<reportElement key="" stretchType="RelativeToTallestObject" x="850" y="10" width="100" height="29" uuid="2b578c16-7985-428b-8085-75cb3fc2205a"/>
-				<dataSourceExpression><![CDATA[new net.sf.jasperreports.engine.data.JRBeanCollectionDataSource
-                  ($F{cargoDetails})]]></dataSourceExpression>
-				<subreportExpression><![CDATA[$P{subReport}]]></subreportExpression>
-			</subreport>
 		</band>
 	</detail>
 	<summary>

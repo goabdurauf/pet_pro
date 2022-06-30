@@ -115,7 +115,7 @@ public class ClientService {
     String[] sheetNames = {"Клиенты"};
     String templateName = "ClientReport.jrxml";
     String fileName = "ClientReport";
-    reportService.getExcelFile(response, new Report<>(templateName, null, sheetNames, fileName, new HashMap<>(), orderReports));
+    reportService.getExcelFile(response, new Report<>(templateName, sheetNames, fileName, new HashMap<>(), orderReports));
   }
 
 }

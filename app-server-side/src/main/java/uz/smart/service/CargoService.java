@@ -585,9 +585,19 @@ public class CargoService {
 
     resCargos.forEach(resCargo -> {
       CargoReport cargoReport = new CargoReport();
-
+      String fromPrice = "";
+      String toPrice = CommonUtils.stringBuilder(resCargo.getPrice().toString(), resCargo.getCurrencyName());
       String cargoDetails = CommonUtils.replace(resCargo.getCargoDetails().toString());
-
+      for (ExpenseDto expenseDto : resCargo.getExpenseList()) {
+        if (expenseDto.getToPrice() != null) {
+          toPrice = toPrice.concat(CommonUtils.stringBuilder(expenseDto.getToPrice().toString(),
+              expenseDto.getToCurrencyName()));
+        }
+        if (expenseDto.getFromPrice() != null) {
+          fromPrice = fromPrice.concat(CommonUtils.stringBuilder(expenseDto.getFromPrice().toString(),
+              expenseDto.getFromCurrencyName()));
+        }
+      }
       cargoReport.setOrderNum(resCargo.getOrderNum());
       cargoReport.setCargoNum(resCargo.getNum());
       cargoReport.setClientName(resCargo.getClientName());
@@ -597,9 +607,11 @@ public class CargoService {
       cargoReport.setReceiverCountryName(resCargo.getReceiverCountryName());
       cargoReport.setStatusName(resCargo.getStatusName());
       cargoReport.setName(resCargo.getName());
-      cargoReport.setCargoDetails(resCargo.getCargoDetails());
+      cargoReport.setCargoDetails(cargoDetails);
       cargoReport.setCarrierName(resCargo.getCarrierName());
       cargoReport.setShippingNum(resCargo.getShippingNum());
+      cargoReport.setToPrice(toPrice);
+      cargoReport.setFromPrice(fromPrice);
 
       cargoReports.add(cargoReport);
 
@@ -612,9 +624,8 @@ public class CargoService {
     List<CargoReport> cargoReports = reportMapper(req);
     String[] sheetNames = {"Грузы"};
     String templateName = "CargoReport.jrxml";
-    String subReportTemplateName = "CargoDetails.jrxml";
     String fileName = "CargoReport";
-    reportService.getExcelFile(response, new Report<>(templateName, subReportTemplateName, sheetNames, fileName, new HashMap<>(), cargoReports));
+    reportService.getExcelFile(response, new Report<>(templateName, sheetNames, fileName, new HashMap<>(), cargoReports));
   }
 
 }

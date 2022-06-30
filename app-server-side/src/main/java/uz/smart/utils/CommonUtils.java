@@ -83,4 +83,8 @@ public class CommonUtils {
             .replace("]", "")
             .replace(",", "");
     }
+
+    public static String stringBuilder(String value1, String value2) {
+       return " ".concat(value1).concat(" ").concat(value2).concat("\n");
+    }
 }
