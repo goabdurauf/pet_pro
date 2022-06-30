@@ -1,4 +1,10 @@
-import {getBalancesByDate, getClientDataForDashboard} from '@/services/service'
+import {
+  getBalancesByDate,
+  getClientDataForDashboard,
+  getDebtReport,
+  getGrowthReport,
+  getOrderGrowthReport
+} from '@/services/service'
 import moment from "moment";
 
 export default ({
@@ -34,6 +40,9 @@ export default ({
           dispatch({
             type: 'queryClients'
           });
+          dispatch({
+            type: 'fetchDebtReports'
+          })
         }
       });
     },
@@ -66,8 +75,44 @@ export default ({
         })
       }
     },
+    * queryGrowthClients({payload}, {call, put, select}) {
+      const dates = payload.date
 
+      let formattedDates = []
+      if (payload.date !== undefined)
+        formattedDates = dates.map(date => date.format('DD.MM.YYYY'))
 
+      const [begin, end] = formattedDates
+
+      let clientsData = yield call(getGrowthReport, { begin, end })
+      let orderData = yield call(getOrderGrowthReport, { begin, end })
+
+      if (clientsData.success) {
+        let clients = clientsData.list.map(item => ({ date: item.date, count: item.clientCount }))
+        let orders = orderData.list.map(item => ({ date: item.date, count: item.orderCount }))
+
+        yield put({
+          type: 'updateState',
+          payload: {
+            growthClients: clients,
+            growthOrders: orders
+          }
+        })
+      }
+    },
+    * fetchDebtReports({payload}, {call, put, select}) {
+      const debtReports = yield call(getDebtReport)
+
+      if (debtReports.success) {
+
+        yield put({
+          type: 'updateState',
+          payload: {
+            debtReports: []
+          }
+        })
+      }
+    }
   },
   reducers: {
     updateState(state, {payload}) {

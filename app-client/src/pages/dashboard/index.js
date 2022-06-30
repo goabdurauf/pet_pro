@@ -2,7 +2,19 @@ import React, {Component} from 'react';
 import {Card, Row, Col, Typography, DatePicker} from 'antd';
 import { SettingOutlined } from '@ant-design/icons'
 import {connect} from "react-redux";
-import {BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, LabelList} from "recharts"
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  LabelList,
+  ResponsiveContainer,
+  LineChart,
+  Line
+} from "recharts"
 import ClientSettingModal from './modal';
 import moment from "moment";
 import locale from "antd/es/date-picker/locale/ru_RU";
@@ -11,7 +23,8 @@ import locale from "antd/es/date-picker/locale/ru_RU";
 class Dashboard extends Component {
   render() {
     const {dashboard, dispatch} = this.props;
-    const {barData, clientData, isModalOpen} = dashboard;
+    const {barData, clientData, isModalOpen, growthClients, growthOrders, debtReports} = dashboard;
+    const { RangePicker } = DatePicker
 
     const hendleDateChange = (val) => {
       if (val !== null) {
@@ -71,6 +84,7 @@ class Dashboard extends Component {
         })
       }
     };
+
     const handleClientSetting = () => {
       dispatch({
         type: 'dashboard/updateState',
@@ -79,6 +93,7 @@ class Dashboard extends Component {
         }
       })
     };
+
     const handleSetClientSetting = (values) => {
       dispatch({
         type: 'dashboard/updateState',
@@ -94,6 +109,16 @@ class Dashboard extends Component {
       })
     };
 
+    const handleClientsDateChange = (value) => {
+     if (value !== null) {
+       dispatch({
+         type: 'dashboard/queryGrowthClients',
+         payload: {
+           date: value
+         }
+       })
+     }
+    }
 
     return (
       <div className="users-page">
@@ -118,6 +143,59 @@ class Dashboard extends Component {
               </Card>
             </Col>
           </Row>
+
+
+          <div className='mt-5'>
+            <RangePicker locale={locale} onChange={handleClientsDateChange} />
+            <Row className='mt-3'>
+              <Col>
+                <Typography.Title level={4}>Темп роста кол-во клиентов</Typography.Title>
+                <Row className='mt-4'>
+                  <Col>
+                    <LineChart
+                      width={800}
+                      height={460}
+                      data={growthClients}
+                      margin={{
+                        left: -25
+                      }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="date" />
+                      <YAxis  tickCount={4} dataKey='count' padding={{bottom: 20, top: 20}}  />
+                      <Tooltip />
+                      <Legend />
+                      <Line type='monotone' dataKey="count" stroke="#8884d8" activeDot={{ r: 8 }} />
+                    </LineChart>
+                  </Col>
+                </Row>
+              </Col>
+              <Col>
+                <Typography.Title level={4}>Темп роста кол-во Заказов</Typography.Title>
+                <Row className='mt-4'>
+                  <Col>
+                    <LineChart
+                      width={800}
+                      height={460}
+                      data={growthOrders}
+                      margin={{
+                        left: -25
+                      }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="date" />
+                      <YAxis  tickCount={4} dataKey='count' padding={{bottom: 20, top: 20}}  />
+                      <Tooltip />
+                      <Legend />
+                      <Line type='monotone' dataKey="count" stroke="#8884d8" activeDot={{ r: 8 }} />
+                    </LineChart>
+                  </Col>
+                </Row>
+              </Col>
+            </Row>
+          </div>
+
+
 
         </Card>
 

@@ -238,6 +238,8 @@ class Shipping extends Component {
       const itemListTotal = shipping.pagination.total
       searchParams.size = itemListTotal
 
+      console.log(shipping.pagination)
+
       dispatch({
         type: 'shipping/download',
         payload: searchParams
